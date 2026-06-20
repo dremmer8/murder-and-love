@@ -1,6 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerController : MonoBehaviour
@@ -15,7 +14,7 @@ public class PlayerController : MonoBehaviour
     public float gravity = 20f;
 
     [Header("Camera Settings")]
-    public float lookSpeed = 2f;
+    public float lookSpeed = 0.2f; 
     public float lookXLimit = 85f;
 
     [Header("Crouch Settings")]
@@ -29,12 +28,59 @@ public class PlayerController : MonoBehaviour
     private int numberOfJumps;
     private bool canMove = true;
 
+    private InputAction moveAction;
+    private InputAction lookAction;
+    private InputAction jumpAction;
+    private InputAction sprintAction;
+    private InputAction crouchAction;
+
+    private void Awake()
+    {
+        moveAction = new InputAction("Move", InputActionType.Value, "Vector2");
+        moveAction.AddCompositeBinding("2DVector")
+            .With("Up", "<Keyboard>/w")
+            .With("Down", "<Keyboard>/s")
+            .With("Left", "<Keyboard>/a")
+            .With("Right", "<Keyboard>/d");
+
+        lookAction = new InputAction("Look", InputActionType.Value, "Vector2");
+        lookAction.AddBinding("<Pointer>/delta");
+
+        jumpAction = new InputAction("Jump", InputActionType.Button);
+        jumpAction.AddBinding("<Keyboard>/space");
+
+        sprintAction = new InputAction("Sprint", InputActionType.Button);
+        sprintAction.AddBinding("<Keyboard>/leftShift");
+
+        crouchAction = new InputAction("Crouch", InputActionType.Button);
+        crouchAction.AddBinding("<Keyboard>/leftCtrl");
+    }
+
+    private void OnEnable()
+    {
+        moveAction.Enable();
+        lookAction.Enable();
+        jumpAction.Enable();
+        sprintAction.Enable();
+        crouchAction.Enable();
+    }
+
+    private void OnDisable()
+    {
+        moveAction.Disable();
+        lookAction.Disable();
+        jumpAction.Disable();
+        sprintAction.Disable();
+        crouchAction.Disable();
+    }
+
     void Start()
     {
-        characterController = GetComponent<CharacterController>();
-        
         Cursor.lockState = CursorLockMode.Locked;
+
         Cursor.visible = false;
+        
+        characterController = GetComponent<CharacterController>();
 
         if (playerCamera != null)
         {
@@ -46,23 +92,26 @@ public class PlayerController : MonoBehaviour
     {
         if (canMove && playerCamera != null)
         {
-            rotationX += -Input.GetAxis("Mouse Y") * lookSpeed;
+            Vector2 lookInput = lookAction.ReadValue<Vector2>();
+
+            rotationX += -lookInput.y * lookSpeed;
             rotationX = Mathf.Clamp(rotationX, -lookXLimit, lookXLimit);
             playerCamera.transform.localRotation = Quaternion.Euler(rotationX, 0, 0);
             
-            transform.Rotate(0, Input.GetAxis("Mouse X") * lookSpeed, 0);
+            transform.Rotate(0, lookInput.x * lookSpeed, 0);
         }
 
-        float horizontal = Input.GetAxisRaw("Horizontal");
-        float vertical = Input.GetAxisRaw("Vertical");
+        Vector2 moveInput = moveAction.ReadValue<Vector2>();
+        float horizontal = moveInput.x;
+        float vertical = moveInput.y;
 
         Vector3 forward = transform.TransformDirection(Vector3.forward);
         Vector3 right = transform.TransformDirection(Vector3.right);
 
-        bool isRunning = Input.GetKey(KeyCode.LeftShift);
+        bool isRunning = sprintAction.IsPressed();
         float currentSpeed = isRunning ? runSpeed : walkSpeed;
 
-        if (Input.GetKey(KeyCode.LeftControl) && canMove)
+        if (crouchAction.IsPressed() && canMove)
         {
             characterController.height = crouchHeight;
             currentSpeed = crouchSpeed;
@@ -85,7 +134,7 @@ public class PlayerController : MonoBehaviour
         {
             numberOfJumps = 0;
 
-            if (Input.GetButtonDown("Jump") && canMove)
+            if (jumpAction.WasPressedThisFrame() && canMove)
             {
                 moveDirection.y = jumpPower;
                 numberOfJumps++;
@@ -93,7 +142,7 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            if (Input.GetButtonDown("Jump") && canMove && numberOfJumps < 2)
+            if (jumpAction.WasPressedThisFrame() && canMove && numberOfJumps < 2)
             {
                 moveDirection.y = jumpPower;
                 numberOfJumps++;
