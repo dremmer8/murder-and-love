@@ -7,7 +7,7 @@ VAR Fear = 0            // Fear value
 // =============================================================================
 
 // After the cutscene, player walks toward Mandy and this conversation will be automatically triggered.
-
+-> Mandy_story_phase_1
 == Mandy_story_phase_1 ==
 Mandy: Hey, isn't that Miss Lei! Doing laundry at this hour?
 
