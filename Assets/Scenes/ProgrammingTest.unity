@@ -3117,6 +3117,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   inkFile: {fileID: 4900000, guid: 07fdfcd5753272843bec8a4b30a2696f, type: 3}
+  defaultKnotName: Mandy_story_phase_1
+  conditionalKnots: []
 --- !u!1 &1960018140
 GameObject:
   m_ObjectHideFlags: 0
