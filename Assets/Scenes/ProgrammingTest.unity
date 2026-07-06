@@ -3116,7 +3116,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff7690d6943d30c4097de0453588a032, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  inkFile: {fileID: 4900000, guid: 3f50fe9951a17354f87c912d40f5b973, type: 3}
+  inkFile: {fileID: 4900000, guid: 07fdfcd5753272843bec8a4b30a2696f, type: 3}
 --- !u!1 &1960018140
 GameObject:
   m_ObjectHideFlags: 0
