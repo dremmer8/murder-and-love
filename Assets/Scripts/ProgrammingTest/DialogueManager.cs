@@ -108,9 +108,15 @@ public class DialogueManager : MonoBehaviour
         }
     }
 
-    public void EnterDialogue(TextAsset inkFile)
+    public void EnterDialogue(TextAsset inkFile, string knotName = "")
     {
         currentStory = new Story(inkFile.text);
+        
+        if (!string.IsNullOrEmpty(knotName))
+        {
+            currentStory.ChoosePathString(knotName);
+        }
+
         dialogueIsPlaying = true;
         dialoguePanel.SetActive(true);
 
@@ -160,14 +166,14 @@ public class DialogueManager : MonoBehaviour
             currentChoiceIndex = 0;
             
             int index = 0;
-            //enable and initialize choices of current story
+            
             foreach (Choice choice in currentChoices)
             {
                 choices[index].SetActive(true);
                 choicesText[index].text = choice.text;
                 index++;
             }
-            //close choices game objects that are not necessary
+            
             for (int i = index; i < choices.Length; i++)
             {
                 choices[i].SetActive(false);
