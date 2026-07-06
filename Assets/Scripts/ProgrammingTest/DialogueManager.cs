@@ -74,7 +74,7 @@ public class DialogueManager : MonoBehaviour
         }
         else
         {
-            if (Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
+            if (Input.GetKeyDown(KeyCode.Space))
             {
                 ContinueStory();
             }
@@ -114,6 +114,9 @@ public class DialogueManager : MonoBehaviour
         dialogueIsPlaying = true;
         dialoguePanel.SetActive(true);
 
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+
         ContinueStory();
     }
 
@@ -123,6 +126,9 @@ public class DialogueManager : MonoBehaviour
         isChoosing = false;
         dialoguePanel.SetActive(false);
         dialogueText.text = "";
+
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
 
     private void ContinueStory()

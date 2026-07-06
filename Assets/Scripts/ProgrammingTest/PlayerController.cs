@@ -90,6 +90,8 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
+        canMove = !DialogueManager.GetInstance().dialogueIsPlaying;
+
         if (canMove && playerCamera != null)
         {
             Vector2 lookInput = lookAction.ReadValue<Vector2>();
