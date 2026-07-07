@@ -2251,7 +2251,7 @@ MonoBehaviour:
   lookSpeed: 0.3
   lookXLimit: 45
   defaultHeight: 2
-  crouchHeight: 1
+  crouchHeight: 2
   crouchSpeed: 3
 --- !u!143 &1100336035
 CharacterController:
@@ -2973,9 +2973,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 81500899e9686e64a8d73c7ac5e94363, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Amount: 0.002
-  Frequency: 10
-  Smooth: 10
+  useDynamicSpeed: 1
+  smooth: 10
+  resetSpeed: 8
+  verticalAmount: 0.05
+  verticalFrequency: 10
+  horizontalAmount: 0.02
+  horizontalFrequency: 5
 --- !u!1 &1555603560
 GameObject:
   m_ObjectHideFlags: 0
