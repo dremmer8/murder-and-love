@@ -28,6 +28,10 @@ public class PlayerController : MonoBehaviour
     private int numberOfJumps;
     private bool canMove = true;
 
+    private float defaultRadius;
+    private Vector3 defaultCenter;
+    private Vector3 defaultCameraPosition;
+
     private InputAction moveAction;
     private InputAction lookAction;
     private InputAction jumpAction;
@@ -63,6 +67,8 @@ public class PlayerController : MonoBehaviour
         jumpAction.Enable();
         sprintAction.Enable();
         crouchAction.Enable();
+        
+        GameStateManager.OnGameStateChanged += HandleStateChange;
     }
 
     private void OnDisable()
@@ -72,27 +78,43 @@ public class PlayerController : MonoBehaviour
         jumpAction.Disable();
         sprintAction.Disable();
         crouchAction.Disable();
+        
+        GameStateManager.OnGameStateChanged -= HandleStateChange;
     }
 
     void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
-
         Cursor.visible = false;
         
         characterController = GetComponent<CharacterController>();
+        
+        defaultRadius = characterController.radius;
+        defaultCenter = characterController.center;
 
         if (playerCamera != null)
         {
             rotationX = playerCamera.transform.localEulerAngles.x;
+            defaultCameraPosition = playerCamera.transform.localPosition;
         }
+    }
+
+    private void HandleStateChange(GameState newState)
+    {
+        canMove = newState == GameState.Gameplay;
     }
 
     void Update()
     {
-        canMove = !DialogueManager.GetInstance().dialogueIsPlaying;
+        Debug.Log(GameStateManager.CurrentState);
+        
+        if (!canMove)
+        {
+            ApplyGravityOnly();
+            return;
+        }
 
-        if (canMove && playerCamera != null)
+        if (playerCamera != null)
         {
             Vector2 lookInput = lookAction.ReadValue<Vector2>();
 
@@ -113,30 +135,37 @@ public class PlayerController : MonoBehaviour
         bool isRunning = sprintAction.IsPressed();
         float currentSpeed = isRunning ? runSpeed : walkSpeed;
 
-        if (crouchAction.IsPressed() && canMove)
+        if (crouchAction.IsPressed())
         {
+            characterController.radius = Mathf.Min(defaultRadius, crouchHeight / 2f);
             characterController.height = crouchHeight;
+            characterController.center = new Vector3(defaultCenter.x, crouchHeight / 2f, defaultCenter.z);
             currentSpeed = crouchSpeed;
         }
         else
         {
             characterController.height = defaultHeight;
+            characterController.radius = defaultRadius;
+            characterController.center = defaultCenter;
         }
 
-        if (canMove)
+        if (playerCamera != null)
         {
-            float movementDirectionY = moveDirection.y;
-            Vector3 inputDirection = new Vector3(horizontal, 0, vertical).normalized;
-            
-            moveDirection = (forward * inputDirection.z * currentSpeed) + (right * inputDirection.x * currentSpeed);
-            moveDirection.y = movementDirectionY;
+            float cameraY = characterController.height - (defaultHeight - defaultCameraPosition.y);
+            playerCamera.transform.localPosition = new Vector3(defaultCameraPosition.x, cameraY, defaultCameraPosition.z);
         }
+
+        float movementDirectionY = moveDirection.y;
+        Vector3 inputDirection = new Vector3(horizontal, 0, vertical).normalized;
+            
+        moveDirection = (forward * inputDirection.z * currentSpeed) + (right * inputDirection.x * currentSpeed);
+        moveDirection.y = movementDirectionY;
 
         if (characterController.isGrounded)
         {
             numberOfJumps = 0;
 
-            if (jumpAction.WasPressedThisFrame() && canMove)
+            if (jumpAction.WasPressedThisFrame())
             {
                 moveDirection.y = jumpPower;
                 numberOfJumps++;
@@ -144,7 +173,7 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            if (jumpAction.WasPressedThisFrame() && canMove && numberOfJumps < 2)
+            if (jumpAction.WasPressedThisFrame() && numberOfJumps < 2)
             {
                 moveDirection.y = jumpPower;
                 numberOfJumps++;
@@ -154,5 +183,16 @@ public class PlayerController : MonoBehaviour
         }
 
         characterController.Move(moveDirection * Time.deltaTime);
+    }
+
+    private void ApplyGravityOnly()
+    {
+        if (!characterController.isGrounded)
+        {
+            moveDirection.x = 0;
+            moveDirection.z = 0;
+            moveDirection.y -= gravity * Time.deltaTime;
+            characterController.Move(moveDirection * Time.deltaTime);
+        }
     }
 }

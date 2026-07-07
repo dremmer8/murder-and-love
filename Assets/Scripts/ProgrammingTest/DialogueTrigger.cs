@@ -29,7 +29,7 @@ public class DialogueTrigger : MonoBehaviour
 
     private void Update()
     {
-        if (playerInRange && !DialogueManager.GetInstance().dialogueIsPlaying)
+        if (playerInRange && GameStateManager.CurrentState == GameState.Gameplay)
         {
             if (Input.GetKey(KeyCode.E))
             {
