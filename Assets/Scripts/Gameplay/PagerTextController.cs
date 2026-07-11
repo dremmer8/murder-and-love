@@ -1,6 +1,7 @@
 using TMPro;
 using UnityEngine;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 
 public class PagerTextController : MonoBehaviour
 {
@@ -41,7 +42,7 @@ public class PagerTextController : MonoBehaviour
     {
         isVisible =!isVisible;
     if (isVisible)
-    {
+    {truePager.SetActive(true);
         foreach (var pager in propPagers)
         {
             pager.SetActive(false);
@@ -49,6 +50,7 @@ public class PagerTextController : MonoBehaviour
     }
     else
     {
+        truePager.SetActive(false);
         foreach (var pager in propPagers)
         {
             pager.SetActive(true);
@@ -59,6 +61,22 @@ public class PagerTextController : MonoBehaviour
     }
 
 
+void Update()
+{
+    // Tab toggles pager, left/right arrows scroll
+    if (Input.GetKeyDown(KeyCode.Tab))
+    {
+        TogglePager();
+    }
+    if (Input.GetKeyDown(KeyCode.LeftArrow))
+    {
+        ScrollLeft();
+    }
+    if (Input.GetKeyDown(KeyCode.RightArrow))
+    {
+        ScrollRight();
+    }
+}
 
    
     public void PokePager()

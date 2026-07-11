@@ -63,8 +63,6 @@ public class BasketSlot : MonoBehaviour
         _prevWorldPos = transform.position;
         _prevWorldRot = transform.rotation;
 
-        if (_item == null) return;
-
         if (worldDelta.sqrMagnitude > 1e-8f)
         {
             _offset += transform.InverseTransformDirection(-worldDelta) * impulse;
@@ -84,7 +82,7 @@ public class BasketSlot : MonoBehaviour
         _offset = Vector3.Lerp(_offset, Vector3.zero, Time.deltaTime * returnSpeed);
         _tilt = Vector3.Lerp(_tilt, Vector3.zero, Time.deltaTime * returnSpeed);
 
-        _item.localPosition = _offset;
-        _item.localRotation = Quaternion.Euler(_tilt);
+        transform.localPosition = _restLocalPos + _offset;
+        transform.localRotation = _restLocalRot * Quaternion.Euler(_tilt);
     }
 }
