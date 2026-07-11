@@ -6,6 +6,8 @@ public class PlayerController : MonoBehaviour
 {
     [Header("References")]
     public Camera playerCamera;
+    [Tooltip("Transforms that should move and rotate with this character controller.")]
+    public Transform[] followMovement;
     
     [Header("Movement Settings")]
     public float walkSpeed = 6f;
@@ -182,7 +184,7 @@ public class PlayerController : MonoBehaviour
             moveDirection.y -= gravity * Time.deltaTime;
         }
 
-        characterController.Move(moveDirection * Time.deltaTime);
+        MoveAndSyncFollowers(moveDirection * Time.deltaTime);
     }
 
     private void ApplyGravityOnly()
@@ -192,7 +194,31 @@ public class PlayerController : MonoBehaviour
             moveDirection.x = 0;
             moveDirection.z = 0;
             moveDirection.y -= gravity * Time.deltaTime;
-            characterController.Move(moveDirection * Time.deltaTime);
+            MoveAndSyncFollowers(moveDirection * Time.deltaTime);
+        }
+    }
+
+    private void MoveAndSyncFollowers(Vector3 motion)
+    {
+        Vector3 positionBefore = transform.position;
+        characterController.Move(motion);
+        SyncFollowMovement(transform.position - positionBefore);
+    }
+
+    private void SyncFollowMovement(Vector3 positionDelta)
+    {
+        if (followMovement == null)
+            return;
+
+        foreach (Transform target in followMovement)
+        {
+            if (target == null || target == transform)
+                continue;
+
+            if (positionDelta != Vector3.zero)
+                target.position += positionDelta;
+
+            target.rotation = transform.rotation;
         }
     }
 }

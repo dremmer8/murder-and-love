@@ -5883,6 +5883,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5238895165373792660, guid: 24d806c07e389d646ae2c9475c35b794, type: 3}
+      propertyPath: 'followMovement.Array.data[0]'
+      value: 
+      objectReference: {fileID: 1820617371}
     - target: {fileID: 5559516587709587099, guid: 24d806c07e389d646ae2c9475c35b794, type: 3}
       propertyPath: duration
       value: 1.2
@@ -6999,6 +7003,11 @@ PrefabInstance:
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 2e4afd7be3c5166429be5b5b7f713a7f, type: 3}
   m_PrefabInstance: {fileID: 1811114366}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &1820617371 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 3892102005994003841, guid: 24d806c07e389d646ae2c9475c35b794, type: 3}
+  m_PrefabInstance: {fileID: 1475635636}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1835215484
 PrefabInstance:
