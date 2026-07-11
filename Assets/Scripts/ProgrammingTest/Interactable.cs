@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class Interactable : MonoBehaviour
 {
-    public enum InteractionType { Animation, Transform }
+    public enum InteractionType { Animation, Transform, Pickup }
     public InteractionType type;
 
     public Animator animator;
@@ -38,6 +38,13 @@ public class Interactable : MonoBehaviour
                 }
                 isMoving = true;
             }
+        }else if (type == InteractionType.Pickup)
+        {
+            if (BasketCollector.Instance != null)
+            {
+                BasketCollector.Instance.Collect(GetComponent<CollectibleItem>());
+            }
+           
         }
     }
 
