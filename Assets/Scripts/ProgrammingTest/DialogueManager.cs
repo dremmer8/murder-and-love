@@ -20,7 +20,6 @@ public class DialogueManager : MonoBehaviour
     private static DialogueManager instance;
 
     private bool isChoosing = false;
-    private int currentChoiceIndex = 0;
     
     private float inputDelay = 0.2f;
     private float nextInputTime = 0f;
@@ -58,7 +57,7 @@ public class DialogueManager : MonoBehaviour
 
     private void Update()
     {
-        if (!dialogueIsPlaying)
+        if (GameStateManager.CurrentState != GameState.Dialogue)
         {
             return;
         }
@@ -68,11 +67,7 @@ public class DialogueManager : MonoBehaviour
             return;
         }
 
-        if (isChoosing)
-        {
-            HandleChoiceNavigation();
-        }
-        else
+        if (!isChoosing)
         {
             if (Input.GetKeyDown(KeyCode.Space))
             {
@@ -81,35 +76,10 @@ public class DialogueManager : MonoBehaviour
         }
     }
 
-    private void HandleChoiceNavigation()
-    {
-        if (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.LeftArrow))
-        {
-            currentChoiceIndex++;
-            if (currentChoiceIndex >= currentStory.currentChoices.Count)
-            {
-                currentChoiceIndex = 0;
-            }
-            EventSystem.current.SetSelectedGameObject(choices[currentChoiceIndex]);
-        }
-        else if (Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.RightArrow))
-        {
-            currentChoiceIndex--;
-            if (currentChoiceIndex < 0)
-            {
-                currentChoiceIndex = currentStory.currentChoices.Count - 1;
-            }
-            EventSystem.current.SetSelectedGameObject(choices[currentChoiceIndex]);
-        }
-
-        if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
-        {
-            MakeChoice(currentChoiceIndex);
-        }
-    }
-
     public void EnterDialogue(TextAsset inkFile, string knotName = "")
     {
+        GameStateManager.ChangeState(GameState.Dialogue);
+        
         currentStory = new Story(inkFile.text);
         
         if (!string.IsNullOrEmpty(knotName))
@@ -135,6 +105,8 @@ public class DialogueManager : MonoBehaviour
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+        
+        GameStateManager.ChangeState(GameState.Gameplay);
     }
 
     private void ContinueStory()
@@ -163,7 +135,6 @@ public class DialogueManager : MonoBehaviour
         if (currentChoices.Count > 0)
         {
             isChoosing = true;
-            currentChoiceIndex = 0;
             
             int index = 0;
             
@@ -178,8 +149,6 @@ public class DialogueManager : MonoBehaviour
             {
                 choices[i].SetActive(false);
             }
-
-            StartCoroutine(SelectFirstChoice());
         }
         else
         {
@@ -189,13 +158,6 @@ public class DialogueManager : MonoBehaviour
                 choices[i].SetActive(false);
             }
         }
-    }
-
-    private IEnumerator SelectFirstChoice()
-    {
-        EventSystem.current.SetSelectedGameObject(null);
-        yield return new WaitForEndOfFrame();
-        EventSystem.current.SetSelectedGameObject(choices[0]);
     }
 
     public void MakeChoice(int choiceIndex)
