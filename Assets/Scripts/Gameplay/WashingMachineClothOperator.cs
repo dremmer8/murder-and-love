@@ -2,25 +2,46 @@ using UnityEngine;
 
 public class WashingMachineClothOperator : MonoBehaviour
 {
+    enum Step { OpenDoor, Clothes, CloseDoor, Detergent, Token, Start, Done }
+
     [SerializeField] Camera cam;
     [SerializeField] Animator animator;
-    [SerializeField] Collider basketZone, barrelZone;
+    [SerializeField] Collider basketZone, barrelZone, door, tray, coinSlit, startButton;
+    [SerializeField] Transform clothSet;
     [SerializeField] Transform[] cloths, destinations, track;
-    [SerializeField] float follow = 14f, settle = 10f, barrelT = 0.88f, directionSpeed = 0.8f;
+    [SerializeField] float follow = 14f, settle = 10f, barrelT = 0.88f, directionSpeed = 0.8f, emptyScaleY = 0.2f, dragPad = 0.25f;
     [SerializeField] string directionParam = "direction";
 
-    int idx = -1, done;
-    float t, tVel, direction, directionVel;
+    int idx = -1, snapIdx = -1, done;
+    Step step = Step.OpenDoor;
+    float t, tVel, direction, directionVel, fullScaleY, targetScaleY, scaleYVel;
     Vector3 posVel;
     float totalLen;
     float[] segLen;
-    Plane plane;
     bool snapping;
+
+    int ClothCount
+    {
+        get
+        {
+            if (cloths == null) return 0;
+            int n = cloths.Length;
+            while (n > 0 && !cloths[n - 1]) n--;
+            return n;
+        }
+    }
+
+    Transform GetDest(int i)
+    {
+        if (destinations == null || destinations.Length == 0) return null;
+        return destinations[Mathf.Clamp(i, 0, destinations.Length - 1)];
+    }
 
     void Awake()
     {
         if (!cam) cam = Camera.main;
         if (animator) direction = animator.GetFloat(directionParam);
+        if (clothSet) { fullScaleY = targetScaleY = clothSet.localScale.y; }
         RebuildTrack();
     }
 
@@ -33,14 +54,14 @@ public class WashingMachineClothOperator : MonoBehaviour
         totalLen = 0f;
         for (int i = 0; i < segLen.Length; i++)
             totalLen += segLen[i] = Vector3.Distance(track[i].position, track[i + 1].position);
-        plane = new Plane(Vector3.up, track[track.Length / 2].position);
     }
 
     void Update()
     {
         UpdateDirection();
+        UpdateSetScale();
         if (snapping) { Snap(); return; }
-        if (Input.GetMouseButtonDown(0)) TryGrab();
+        if (Input.GetMouseButtonDown(0) && !TrySequenceClick()) TryGrab();
         if (idx < 0) return;
         if (Input.GetMouseButton(0)) Drag();
         else Release();
@@ -59,28 +80,91 @@ public class WashingMachineClothOperator : MonoBehaviour
         animator.SetFloat(directionParam, direction);
     }
 
+    void UpdateSetScale()
+    {
+        if (!clothSet) return;
+        var s = clothSet.localScale;
+        s.y = Mathf.SmoothDamp(s.y, targetScaleY, ref scaleYVel, 1f / settle);
+        clothSet.localScale = s;
+    }
+
+    bool TrySequenceClick()
+    {
+        if (step == Step.Done || !animator) return false;
+        var ray = cam.ScreenPointToRay(Input.mousePosition);
+        if (!Physics.Raycast(ray, out var hit, 200f)) return false;
+        var c = hit.collider;
+        switch (step)
+        {
+            case Step.OpenDoor when c == door:
+                animator.SetTrigger("DoOpen");
+                step = Step.Clothes;
+                return true;
+            case Step.CloseDoor when c == door:
+                animator.SetTrigger("DoClose");
+                step = Step.Detergent;
+                return true;
+            case Step.Detergent when c == tray:
+                animator.SetTrigger("DoDetergent");
+                step = Step.Token;
+                return true;
+            case Step.Token when c == coinSlit:
+                animator.SetTrigger("DoToken");
+                step = Step.Start;
+                return true;
+            case Step.Start when c == startButton:
+                animator.SetTrigger("DoStart");
+                step = Step.Done;
+                return true;
+        }
+        return c == door || c == tray || c == coinSlit || c == startButton;
+    }
+
     void TryGrab()
     {
-        if (done >= cloths.Length || idx >= 0) return;
+        if (step != Step.Clothes || idx >= 0) return;
+        int count = ClothCount;
+        if (done >= count || !cloths[done]) return;
         var ray = cam.ScreenPointToRay(Input.mousePosition);
-        if (!Physics.Raycast(ray, out var hit, 200f)) return;
+        var hits = Physics.RaycastAll(ray, 200f);
+        bool ok = false;
         var c = cloths[done];
-        if (hit.collider != basketZone && hit.transform != c && !hit.transform.IsChildOf(c)) return;
+        foreach (var hit in hits)
+        {
+            if (hit.collider == basketZone) { ok = true; break; }
+            if (hit.transform == c || hit.transform.IsChildOf(c)) { ok = true; break; }
+        }
+        if (!ok) return;
         idx = done;
         t = 0f;
         tVel = 0f;
         posVel = Vector3.zero;
         c.SetParent(null, true);
+        if (clothSet && count > 0)
+            targetScaleY = Mathf.Lerp(fullScaleY, emptyScaleY, (done + 1) / (float)count);
     }
 
     void Drag()
     {
-        var ray = cam.ScreenPointToRay(Input.mousePosition);
-        if (!plane.Raycast(ray, out var e)) return;
         float st = 1f / follow;
-        float target = ClosestT(ray.GetPoint(e));
+        float target = ScreenTrackT();
         t = Mathf.SmoothDamp(t, target, ref tVel, st);
         DampTo(cloths[idx], SamplePos(t), SampleRot(t), st);
+    }
+
+    float ScreenTrackT()
+    {
+        float minX = float.MaxValue, maxX = float.MinValue;
+        for (int i = 0; i < track.Length; i++)
+        {
+            if (!track[i]) continue;
+            float x = cam.WorldToScreenPoint(track[i].position).x;
+            minX = Mathf.Min(minX, x);
+            maxX = Mathf.Max(maxX, x);
+        }
+        float span = Mathf.Max(maxX - minX, 1f);
+        float pad = span * dragPad;
+        return Mathf.Clamp01(Mathf.InverseLerp(minX - pad, maxX + pad, Input.mousePosition.x));
     }
 
     void DampTo(Transform tr, Vector3 pos, Quaternion rot, float smoothTime)
@@ -93,38 +177,30 @@ public class WashingMachineClothOperator : MonoBehaviour
     {
         var ray = cam.ScreenPointToRay(Input.mousePosition);
         bool ok = t >= barrelT || (barrelZone && barrelZone.Raycast(ray, out _, 200f));
-        if (ok) snapping = true;
-        else { cloths[idx].SetPositionAndRotation(track[0].position, track[0].rotation); idx = -1; posVel = Vector3.zero; }
+        if (ok && snapIdx < 0) { snapIdx = idx; snapping = true; }
+        else if (!ok) { cloths[idx].SetPositionAndRotation(track[0].position, track[0].rotation); idx = -1; posVel = Vector3.zero; if (clothSet && ClothCount > 0) targetScaleY = Mathf.Lerp(fullScaleY, emptyScaleY, done / (float)ClothCount); }
     }
 
     void Snap()
     {
-        var tr = cloths[idx];
-        var dst = destinations[idx];
+        var dst = GetDest(snapIdx);
+        if (snapIdx < 0 || snapIdx >= ClothCount || !cloths[snapIdx] || !dst)
+        {
+            snapping = false;
+            snapIdx = idx = -1;
+            return;
+        }
+        var tr = cloths[snapIdx];
         float st = 1f / settle;
         DampTo(tr, dst.position, dst.rotation, st);
         if ((tr.position - dst.position).sqrMagnitude > 1e-4f || Quaternion.Angle(tr.rotation, dst.rotation) > 0.5f) return;
         tr.SetPositionAndRotation(dst.position, dst.rotation);
         tr.SetParent(dst, true);
         done++;
-        idx = -1;
+        if (done >= ClothCount) step = Step.CloseDoor;
+        idx = snapIdx = -1;
         posVel = Vector3.zero;
         snapping = false;
-    }
-
-    float ClosestT(Vector3 p)
-    {
-        float best = 0f, dist = float.MaxValue, walked = 0f;
-        for (int i = 0; i < segLen.Length; i++)
-        {
-            Vector3 a = track[i].position, b = track[i + 1].position;
-            Vector3 ab = b - a;
-            float u = ab.sqrMagnitude > 1e-6f ? Mathf.Clamp01(Vector3.Dot(p - a, ab) / ab.sqrMagnitude) : 0f;
-            float d = (p - (a + ab * u)).sqrMagnitude;
-            if (d < dist) { dist = d; best = (walked + segLen[i] * u) / totalLen; }
-            walked += segLen[i];
-        }
-        return best;
     }
 
     Vector3 SamplePos(float u)
