@@ -23446,25 +23446,13 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1502710317816812059}
     m_Modifications:
-    - target: {fileID: 1863002864110541005, guid: 440be01638b24c34786e3b838f0b3a34, type: 3}
-      propertyPath: m_StaticEditorFlags
-      value: 2147483647
-      objectReference: {fileID: 0}
-    - target: {fileID: 2118067007625134336, guid: 440be01638b24c34786e3b838f0b3a34, type: 3}
-      propertyPath: m_StaticEditorFlags
-      value: 2147483647
-      objectReference: {fileID: 0}
-    - target: {fileID: 5858831868335001290, guid: 440be01638b24c34786e3b838f0b3a34, type: 3}
-      propertyPath: m_StaticEditorFlags
-      value: 2147483647
-      objectReference: {fileID: 0}
     - target: {fileID: 6719973659250365724, guid: 440be01638b24c34786e3b838f0b3a34, type: 3}
       propertyPath: m_Name
       value: CoinMachine
       objectReference: {fileID: 0}
     - target: {fileID: 6719973659250365724, guid: 440be01638b24c34786e3b838f0b3a34, type: 3}
-      propertyPath: m_StaticEditorFlags
-      value: 2147483647
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8311203784212813538, guid: 440be01638b24c34786e3b838f0b3a34, type: 3}
       propertyPath: m_LocalPosition.x
@@ -23509,7 +23497,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 3199900537930497207, guid: 440be01638b24c34786e3b838f0b3a34, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 0}
   m_SourcePrefab: {fileID: 100100000, guid: 440be01638b24c34786e3b838f0b3a34, type: 3}
 --- !u!4 &5132975186010745176 stripped
 Transform:
