@@ -85,6 +85,9 @@ VAR told_lie_busy = false
 // =============================================================================
 == intro ==
 All we wanted was to settle down in Lam Tong City.
+-> intro_intruder
+
+= intro_intruder
 But on one midnight summer all hope was shattered. When a <>
 * loan shark
 * gangster

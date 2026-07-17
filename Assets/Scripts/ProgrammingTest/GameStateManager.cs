@@ -4,6 +4,7 @@ public enum GameState
 {
     Gameplay,
     Dialogue,
+    Pager,
     Paused
 }
 
