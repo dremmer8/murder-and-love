@@ -22,7 +22,7 @@ public class InteractionSystem : MonoBehaviour
 
         if (Physics.Raycast(ray, out hit, interactionDistance, interactableLayer))
         {
-            Interactable interactable = hit.collider.GetComponent<Interactable>();
+            Interactable interactable = hit.collider.GetComponentInParent<Interactable>();
             if (interactable != null)
             {
                 interactable.Interact();

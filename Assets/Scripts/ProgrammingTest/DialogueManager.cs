@@ -206,6 +206,42 @@ public class DialogueManager : MonoBehaviour
         internalPresenter.Begin(currentStory, ExitAfterPresenter);
     }
 
+    /// <summary>
+    /// Stops the current presentation without treating it as a completed knot.
+    /// Used when another dialogue must force-start.
+    /// </summary>
+    public void AbortActivePresentation()
+    {
+        if (internalPresenter != null && internalPresenter.IsActive)
+            internalPresenter.Abort();
+
+        if (introPresenter != null && introPresenter.IsActive)
+            introPresenter.Abort();
+
+        if (GlobalVariableOperator.Instance != null)
+        {
+            GlobalVariableOperator.Instance.SyncFromStory(currentStory);
+            GlobalVariableOperator.Instance.UnbindStory();
+        }
+
+        activeKnotName = "";
+        currentStory = null;
+        dialogueIsPlaying = false;
+        isChoosing = false;
+        activeMode = DialoguePresentationMode.Standard;
+
+        if (dialoguePanel != null)
+            dialoguePanel.SetActive(false);
+
+        if (dialogueText != null)
+            dialogueText.text = "";
+
+        HideChoiceButtons();
+
+        if (GameStateManager.CurrentState == GameState.Dialogue)
+            GameStateManager.ChangeState(GameState.Gameplay);
+    }
+
     private void BeginPager()
     {
         PagerTextController pager = pagerController != null ? pagerController : PagerTextController.Instance;
@@ -234,9 +270,7 @@ public class DialogueManager : MonoBehaviour
         activeMode = DialoguePresentationMode.Standard;
         HideChoiceButtons();
 
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
-
+        // Pager does not own the cursor — leave lock/visibility as-is.
         if (GameStateManager.CurrentState == GameState.Dialogue)
             GameStateManager.ChangeState(GameState.Gameplay);
 
@@ -269,6 +303,8 @@ public class DialogueManager : MonoBehaviour
 
     private void ExitAfterPresenter()
     {
+        DialoguePresentationMode endingMode = activeMode;
+
         if (GlobalVariableOperator.Instance != null)
         {
             GlobalVariableOperator.Instance.SyncFromStory(currentStory);
@@ -290,8 +326,14 @@ public class DialogueManager : MonoBehaviour
 
         HideChoiceButtons();
 
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        // Internal monologue never took the cursor; don't steal it back
+        // (e.g. minigame / pager UI that needs it visible).
+        if (endingMode != DialoguePresentationMode.InternalMonologue
+            && endingMode != DialoguePresentationMode.Pager)
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+        }
 
         if (GameStateManager.CurrentState == GameState.Dialogue)
             GameStateManager.ChangeState(GameState.Gameplay);

@@ -29,7 +29,13 @@ public class PauseMenu : MonoBehaviour
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            // Let active minigames consume Escape instead of opening pause.
+            if (MinigameActivator.IsAnyActive)
+                return;
+
             HandleEscape();
+        }
     }
 
     void HandleEscape()

@@ -8,6 +8,9 @@ public class BasketSlot : MonoBehaviour
     public float impulse = 1.8f;
     public float returnSpeed = 5f;
 
+    [Tooltip("If set, starts when an item finishes landing in this slot.")]
+    public DialogueTrigger onOccupiedDialogue;
+
     Transform _item;
     Vector3 _restLocalPos;
     Quaternion _restLocalRot;
@@ -15,6 +18,7 @@ public class BasketSlot : MonoBehaviour
     Quaternion _prevWorldRot;
     Vector3 _offset;
     Vector3 _tilt;
+    bool _occupiedDialogueFired;
 
     public bool IsOccupied => _item != null;
 
@@ -40,6 +44,12 @@ public class BasketSlot : MonoBehaviour
         item.SetParent(transform, false);
         item.localPosition = Vector3.zero;
         item.localRotation = Quaternion.identity;
+
+        if (!_occupiedDialogueFired && onOccupiedDialogue != null
+            && onOccupiedDialogue.TryStartDialogue())
+        {
+            _occupiedDialogueFired = true;
+        }
     }
 
     public Transform Detach()

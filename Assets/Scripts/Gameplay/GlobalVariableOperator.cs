@@ -7,6 +7,7 @@ public class GlobalVariableOperator : MonoBehaviour
     public static GlobalVariableOperator Instance { get; private set; }
 
     public const string GameProgressionVar = "game_progression";
+    public const string StoryPhaseVar = "story_phase";
 
     static readonly string[] TrackedVariables =
     {
@@ -18,7 +19,7 @@ public class GlobalVariableOperator : MonoBehaviour
         "did_insult",
         "told_lie_sick",
         "told_lie_busy",
-        "story_phase",
+        StoryPhaseVar,
         GameProgressionVar
     };
 
@@ -59,7 +60,7 @@ public class GlobalVariableOperator : MonoBehaviour
 
             if (name == GameProgressionVar)
                 _variables[name] = gameProgression;
-            else if (name == "story_phase")
+            else if (name == StoryPhaseVar)
                 _variables[name] = 1;
             else
                 _variables[name] = false;
@@ -106,6 +107,17 @@ public class GlobalVariableOperator : MonoBehaviour
             && _boundStory.variablesState.GlobalVariableExistsWithName(GameProgressionVar))
         {
             _boundStory.variablesState[GameProgressionVar] = value;
+        }
+    }
+
+    public void SetStoryPhase(int value)
+    {
+        _variables[StoryPhaseVar] = value;
+
+        if (_boundStory != null
+            && _boundStory.variablesState.GlobalVariableExistsWithName(StoryPhaseVar))
+        {
+            _boundStory.variablesState[StoryPhaseVar] = value;
         }
     }
 

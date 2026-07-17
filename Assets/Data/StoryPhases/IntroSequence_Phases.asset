@@ -19,4 +19,5 @@ MonoBehaviour:
   - storyPhase: 1
     knotName: intro
     requiredProgression: 0
+    maxProgression: 9999
     playOnce: 1

@@ -4,7 +4,14 @@ public class InkStoryCommands : MonoBehaviour
 {
     public void ChangeCamera(string cameraId)
     {
-        Debug.Log($"ChangeCamera: {cameraId}");
+        if (CameraManager.Instance == null)
+        {
+            Debug.LogWarning($"ChangeCamera: No CameraManager in scene. Requested '{cameraId}'.");
+            return;
+        }
+
+        if (!CameraManager.Instance.TransitionToCamera(cameraId))
+            Debug.LogWarning($"ChangeCamera: Failed to transition to '{cameraId}'.");
     }
 
     public void TriggerAnimation(string targetId, string animationName)

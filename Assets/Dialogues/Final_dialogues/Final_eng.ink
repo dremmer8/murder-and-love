@@ -84,6 +84,7 @@ VAR told_lie_busy = false
 //  PHASE 1 intro on black screen
 // =============================================================================
 == intro ==
+~ game_progression = 1
 All we wanted was to settle down in Lam Tong City.
 -> intro_intruder
 
@@ -115,7 +116,6 @@ Covered in blood was
 He held me with his bloodied hands, telling me that as long as the blood was washed off our clothes, everything would be all right.
 
 And so here I am, at 3 a.m., trying to wash away the crime we committed.
-~ game_progression = 1
 -> END
 
 // =============================================================================
@@ -123,6 +123,7 @@ And so here I am, at 3 a.m., trying to wash away the crime we committed.
 // =============================================================================
 
 == LAU_story_phase_1 ==
+~ game_progression = 3
 { LAU_story_phase_1 > 1: -> repeat_visit }
 
 // After talking to Mandy, then walking past Lau for the first time.
@@ -200,7 +201,6 @@ Drunk Cop: Your boyfriend is lucky to have someone like you to wash his clothes.
 
 = ending
 Go on and wash your clothes then, young lady.
-~ game_progression = 3
 -> END
 
 = repeat_visit
@@ -210,13 +210,14 @@ Lau: All good?
     + [Ask which machine]
         You: Which machine did I put my clothes in again?
         Drunk Cop: Hmmm... Nubmer four?
-- ~ game_progression = 3
+-
 -> END
 
 // =============================================================================
 //  PHASE 2 getting into the laudromat
 // =============================================================================
 == Mandy_story_phase_1 ==
+~ game_progression = 2
 Mrs. Wong: Hey!
 Mrs. Wong: Isn't that Miss Lee! Doing laundry at this hour?
 
@@ -322,7 +323,6 @@ Mrs. Wong: Here you go. Machine Nr. 4. It's the one on your left.
  * *[...]
  You: ...
 -
-    ~ game_progression = 2
     -> END
     
     
@@ -339,16 +339,16 @@ Mrs. Wong: Here you go. Machine Nr. 4. It's the one on your left.
 // =============================================================================
 
 == Thought_about_not_leaving_clothes ==
-You: I shouldn't leave the clothes alone here. I saw some detergent on the table behind the chairs.
 ~ game_progression = 4
+You: I shouldn't leave the clothes alone here. I saw some detergent on the table behind the chairs.
 -> END
 
 // =============================================================================
 //  PHASE 5 after interacting with the detergent
 // =============================================================================
 == Thought_about_empty_detergent ==
-You: Shit, they don't have heavy-duty detergent anymore.
 ~ game_progression = 5
+You: Shit, they don't have heavy-duty detergent anymore.
 -> END
 
 
@@ -357,6 +357,7 @@ You: Shit, they don't have heavy-duty detergent anymore.
 // =============================================================================
 
 == Mandy_story_phase_2 ==
+~ game_progression = 6
 *[(Ask about detergent)]
 You: Mrs. Wong, there's no heavy-duty laundry detergent left.
 Mrs. Wong: Is that so? I remember I put a lot of regular detergent there, isn’t that enough?
@@ -399,7 +400,6 @@ Mrs. Wong: Here is the key to the backroom. It's near Washer Nr. X.
 Mrs. Wong: The detergent you want is called Enzyme Laundry Detergent, the blue one on the shelf.
 You: Thank you, Mrs. Wong.
 
-~ game_progression = 6
 -> END
 
 // =============================================================================
@@ -409,6 +409,7 @@ You: Thank you, Mrs. Wong.
 // Press E in front of Lau, after detergent check happened 
 
 == LAU_story_phase_2 ==
+~ game_progression = 7
 {LAU_story_phase_2 == 1: -> first_time | -> repeat_visit }
 
     = repeat_visit
@@ -418,7 +419,6 @@ You: Thank you, Mrs. Wong.
         Drunk Cop: Can't get enough of me, huh?
     I told you you can get detergent at the desk
     }
-    ~ game_progression = 7
     -> END
 
     = first_time
@@ -428,7 +428,6 @@ Drunk Cop: What does a beauty like you want with me?
         * [(Asking politely for detergent)]
         You: Sorry to bother you. Do you have some heavy duty detergent by chance?
         * [(End the conversation)] Nothing.
-            ~ game_progression = 7
             -> END
     
     - 
@@ -442,14 +441,12 @@ Drunk Cop: What does a beauty like you want with me?
         You: No. Do you have the detergent or not?
         Drunk Cop: Why do you need heavy duty detergent anyways?
             ->reason_for_detergent
-            ~ game_progression = 7
             -> END
             
         * [I have a boyfriend.] ...I have a boyfriend.
             Drunk Cop: Wow, someone is deeply in love.
             Drunk Cop: ...Why do you need heavy duty detergent anyways?
             ->reason_for_detergent
-            ~ game_progression = 7
             -> END
             
         * [(Disgust)] 
@@ -482,7 +479,6 @@ Drunk Cop: What does a beauty like you want with me?
             Drunk Cop: What? I have the best nose of the whole precinct.
         - Drunk Cop: Anyways, I don't have the special detergent for you. 
         You should go ask Mrs. Wong.
-    ~ game_progression = 7
     -> END
     
     
@@ -493,6 +489,7 @@ Drunk Cop: What does a beauty like you want with me?
 { black_out_happened: 
     -> Inner_voice_phase_2 
 }
+~ game_progression = 8
 { Inner_voice_backroom_phase_1:
     - 1: 
     Thoughts: I've yet to cry. Yet to be sorrowful or to mourn. 
@@ -511,45 +508,43 @@ Drunk Cop: What does a beauty like you want with me?
     Thoughts: For how long can I keep up this facade, these lies?
 }
 
-~ game_progression = 8
 -> END
 
 // =============================================================================
 //  PHASE 9 Directly after the innervoice, pager beeps as interruption.
 // =============================================================================
 == Boyfriend_pager_phase_1 ==
-Jason: Are you there?
-Jason: Good. Has anyone seen you? Anyone suspicious?
-Jason: Play it cool, sweetheart.
-Jason: Don't forget — heavy-duty detergent.
-Jason: Then hurry up!
-Jason: I love you. After this we use the savings and go on a trip. Just me and you. Bonnie and Clyde.
-Jason: Packed up. Driving to the harbor.
-Jason: Be quick with cleaning up. TTYL.
 ~ game_progression = 9
+J: Has anyone seen you? Anyone suspicious?
+J: Play it cool, sweetheart.
+J: Don't forget: heavy-duty detergent.
+J: I love you. After this we use the savings and go on a trip. Just me and you. Bonnie and Clyde.
+J: Packed up. Driving to the harbor.
+J: Be quick with cleaning up. TTYL.
 -> END
 
 // =============================================================================
 //  PHASE 10 After pager phase for around 5 sec, if player didn't find the detergent yet.
 // =============================================================================
 == Thought_about_how_detergent_looks ==
-Thoughts: Mrs. Wong said that the heavy-duty detergent is blue and should be somewhere on the shelf.
 ~ game_progression = 11
+Thoughts: Mrs. Wong said that the heavy-duty detergent is blue and should be somewhere on the shelf.
 -> END
 
 // =============================================================================
 //  PHASE 11 After player got the detergent.
 // =============================================================================
 == Thought_about_got_right_detergent ==
+~ game_progression = 12
 ~ has_detergent = true
 Thoughts: That's the correct detergent. I need to put these into washer Nr. 4 as soon as possible.
-~ game_progression = 12
 -> END
 
 // =============================================================================
 //  PHASE 12 During the first washing mini game
 // =============================================================================
 == Thought_washing_clothes_1 ==
+~ game_progression = 13
 Thoughts: Jason was wearing this shirt when we met. 
 On a rainy day, I accidentally slipped and my groceries fell to the ground. 
 He was the one who helped me pick them up. We were together two weeks later.
@@ -557,23 +552,23 @@ I thought we would continue living this ordinary life together, in love.
 Who could have thought...
 I wonder if we could ever forget what happened after we washed these. 
 Could we really put these shirts on and pretend they were never stained with blood?
-~ game_progression = 13
 -> END
 
 // =============================================================================
 //  PHASE 13 after the first washing mini game, commenting that she needs another round
 // =============================================================================
 == Thought_about_need_another_washer ==
+~ game_progression = 14
 Thoughts: Shit. Still many clothes left. 
 I should have thought that one round is not enough.
 I need to buy another laundry coin from Mrs. Wong.
-~ game_progression = 14
 -> END
 
 // =============================================================================
 //  PHASE 14 Press E in front of mandy, After the first washing mini game
 // =============================================================================
 == Mandy_story_phase_3 ==
+~ game_progression = 15
 { Mandy_story_phase_3:
     - 1: -> Ask_for_laundry_coin_Mandy
     - else:
@@ -582,7 +577,6 @@ I need to buy another laundry coin from Mrs. Wong.
     You: Not yet. Where is the coin change machine again?
     Mrs. Wong: It's the one in the corner.
     You: Thanks.
-    ~ game_progression = 15
     -> END
 }
     
@@ -641,7 +635,6 @@ Mrs Wong: Are you sure? I have change here.
    You: It's okay, I need some change for payphones anyways.
    -
    Mrs Wong: Sure.
-~ game_progression = 15
 -> END
 
 // =============================================================================
@@ -656,6 +649,7 @@ Thoughts: I just need to put it in...
 // =============================================================================
 // will be triggered everytime putting bill into the coin machine
 == Interaction_with_coin_machine ==
+~ game_progression = 16
 { Interaction_with_coin_machine:
     - 1: 
     Thoughts: Shit, this machine always has this problem. But trying again normally helps.
@@ -664,38 +658,38 @@ Thoughts: I just need to put it in...
     else：
     Thoughts: Finally... I should go back to Mrs. Wong to buy the laundry coin.
 }
-~ game_progression = 16
 -> END
 
 // =============================================================================
 //  PHASE 17 Will be triggered after the coin machine mini game
 // =============================================================================    
 == Boyfriend_pager_phase_2 ==
-//pager beeps and vibrates
-Jason: A cop just stopped me.
-Jason: Asked a lot. I lied about the trunk. Nothing to worry about, sweetheart.
-Jason: Just a speeding ticket. 70 in a 50.
-Jason: I'm at the harbor already.
-Jason: You're doing wonderful. Blessing to have you by my side.
-Jason: Just continue. We're so close. Love u.
 ~ game_progression = 17
+//pager beeps and vibrates
+J: A cop just stopped me.
+J: Asked a lot. I lied about the trunk. Nothing to worry about, sweetheart.
+J: Just a speeding ticket. 70 in a 50.
+J: I'm at the harbor already.
+J: You're doing wonderful. Blessing to have you by my side.
+J: Just continue. We're so close. Love u.
 -> END
 
 // =============================================================================
 //  PHASE 18 Press E in front of Mandy, after get coins
 // =============================================================================
 == Mandy_story_phase_4 ==
+~ game_progression = 18
 Mrs. Wong: You get your change now?
 *[Yes. (pay)]
 You: Yes, here.
 Mrs. Wong: Here you are. Washer Nr. 9.
-~ game_progression = 18
 -> END
 
 // =============================================================================
 //  PHASE 19 Triggered automatically, as player drops cloth walking towards the other washer.
 // =============================================================================
 == LAU_story_phase_3 ==
+~ game_progression = 19
 Drunk Cop: Awfully dirty shirt... Also terribly red.
 -> LAU_story_phase_3_continue_1
 
@@ -726,7 +720,6 @@ Drunk Cop: Awfully dirty shirt... Also terribly red.
         Cop: I‘m a cop and I patrol this area: 
         Of course, I have to take care of other people's business.
         -> LAU_story_phase_3_continue_1
-    ~ game_progression = 19
     -> END
     
     = LAU_story_phase_3_continue_2
@@ -772,42 +765,40 @@ Drunk Cop: Awfully dirty shirt... Also terribly red.
     Cop: All right... I hope you're honest. It's not a good idea to lie to the police officer.
     * [(Silence)]
     ...
-    ~ game_progression = 19
     -> END
     
     * [I won't lie.]
     You: Of course I won't lie to you.
     Cop: Sweet girl.
-    ~ game_progression = 19
     -> END
-~ game_progression = 19
 -> END
 
 // =============================================================================
 //  PHASE 20 During the second washing mini game, x lines in total, so maybe each action a line automatically
 // =============================================================================
 == Thought_washing_clothes_2 ==
-Thought: I don't know if I'm doing the correct thing...
 ~ game_progression = 20
+Thought: I don't know if I'm doing the correct thing...
 -> END
 
 // =============================================================================
 //  PHASE 21 after the second washing clothes mini game, as the lights turned off.
 // =============================================================================
 == Chaos_blackout ==
+~ game_progression = 21
 Drunk cop: Ah, what the hell is this?
 Mrs. Wong: Not again… I need to check the circuit box in the back room...
 *[I will do it.]
 You: I can do it. I'm standing next to it.
 Mrs. Wong: Thank you, Miss Lee.
 ~ black_out_happened = true
-~ game_progression = 21
 -> END
 
 // =============================================================================
 //  PHASE 22 after enter the backroom
 // =============================================================================
 == Inner_voice_phase_2 ==
+~ game_progression = 22
 { Inner_voice_phase_2:
     - 1: 
     Thoughts: ...I wish Jason could be here with me.
@@ -823,7 +814,6 @@ Mrs. Wong: Thank you, Miss Lee.
     I wish someone could be by my side...
     Should I give up? But I got nowhere to hide...
 }
-~ game_progression = 22
 -> END
 
 
@@ -832,37 +822,38 @@ Mrs. Wong: Thank you, Miss Lee.
 //  PHASE 23 After the inner voice phase
 // =============================================================================
 == Boyfriend_pager_phase_3 ==
-Jason: It's done.
-Jason: Rocks in the body bag. Tossed the whole thing in the ocean.
-Jason: Hurry up!
-Jason: You don't want our lives ruined because you're slow, right?
 ~ game_progression = 23
+J: It's done.
+J: Rocks in the body bag. Tossed the whole thing in the ocean.
+J: Hurry up!
+J: You don't want our lives ruined because you're slow, right?
 -> How_to_turn_on_circuit_box
 
 // =============================================================================
 //  PHASE 24 after boyfriend pager ( now it's automatically switched in ink) (player can't leave the backroom without light switching back on)
 // =============================================================================
 == How_to_turn_on_circuit_box ==
+~ game_progression = 24
     Thoughts: I should turn on the power. 
     Thoughts: The circuit box should be on the wall.
     Thoughts: I guess I need to turn on the biggest switch there?
-    ~ game_progression = 24
     -> END
 
 // =============================================================================
 //  PHASE 25 If the player attempts to leave the backroom while the power blackout is still there
 // =============================================================================
 == Attempt_leaving_backroom ==
+~ game_progression = 25
     Thoughts: I can't leave yet. I need to turn on the power.
     Thoughts: The circuit box should be on the wall.
     Thoughts: I guess I need to turn on the biggest switch there?
-    ~ game_progression = 25
     -> END
 
 // =============================================================================
 //  PHASE 26 After player comes out of the backroom, mandy stands in front of the door and automatically start the conversation
 // =============================================================================
 == Mandy_smoking_scene_1 ==
+~ game_progression = 26
 Mrs. Wong: Is everything okay back there? You’ve been gone quite a while, Miss Lee.
 *[(Make a excuse)]
 You: Sorry, I couldn’t find the correct switch for the lights.
@@ -892,7 +883,6 @@ Mrs. Wong: No need to apologize. Want a cigarette?
          You: I don’t know what you’re talking about.
          Mrs. Wong: Listen to me, Miss Lee. 
          Mrs. Wong: There's more red in your clothes than on your face.
-         ~ game_progression = 26
          -> Mandy_smoking_scene_2
 
 
@@ -900,6 +890,7 @@ Mrs. Wong: No need to apologize. Want a cigarette?
 //  PHASE 27 If the player not admit at first, but come to her again by pressing E, and can choose to admit again
 // =============================================================================
 == Mandy_smoking_scene_2 ==
+~ game_progression = 27
 + [(Tell her about the murder)]
 You: Mrs. Wong, I've done something bad...
 -> Admit_to_Mandy
@@ -917,7 +908,6 @@ You: Mrs. Wong, I've done something bad...
   Mrs. Wong: I’m going to have a smoke here for a bit. 
   Mrs. Wong: If you want to come talk to me later, feel free to stop by again.
   }
-~ game_progression = 27
 -> END
 
 = Admit_to_Mandy
@@ -945,13 +935,13 @@ Mandy: You're young and there’s always a way to work this out.
 Mandy: My cousin lives in Toi Cing City. 
 Mandy: You can go there and over there, no one will ever find you. 
 Mandy: Think about it, Vivian. Take your time. 
-~ game_progression = 27
 -> Mandy_smoking_scene_3
 
 // =============================================================================
 //  PHASE 28 If the player admitted, but not accept her help yet.
 // =============================================================================
 == Mandy_smoking_scene_3 ==
+~ game_progression = 28
 - (final_choices_mandy)
 * [How is Toi Cing city like?]
 You: How is Toi Cing city like?
@@ -962,7 +952,6 @@ Mandy: People are closer to each another there, and I'm sure you'll get used to 
 You: I don’t know… I need to think.
 Mandy: Take your time. I'll be here smoking for a while. 
 Mandy: you can come back to me whenever you're ready.
-~ game_progression = 28
 -> END
 
 = Mandy_escape_ending
@@ -986,37 +975,35 @@ You: If I make it there, please come to visit me.
 You: Bring your son. We could find a job there, start a new life. 
 You: I will miss you…
 Mandy: I will visit you. Take care of yourself, Vivian.
-~ game_progression = 28
 -> END
 
 // =============================================================================
 //  PHASE 29 After you talk to mandy, you will recieve a message from your boyfriend.
 // =============================================================================
 == Boyfriend_pager_ending ==
-Jason: Just arrived home. Write me as soon as you're done.
-+[(Ignore first)] 
 ~ game_progression = 29
+J: Just arrived home. Write me as soon as you're done.
++[(Ignore first)] 
 -> END
 *[(To Complete Mission) (Ending)]
-Jason: I know I can trust you, sweetheart.
-Jason: Come home when it's done. Can't wait to cuddle you.
-Jason: Long night.
-Jason: Things will get better. You've got me. We'll get through this.
-Jason: Sorry it turned out this way. I was protecting us. Bad guy is gone.
-Jason: Forget it now. Trip to another city. Too many criminals here.
-Jason: Pick clothes up and come home. Setting off tomorrow. Road trip for two.
-Jason: This night will pass. We still have tomorrow.
-~ game_progression = 29
+J: I know I can trust you, sweetheart.
+J: Come home when it's done. Can't wait to cuddle you.
+J: Long night.
+J: Things will get better. You've got me. We'll get through this.
+J: Sorry it turned out this way. I was protecting us. Bad guy is gone.
+J: Forget it now. Trip to another city. Too many criminals here.
+J: Pick clothes up and come home. Setting off tomorrow. Road trip for two.
+J: This night will pass. We still have tomorrow.
 -> END
 
 // =============================================================================
 //  PHASE 30 After mandy talks to you, if player goes to Lau and press E.
 // =============================================================================
 == Lau_confess_ending ==
+~ game_progression = 30
 What's that face for, sweet heart? You look like you just saw a ghost.
 + [Nothing.]
 You: I'm just tired.
-~ game_progression = 30
 -> END
 *[(Report boyfriend's murder)]
 You: I want to report a murder.
@@ -1041,8 +1028,6 @@ Cop: Were you a part of this?
   Cop: ...Miss, you did a right thing. 
   It took courage to confess and report a crime of your lover.
   Now, please come with me.
-  ~ game_progression = 30
   -> END
 
-~ game_progression = 30
 -> END

@@ -22,8 +22,33 @@ public class DialogueTrigger : MonoBehaviour
     [Tooltip("TriggerZone only: if the player is already inside when a knot unlocks, start it without re-entering.")]
     [SerializeField] private bool recheckWhileInside = true;
 
+    [Tooltip("TriggerZone only: seconds the player must remain inside before dialogue can start. 0 = fire on enter.")]
+    [SerializeField] private float requiredStayDuration = 0f;
+
+    [Header("Progression Gate")]
+    [Tooltip("Minimum game_progression (story phase) required. 0 = no minimum.")]
+    [SerializeField] private int minStoryPhase = 0;
+
+    [Tooltip("If enabled, game_progression must also be <= Max Story Phase.")]
+    [SerializeField] private bool useMaxStoryPhase = false;
+
+    [Tooltip("Inclusive maximum game_progression. Ignored unless Use Max Story Phase is enabled.")]
+    [SerializeField] private int maxStoryPhase = 0;
+
+    [Tooltip("When dialogue starts, set Ink story_phase and play the matching knot from Story Phase Controller.")]
+    [SerializeField] private bool useForcedStoryPhase = false;
+
+    [SerializeField] private int forcedStoryPhase = 1;
+
     [Header("Presentation")]
     [SerializeField] private DialoguePresentationMode presentationMode = DialoguePresentationMode.Standard;
+
+    [Tooltip("If true, starting this trigger aborts any active dialogue and starts immediately.")]
+    public bool forceCancelPrevious;
+
+    [Header("Sequence")]
+    [Tooltip("If set, this trigger starts automatically when the current dialogue ends.")]
+    [SerializeField] private DialogueTrigger nextDialogueTrigger;
 
     [Header("References")]
     [SerializeField] private StoryPhaseController storyPhaseController;
@@ -31,6 +56,8 @@ public class DialogueTrigger : MonoBehaviour
     private bool playerInRange;
     private bool waitingForDialogueEnd;
     private bool zoneFiredThisStay;
+    private float stayTimer;
+    private Coroutine pendingNextRoutine;
 
     public DialogueActivationMode ActivationMode
     {
@@ -57,18 +84,24 @@ public class DialogueTrigger : MonoBehaviour
 
     private void OnDestroy()
     {
+        CancelPendingNext();
         UnsubscribeDialogueEnded();
     }
 
     private void Update()
     {
-        // Pager / internal can run while Gameplay; only block on hard locks.
-        if (GameStateManager.CurrentState == GameState.Dialogue
-            || GameStateManager.CurrentState == GameState.Pager
-            || GameStateManager.CurrentState == GameState.Paused)
+        if (GameStateManager.CurrentState == GameState.Paused)
             return;
 
-        if (waitingForDialogueEnd && presentationMode != DialoguePresentationMode.Pager)
+        // Non-force triggers wait; forceCancelPrevious may interrupt Dialogue / Pager.
+        if (!forceCancelPrevious
+            && (GameStateManager.CurrentState == GameState.Dialogue
+                || GameStateManager.CurrentState == GameState.Pager))
+            return;
+
+        if (!forceCancelPrevious
+            && waitingForDialogueEnd
+            && presentationMode != DialoguePresentationMode.Pager)
             return;
 
         switch (activationMode)
@@ -82,8 +115,17 @@ public class DialogueTrigger : MonoBehaviour
                 break;
 
             case DialogueActivationMode.TriggerZone:
-                if (!recheckWhileInside || !playerInRange || zoneFiredThisStay)
+                if (!playerInRange || zoneFiredThisStay)
                     return;
+
+                stayTimer += Time.deltaTime;
+                if (stayTimer < requiredStayDuration)
+                    return;
+
+                // Instant zones (duration 0) only recheck when enabled; timed zones keep trying once dwell is met.
+                if (requiredStayDuration <= 0f && !recheckWhileInside)
+                    return;
+
                 if (TryStartDialogue())
                     zoneFiredThisStay = true;
                 break;
@@ -95,34 +137,73 @@ public class DialogueTrigger : MonoBehaviour
 
     /// <summary>
     /// Resolves the current knot from <see cref="StoryPhaseController"/> and starts dialogue.
+    /// When forced story phase is enabled, plays that phase's knot instead of progression unlock.
     /// </summary>
     public bool TryStartDialogue()
     {
+        if (!IsStoryPhaseAllowed())
+            return false;
+
         if (storyPhaseController == null)
             return false;
 
-        string knotToPlay = storyPhaseController.ResolveKnot();
+        string knotToPlay = useForcedStoryPhase
+            ? storyPhaseController.ResolveKnotForStoryPhase(forcedStoryPhase)
+            : storyPhaseController.ResolveKnot();
+
         if (string.IsNullOrEmpty(knotToPlay))
             return false;
 
-        return BeginDialogue(knotToPlay);
+        return BeginDialogue(knotToPlay, force: forceCancelPrevious);
     }
 
     public bool TryStartDialogue(string knotName)
     {
+        if (!IsStoryPhaseAllowed())
+            return false;
+
         if (string.IsNullOrEmpty(knotName))
             return TryStartDialogue();
 
-        return BeginDialogue(knotName);
+        return BeginDialogue(knotName, force: forceCancelPrevious);
+    }
+
+    /// <summary>
+    /// True when current <see cref="GlobalVariableOperator.GameProgression"/> is within the configured range.
+    /// </summary>
+    public bool IsStoryPhaseAllowed()
+    {
+        int progression = GlobalVariableOperator.Instance != null
+            ? GlobalVariableOperator.Instance.GameProgression
+            : 0;
+
+        if (progression < minStoryPhase)
+            return false;
+
+        if (useMaxStoryPhase && progression > maxStoryPhase)
+            return false;
+
+        return true;
     }
 
     public void StartDialogue() => TryStartDialogue();
 
     public void StartDialogue(string knotName) => TryStartDialogue(knotName);
 
-    private bool BeginDialogue(string knotToPlay)
+    /// <summary>
+    /// Starts a knot even if another presentation is active (aborts the current one).
+    /// </summary>
+    public bool ForceStartDialogue(string knotName)
     {
-        if (presentationMode != DialoguePresentationMode.Pager && waitingForDialogueEnd)
+        if (string.IsNullOrEmpty(knotName))
+            return false;
+
+        return BeginDialogue(knotName, force: true);
+    }
+
+    private bool BeginDialogue(string knotToPlay, bool force = false)
+    {
+        if (!force && presentationMode != DialoguePresentationMode.Pager && waitingForDialogueEnd)
             return false;
 
         DialogueManager manager = DialogueManager.GetInstance();
@@ -132,7 +213,12 @@ public class DialogueTrigger : MonoBehaviour
             return false;
         }
 
-        if (manager.IsBusy && presentationMode != DialoguePresentationMode.Pager)
+        if (force)
+        {
+            UnsubscribeDialogueEnded();
+            manager.AbortActivePresentation();
+        }
+        else if (manager.IsBusy && presentationMode != DialoguePresentationMode.Pager)
             return false;
 
         // Pager threads replace each other; don't block on IsBusy from NPCs.
@@ -150,6 +236,10 @@ public class DialogueTrigger : MonoBehaviour
             Debug.LogWarning($"{name}: StoryCharacterPhasesSO has no ink file assigned.", this);
             return false;
         }
+
+        // Push forced story_phase only after stay / progression / busy checks pass.
+        if (useForcedStoryPhase && GlobalVariableOperator.Instance != null)
+            GlobalVariableOperator.Instance.SetStoryPhase(forcedStoryPhase);
 
         SubscribeDialogueEnded();
         manager.EnterDialogue(inkFile, knotToPlay, presentationMode);
@@ -187,6 +277,33 @@ public class DialogueTrigger : MonoBehaviour
 
         if (storyPhaseController != null && !string.IsNullOrEmpty(completedKnot))
             storyPhaseController.MarkKnotCompleted(completedKnot);
+
+        if (nextDialogueTrigger == null || nextDialogueTrigger == this)
+            return;
+
+        // Wait a frame so DialogueManager finishes teardown before the next EnterDialogue.
+        CancelPendingNext();
+        pendingNextRoutine = StartCoroutine(StartNextDialogueNextFrame());
+    }
+
+    private System.Collections.IEnumerator StartNextDialogueNextFrame()
+    {
+        yield return null;
+        pendingNextRoutine = null;
+
+        if (nextDialogueTrigger == null)
+            yield break;
+
+        nextDialogueTrigger.TryStartDialogue();
+    }
+
+    private void CancelPendingNext()
+    {
+        if (pendingNextRoutine == null)
+            return;
+
+        StopCoroutine(pendingNextRoutine);
+        pendingNextRoutine = null;
     }
 
     private void OnTriggerEnter(Collider other)
@@ -195,8 +312,13 @@ public class DialogueTrigger : MonoBehaviour
             return;
 
         playerInRange = true;
+        stayTimer = 0f;
 
         if (activationMode != DialogueActivationMode.TriggerZone)
+            return;
+
+        // Timed zones wait in Update until requiredStayDuration elapses.
+        if (requiredStayDuration > 0f)
             return;
 
         if (GameStateManager.CurrentState != GameState.Gameplay)
@@ -213,5 +335,6 @@ public class DialogueTrigger : MonoBehaviour
 
         playerInRange = false;
         zoneFiredThisStay = false;
+        stayTimer = 0f;
     }
 }

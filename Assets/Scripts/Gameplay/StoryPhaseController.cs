@@ -33,7 +33,7 @@ public class StoryPhaseController : MonoBehaviour
             if (entry == null || string.IsNullOrEmpty(entry.knotName))
                 continue;
 
-            if (progression < entry.requiredProgression)
+            if (!entry.IsAvailableAt(progression))
                 continue;
 
             if (entry.playOnce && _completedKnots.Contains(entry.knotName))
@@ -44,6 +44,32 @@ public class StoryPhaseController : MonoBehaviour
         }
 
         return best != null ? best.knotName : string.Empty;
+    }
+
+    /// <summary>
+    /// Returns the knot whose <see cref="StoryPhaseEntry.storyPhase"/> matches
+    /// <paramref name="storyPhase"/>, or empty if none.
+    /// </summary>
+    public string ResolveKnotForStoryPhase(int storyPhase)
+    {
+        if (characterPhases == null)
+            return string.Empty;
+
+        foreach (StoryPhaseEntry entry in characterPhases.Phases)
+        {
+            if (entry == null || string.IsNullOrEmpty(entry.knotName))
+                continue;
+
+            if (entry.storyPhase != storyPhase)
+                continue;
+
+            if (entry.playOnce && _completedKnots.Contains(entry.knotName))
+                return string.Empty;
+
+            return entry.knotName;
+        }
+
+        return string.Empty;
     }
 
     public void MarkKnotCompleted(string knotName)

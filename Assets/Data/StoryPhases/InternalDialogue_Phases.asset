@@ -19,52 +19,65 @@ MonoBehaviour:
   - storyPhase: 4
     knotName: Thought_about_not_leaving_clothes
     requiredProgression: 3
+    maxProgression: 9999
     playOnce: 1
   - storyPhase: 5
     knotName: Thought_about_empty_detergent
     requiredProgression: 4
+    maxProgression: 9999
     playOnce: 1
   - storyPhase: 8
     knotName: Inner_voice_backroom_phase_1
     requiredProgression: 7
+    maxProgression: 9999
     playOnce: 0
   - storyPhase: 11
     knotName: Thought_about_how_detergent_looks
     requiredProgression: 9
+    maxProgression: 9999
     playOnce: 1
   - storyPhase: 12
     knotName: Thought_about_got_right_detergent
     requiredProgression: 11
+    maxProgression: 9999
     playOnce: 1
   - storyPhase: 13
     knotName: Thought_washing_clothes_1
     requiredProgression: 12
+    maxProgression: 9999
     playOnce: 1
   - storyPhase: 14
     knotName: Thought_about_need_another_washer
     requiredProgression: 13
+    maxProgression: 9999
     playOnce: 1
   - storyPhase: 16
     knotName: Interaction_with_coin_machine
     requiredProgression: 15
+    maxProgression: 9999
     playOnce: 0
   - storyPhase: 20
     knotName: Thought_washing_clothes_2
     requiredProgression: 19
+    maxProgression: 9999
     playOnce: 1
   - storyPhase: 21
     knotName: Chaos_blackout
     requiredProgression: 20
+    maxProgression: 9999
     playOnce: 1
   - storyPhase: 22
     knotName: Inner_voice_phase_2
     requiredProgression: 21
+    maxProgression: 9999
     playOnce: 0
   - storyPhase: 24
     knotName: How_to_turn_on_circuit_box
     requiredProgression: 23
+    maxProgression: 9999
     playOnce: 1
   - storyPhase: 25
     knotName: Attempt_leaving_backroom
     requiredProgression: 24
+    maxProgression: 9999
     playOnce: 0

@@ -8,6 +8,7 @@ using Ink.Runtime;
 /// Pager inbox for Jason conversations. Tab opens/closes (locks player while open).
 /// Space advances messages forward only. Arrows scroll the visible window.
 /// Conversation stays until a new one replaces it. "no messages" when fully read.
+/// Prop screen shows "new message" until the player finishes reading the thread.
 /// </summary>
 public class PagerTextController : MonoBehaviour
 {
@@ -23,6 +24,12 @@ public class PagerTextController : MonoBehaviour
     [SerializeField] private int visibleCharacterCount = 16;
     [SerializeField] private string emptyInboxText = "no messages";
 
+    [Header("Prop Screen")]
+    [Tooltip("World/prop pager display (visible while the true pager is closed).")]
+    [SerializeField] private TextMeshPro propScreenText;
+    [SerializeField] private string unreadPropText = "new message";
+    [SerializeField] private string blankPropText = "";
+
     [Header("Input")]
     [SerializeField] private KeyCode toggleKey = KeyCode.Tab;
     [SerializeField] private KeyCode advanceKey = KeyCode.Space;
@@ -34,6 +41,7 @@ public class PagerTextController : MonoBehaviour
     bool _hasConversation;
     bool _waitingForChoice;
     bool _completionFired;
+    bool _hasUnreadMessage;
 
     Story _story;
     string _knotName;
@@ -65,7 +73,9 @@ public class PagerTextController : MonoBehaviour
         if (truePager != null)
             truePager.SetActive(false);
 
+        _hasUnreadMessage = false;
         RefreshDisplay();
+        RefreshPropDisplay();
     }
 
     void OnValidate()
@@ -73,6 +83,7 @@ public class PagerTextController : MonoBehaviour
         visibleCharacterCount = Mathf.Max(1, visibleCharacterCount);
         _scrollIndex = Mathf.Clamp(_scrollIndex, 0, GetMaxScrollIndex());
         RefreshDisplay();
+        RefreshPropDisplay();
     }
 
     void Update()
@@ -117,7 +128,9 @@ public class PagerTextController : MonoBehaviour
         _scrollIndex = 0;
 
         CollectLinesUntilPause();
+        _hasUnreadMessage = _messages.Count > 0 || _waitingForChoice;
         RefreshDisplay();
+        RefreshPropDisplay();
         PokePager();
 
         // Story progression / knot completion happens when the thread arrives.
@@ -135,11 +148,13 @@ public class PagerTextController : MonoBehaviour
         _messageIndex = 0;
         _scrollIndex = 0;
         _waitingForChoice = false;
+        _hasUnreadMessage = _hasConversation;
 
         if (_hasConversation)
             _messages.Add(text);
 
         RefreshDisplay();
+        RefreshPropDisplay();
     }
 
     [ContextMenu("Toggle Pager")]
@@ -297,6 +312,7 @@ public class PagerTextController : MonoBehaviour
 
         // Terminal view until the pager is closed / reopened for review.
         _messageIndex = _messages.Count;
+        MarkConversationRead();
         RefreshDisplay();
     }
 
@@ -360,6 +376,23 @@ public class PagerTextController : MonoBehaviour
         _story = null;
         _knotName = "";
         _onConversationComplete = null;
+    }
+
+    void MarkConversationRead()
+    {
+        if (!_hasUnreadMessage)
+            return;
+
+        _hasUnreadMessage = false;
+        RefreshPropDisplay();
+    }
+
+    void RefreshPropDisplay()
+    {
+        if (propScreenText == null)
+            return;
+
+        propScreenText.text = _hasUnreadMessage ? unreadPropText : blankPropText;
     }
 
     void ForceCloseWithoutUnlock()

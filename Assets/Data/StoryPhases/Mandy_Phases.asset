@@ -19,28 +19,35 @@ MonoBehaviour:
   - storyPhase: 2
     knotName: Mandy_story_phase_1
     requiredProgression: 1
+    maxProgression: 4
     playOnce: 1
   - storyPhase: 6
     knotName: Mandy_story_phase_2
     requiredProgression: 5
+    maxProgression: 13
     playOnce: 1
   - storyPhase: 15
     knotName: Mandy_story_phase_3
     requiredProgression: 14
+    maxProgression: 16
     playOnce: 0
   - storyPhase: 18
     knotName: Mandy_story_phase_4
     requiredProgression: 17
+    maxProgression: 24
     playOnce: 1
   - storyPhase: 26
     knotName: Mandy_smoking_scene_1
     requiredProgression: 25
+    maxProgression: 25
     playOnce: 1
   - storyPhase: 27
     knotName: Mandy_smoking_scene_2
     requiredProgression: 26
+    maxProgression: 27
     playOnce: 0
   - storyPhase: 28
     knotName: Mandy_smoking_scene_3
-    requiredProgression: 27
+    requiredProgression: 28
+    maxProgression: 9999
     playOnce: 0

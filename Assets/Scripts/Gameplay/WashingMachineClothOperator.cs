@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class WashingMachineClothOperator : MonoBehaviour
@@ -12,6 +13,16 @@ public class WashingMachineClothOperator : MonoBehaviour
     [SerializeField] float follow = 14f, settle = 10f, barrelT = 0.88f, directionSpeed = 0.8f, emptyScaleY = 0.2f, dragPad = 0.25f;
     [SerializeField] string directionParam = "direction";
 
+    [Header("Minigame")]
+    [SerializeField] MinigameActivator minigameActivator;
+    [SerializeField] float exitDelayAfterStart = 1.5f;
+
+    [Header("Internal Dialogue")]
+    [Tooltip("Fired when the player grabs the second cloth.")]
+    public DialogueTrigger secondClothDialogue;
+    [Tooltip("Fired after the wash cycle starts and the minigame exits.")]
+    public DialogueTrigger afterMachineDialogue;
+
     int idx = -1, snapIdx = -1, done;
     Step step = Step.OpenDoor;
     float t, tVel, direction, directionVel, fullScaleY, targetScaleY, scaleYVel;
@@ -19,6 +30,8 @@ public class WashingMachineClothOperator : MonoBehaviour
     float totalLen;
     float[] segLen;
     bool snapping;
+    bool secondClothDialogueFired;
+    bool completing;
 
     int ClothCount
     {
@@ -42,6 +55,8 @@ public class WashingMachineClothOperator : MonoBehaviour
         if (!cam) cam = Camera.main;
         if (animator) direction = animator.GetFloat(directionParam);
         if (clothSet) { fullScaleY = targetScaleY = clothSet.localScale.y; }
+        if (!minigameActivator)
+            minigameActivator = GetComponentInParent<MinigameActivator>();
         RebuildTrack();
     }
 
@@ -60,6 +75,7 @@ public class WashingMachineClothOperator : MonoBehaviour
     {
         UpdateDirection();
         UpdateSetScale();
+        if (completing || step == Step.Done) return;
         if (snapping) { Snap(); return; }
         if (Input.GetMouseButtonDown(0) && !TrySequenceClick()) TryGrab();
         if (idx < 0) return;
@@ -115,9 +131,25 @@ public class WashingMachineClothOperator : MonoBehaviour
             case Step.Start when c == startButton:
                 animator.SetTrigger("DoStart");
                 step = Step.Done;
+                StartCoroutine(CompleteAfterStart());
                 return true;
         }
         return c == door || c == tray || c == coinSlit || c == startButton;
+    }
+
+    IEnumerator CompleteAfterStart()
+    {
+        completing = true;
+        yield return new WaitForSeconds(exitDelayAfterStart);
+
+        if (minigameActivator != null)
+        {
+            if (minigameActivator.IsActivated)
+                minigameActivator.Exit();
+            minigameActivator.LockInteraction();
+        }
+
+        FireDialogue(afterMachineDialogue);
     }
 
     void TryGrab()
@@ -142,6 +174,21 @@ public class WashingMachineClothOperator : MonoBehaviour
         c.SetParent(null, true);
         if (clothSet && count > 0)
             targetScaleY = Mathf.Lerp(fullScaleY, emptyScaleY, (done + 1) / (float)count);
+
+        // Second cloth is index 1 (0-based).
+        if (done == 1 && !secondClothDialogueFired)
+        {
+            secondClothDialogueFired = true;
+            FireDialogue(secondClothDialogue);
+        }
+    }
+
+    void FireDialogue(DialogueTrigger trigger)
+    {
+        if (trigger == null)
+            return;
+
+        trigger.TryStartDialogue();
     }
 
     void Drag()

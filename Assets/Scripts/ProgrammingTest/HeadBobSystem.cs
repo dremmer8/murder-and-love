@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class HeadBobSystem : MonoBehaviour {
@@ -21,9 +19,23 @@ public class HeadBobSystem : MonoBehaviour {
 
     private Vector3 startPos;
     private float timer;
+    private bool canBob = true;
+
+    private void OnEnable() {
+        GameStateManager.OnGameStateChanged += HandleStateChange;
+        canBob = GameStateManager.CurrentState == GameState.Gameplay;
+    }
+
+    private void OnDisable() {
+        GameStateManager.OnGameStateChanged -= HandleStateChange;
+    }
 
     private void Start() {
         startPos = transform.localPosition;
+    }
+
+    private void HandleStateChange(GameState newState) {
+        canBob = newState == GameState.Gameplay;
     }
 
     private void Update() {
@@ -31,6 +43,11 @@ public class HeadBobSystem : MonoBehaviour {
     }
 
     private void CheckHeadBob() {
+        if (!canBob) {
+            ResetHeadBob();
+            return;
+        }
+
         Vector3 inputVector = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
         float inputMagnitude = Mathf.Clamp01(inputVector.magnitude);
 
