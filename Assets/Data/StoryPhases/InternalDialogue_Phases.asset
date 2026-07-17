@@ -1,0 +1,70 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 132483d76b2c44c1af9890114a0b5dd1, type: 3}
+  m_Name: InternalDialogue_Phases
+  m_EditorClassIdentifier: 
+  characterId: 3
+  displayName: Internal Dialogue
+  inkFile: {fileID: 4900000, guid: 69e75138cee8a32409b9d05781355f91, type: 3}
+  phases:
+  - storyPhase: 4
+    knotName: Thought_about_not_leaving_clothes
+    requiredProgression: 3
+    playOnce: 1
+  - storyPhase: 5
+    knotName: Thought_about_empty_detergent
+    requiredProgression: 4
+    playOnce: 1
+  - storyPhase: 8
+    knotName: Inner_voice_backroom_phase_1
+    requiredProgression: 7
+    playOnce: 0
+  - storyPhase: 11
+    knotName: Thought_about_how_detergent_looks
+    requiredProgression: 9
+    playOnce: 1
+  - storyPhase: 12
+    knotName: Thought_about_got_right_detergent
+    requiredProgression: 11
+    playOnce: 1
+  - storyPhase: 13
+    knotName: Thought_washing_clothes_1
+    requiredProgression: 12
+    playOnce: 1
+  - storyPhase: 14
+    knotName: Thought_about_need_another_washer
+    requiredProgression: 13
+    playOnce: 1
+  - storyPhase: 16
+    knotName: Interaction_with_coin_machine
+    requiredProgression: 15
+    playOnce: 0
+  - storyPhase: 20
+    knotName: Thought_washing_clothes_2
+    requiredProgression: 19
+    playOnce: 1
+  - storyPhase: 21
+    knotName: Chaos_blackout
+    requiredProgression: 20
+    playOnce: 1
+  - storyPhase: 22
+    knotName: Inner_voice_phase_2
+    requiredProgression: 21
+    playOnce: 0
+  - storyPhase: 24
+    knotName: How_to_turn_on_circuit_box
+    requiredProgression: 23
+    playOnce: 1
+  - storyPhase: 25
+    knotName: Attempt_leaving_backroom
+    requiredProgression: 24
+    playOnce: 0

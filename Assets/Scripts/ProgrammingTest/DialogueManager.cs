@@ -1,9 +1,9 @@
-using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 using Ink.Runtime;
-using UnityEngine.EventSystems;
+using System;
 
 public class DialogueManager : MonoBehaviour
 {
@@ -23,6 +23,11 @@ public class DialogueManager : MonoBehaviour
     
     private float inputDelay = 0.2f;
     private float nextInputTime = 0f;
+
+    private string activeKnotName = "";
+
+    /// <summary>Fired when dialogue exits. Argument is the knot that was entered (may be empty).</summary>
+    public event Action<string> OnDialogueEnded;
 
     private void Awake()
     {
@@ -47,12 +52,25 @@ public class DialogueManager : MonoBehaviour
         dialoguePanel.SetActive(false);
         
         choicesText = new TextMeshProUGUI[choices.Length];
-        int index = 0;
-        foreach (GameObject choice in choices)
+        for (int i = 0; i < choices.Length; i++)
         {
-            choicesText[index] = choice.GetComponentInChildren<TextMeshProUGUI>();
-            index++;
+            choicesText[i] = choices[i].GetComponentInChildren<TextMeshProUGUI>();
+            WireChoiceButton(choices[i], i);
         }
+    }
+
+    private void WireChoiceButton(GameObject choiceObject, int choiceIndex)
+    {
+        Button button = choiceObject.GetComponent<Button>();
+        if (button == null)
+        {
+            Debug.LogWarning($"Choice UI '{choiceObject.name}' has no Button component.", choiceObject);
+            return;
+        }
+
+        // Inspector OnClick targets can go missing (Game.unity had null refs). Bind in code.
+        button.onClick.RemoveAllListeners();
+        button.onClick.AddListener(() => MakeChoice(choiceIndex));
     }
 
     private void Update()
@@ -81,6 +99,13 @@ public class DialogueManager : MonoBehaviour
         GameStateManager.ChangeState(GameState.Dialogue);
         
         currentStory = new Story(inkFile.text);
+        activeKnotName = knotName ?? "";
+
+        if (GlobalVariableOperator.Instance != null)
+        {
+            GlobalVariableOperator.Instance.ApplyVariablesToStory(currentStory);
+            GlobalVariableOperator.Instance.BindStory(currentStory);
+        }
         
         if (!string.IsNullOrEmpty(knotName))
         {
@@ -98,6 +123,15 @@ public class DialogueManager : MonoBehaviour
 
     private void ExitDialogue()
     {
+        if (GlobalVariableOperator.Instance != null)
+        {
+            GlobalVariableOperator.Instance.SyncFromStory(currentStory);
+            GlobalVariableOperator.Instance.UnbindStory();
+        }
+
+        string completedKnot = activeKnotName;
+        activeKnotName = "";
+
         dialogueIsPlaying = false;
         isChoosing = false;
         dialoguePanel.SetActive(false);
@@ -107,20 +141,43 @@ public class DialogueManager : MonoBehaviour
         Cursor.visible = false;
         
         GameStateManager.ChangeState(GameState.Gameplay);
+
+        OnDialogueEnded?.Invoke(completedKnot);
     }
 
     private void ContinueStory()
     {
-        if (currentStory.canContinue)
+        if (!currentStory.canContinue)
         {
-            dialogueText.text = currentStory.Continue();
-            DisplayChoices();
-            nextInputTime = Time.time + inputDelay;
-        }
-        else
-        {
+            // Choices can appear when the story cannot continue further without picking one.
+            if (currentStory.currentChoices.Count > 0)
+            {
+                DisplayChoices();
+                nextInputTime = Time.time + inputDelay;
+                return;
+            }
+
             ExitDialogue();
+            return;
         }
+
+        // Ink often yields empty/whitespace lines at gathers ("-") and after choice diverts.
+        // Skip those so the player never sees a blank "" beat.
+        string text = currentStory.Continue();
+        while (string.IsNullOrWhiteSpace(text) && currentStory.canContinue)
+        {
+            text = currentStory.Continue();
+        }
+
+        if (!string.IsNullOrWhiteSpace(text))
+            dialogueText.text = text.Trim();
+
+        DisplayChoices();
+        nextInputTime = Time.time + inputDelay;
+
+        // After skipping blanks we may land on choices with no new line, or on END.
+        if (string.IsNullOrWhiteSpace(text) && !currentStory.canContinue && currentStory.currentChoices.Count == 0)
+            ExitDialogue();
     }
 
     private void DisplayChoices()
@@ -166,6 +223,13 @@ public class DialogueManager : MonoBehaviour
 
         isChoosing = false;
         nextInputTime = Time.time + inputDelay;
+
+        if (GlobalVariableOperator.Instance != null
+            && choiceIndex >= 0
+            && choiceIndex < currentStory.currentChoices.Count)
+        {
+            GlobalVariableOperator.Instance.RecordChoice(currentStory.currentChoices[choiceIndex].text);
+        }
 
         currentStory.ChooseChoiceIndex(choiceIndex);
         ContinueStory();

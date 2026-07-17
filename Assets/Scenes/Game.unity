@@ -2172,6 +2172,7 @@ GameObject:
   - component: {fileID: 339123854}
   - component: {fileID: 339123853}
   - component: {fileID: 339123855}
+  - component: {fileID: 339123856}
   m_Layer: 0
   m_Name: Root
   m_TagString: Untagged
@@ -2243,6 +2244,18 @@ MonoBehaviour:
   - {fileID: 2113119759}
   - {fileID: 1299962610}
   - {fileID: 418324285}
+--- !u!114 &339123856
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 339123851}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfbe431e9a1665145a55b7f905d4bd8a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &343331020
 GameObject:
   m_ObjectHideFlags: 0
@@ -8209,6 +8222,7 @@ GameObject:
   - component: {fileID: 1072823009}
   - component: {fileID: 1072823011}
   - component: {fileID: 1072823010}
+  - component: {fileID: 1072823012}
   m_Layer: 0
   m_Name: Mandy_dialogue
   m_TagString: Untagged
@@ -8264,9 +8278,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff7690d6943d30c4097de0453588a032, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  inkFile: {fileID: 4900000, guid: 41cf194481b41f94a9a5e3b0caf3daa3, type: 3}
-  defaultKnotName: 
-  conditionalKnots: []
+  storyPhaseController: {fileID: 1072823012}
+--- !u!114 &1072823012
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1072823008}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e6d5939d51120b4c8ae24afc5c59e08, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  characterPhases: {fileID: 11400000, guid: 4cc679065c6c4f9eb1b4c2727b9cc413, type: 2}
 --- !u!1 &1093077298
 GameObject:
   m_ObjectHideFlags: 0
@@ -12074,9 +12099,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff7690d6943d30c4097de0453588a032, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  inkFile: {fileID: 4900000, guid: 41cf194481b41f94a9a5e3b0caf3daa3, type: 3}
-  defaultKnotName: 
-  conditionalKnots: []
+  storyPhaseController: {fileID: 0}
 --- !u!1 &1603376378
 GameObject:
   m_ObjectHideFlags: 0
@@ -23446,6 +23469,26 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1502710317816812059}
     m_Modifications:
+    - target: {fileID: 2027096190866686230, guid: 440be01638b24c34786e3b838f0b3a34, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2917193210555025458, guid: 440be01638b24c34786e3b838f0b3a34, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3480735843965408422, guid: 440be01638b24c34786e3b838f0b3a34, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4142821125370581146, guid: 440be01638b24c34786e3b838f0b3a34, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4496234527215552173, guid: 440be01638b24c34786e3b838f0b3a34, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6719973659250365724, guid: 440be01638b24c34786e3b838f0b3a34, type: 3}
       propertyPath: m_Name
       value: CoinMachine

@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 132483d76b2c44c1af9890114a0b5dd1, type: 3}
+  m_Name: Lau_Phases
+  m_EditorClassIdentifier: 
+  characterId: 1
+  displayName: Lau
+  inkFile: {fileID: 4900000, guid: 69e75138cee8a32409b9d05781355f91, type: 3}
+  phases:
+  - storyPhase: 3
+    knotName: LAU_story_phase_1
+    requiredProgression: 2
+    playOnce: 0
+  - storyPhase: 7
+    knotName: LAU_story_phase_2
+    requiredProgression: 5
+    playOnce: 0
+  - storyPhase: 19
+    knotName: LAU_story_phase_3
+    requiredProgression: 18
+    playOnce: 1
+  - storyPhase: 30
+    knotName: Lau_confess_ending
+    requiredProgression: 28
+    playOnce: 0
