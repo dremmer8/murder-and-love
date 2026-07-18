@@ -5,7 +5,7 @@ using UnityEngine;
 using Ink.Runtime;
 
 /// <summary>
-/// Pager inbox for Jason conversations. Tab opens/closes (locks player while open).
+/// Pager inbox for Jason conversations. Tab opens/closes (locks movement while open; look stays free).
 /// Space advances messages forward only. Arrows scroll the visible window.
 /// Conversation stays until a new one replaces it. "no messages" when fully read.
 /// Prop screen shows "new message" until the player finishes reading the thread.

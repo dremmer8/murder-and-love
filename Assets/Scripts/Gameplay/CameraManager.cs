@@ -14,6 +14,7 @@ public class NamedCamera
 /// Swaps or smoothly transitions between named cameras via a proxy camera.
 /// Transition: current off → proxy on → blend proxy toward live end pose → proxy off → end on.
 /// End camera position/rotation/FOV are sampled every frame so moving targets stay seamless.
+/// Also tweens the player to dialogue pose marks (no automatic return).
 /// </summary>
 public class CameraManager : MonoBehaviour
 {
@@ -30,12 +31,23 @@ public class CameraManager : MonoBehaviour
     [SerializeField] float defaultTransitionDuration = 1f;
     [SerializeField] Ease transitionEase = Ease.InOutCubic;
 
+    [Header("Player Pose")]
+    [Tooltip("Player to move into dialogue marks. Auto-found if empty.")]
+    [SerializeField] PlayerController player;
+
+    [SerializeField] float defaultPlayerTweenDuration = 1f;
+    [SerializeField] Ease playerTweenEase = Ease.InOutCubic;
+
     Camera _activeCamera;
     Tween _transitionTween;
     bool _isTransitioning;
 
+    Tween _playerTween;
+    bool _isPlayerTweening;
+
     public Camera ActiveCamera => _activeCamera;
     public bool IsTransitioning => _isTransitioning;
+    public bool IsPlayerTweening => _isPlayerTweening;
 
     void Awake()
     {
@@ -48,12 +60,14 @@ public class CameraManager : MonoBehaviour
 
         Instance = this;
         EnsureProxyCamera();
+        EnsurePlayer();
         InitializeActiveCamera();
     }
 
     void OnDestroy()
     {
         KillTransition(disableProxy: true);
+        KillPlayerTween(releasePoseDriven: true);
         if (Instance == this)
             Instance = null;
     }
@@ -159,6 +173,87 @@ public class CameraManager : MonoBehaviour
         return true;
     }
 
+    /// <summary>
+    /// Tweens the player to <paramref name="mark"/> position and rotation.
+    /// Does not store a return pose — gameplay resumes from wherever the tween ends.
+    /// </summary>
+    public bool TweenPlayerTo(Transform mark)
+    {
+        return TweenPlayerTo(mark, defaultPlayerTweenDuration);
+    }
+
+    /// <summary>
+    /// Tweens the player to <paramref name="mark"/> over <paramref name="duration"/> seconds.
+    /// Duration &lt;= 0 snaps instantly. Does not tween back afterward.
+    /// </summary>
+    public bool TweenPlayerTo(Transform mark, float duration)
+    {
+        if (mark == null)
+        {
+            Debug.LogWarning($"{name}: TweenPlayerTo called with null mark.", this);
+            return false;
+        }
+
+        if (!EnsurePlayer())
+        {
+            Debug.LogWarning($"{name}: No PlayerController found for TweenPlayerTo.", this);
+            return false;
+        }
+
+        KillPlayerTween(releasePoseDriven: false);
+
+        Vector3 startPos = player.transform.position;
+        Quaternion startRot = GetPlayerWorldLookRotation();
+        Vector3 endPos = mark.position;
+        Quaternion endRot = mark.rotation;
+
+        player.PoseDriven = true;
+
+        if (duration <= 0f)
+        {
+            player.ApplyWorldPose(endPos, endRot);
+            player.PoseDriven = false;
+            _isPlayerTweening = false;
+            return true;
+        }
+
+        _isPlayerTweening = true;
+        _playerTween = DOVirtual.Float(0f, 1f, duration, t =>
+            {
+                if (player == null)
+                    return;
+
+                player.ApplyWorldPose(
+                    Vector3.LerpUnclamped(startPos, endPos, t),
+                    Quaternion.SlerpUnclamped(startRot, endRot, t));
+            })
+            .SetEase(playerTweenEase)
+            .OnComplete(() =>
+            {
+                if (player != null)
+                {
+                    player.ApplyWorldPose(endPos, endRot);
+                    player.PoseDriven = false;
+                }
+
+                _isPlayerTweening = false;
+                _playerTween = null;
+            })
+            .OnKill(() =>
+            {
+                _isPlayerTweening = false;
+                _playerTween = null;
+            });
+
+        return true;
+    }
+
+    /// <summary>Stops an in-progress player pose tween. Leaves the player where they are.</summary>
+    public void StopPlayerTween()
+    {
+        KillPlayerTween(releasePoseDriven: true);
+    }
+
     public bool TryGetCamera(string cameraName, out Camera camera)
     {
         camera = null;
@@ -184,6 +279,42 @@ public class CameraManager : MonoBehaviour
 
         Debug.LogWarning($"{name}: No camera named '{trimmed}' in the list.", this);
         return false;
+    }
+
+    bool EnsurePlayer()
+    {
+        if (player != null)
+            return true;
+
+        player = FindFirstObjectByType<PlayerController>();
+        return player != null;
+    }
+
+    Quaternion GetPlayerWorldLookRotation()
+    {
+        float yaw = player.transform.eulerAngles.y;
+        float pitch = 0f;
+
+        if (player.playerCamera != null)
+        {
+            pitch = player.playerCamera.transform.localEulerAngles.x;
+            if (pitch > 180f)
+                pitch -= 360f;
+        }
+
+        return Quaternion.Euler(pitch, yaw, 0f);
+    }
+
+    void KillPlayerTween(bool releasePoseDriven)
+    {
+        if (_playerTween != null && _playerTween.IsActive())
+            _playerTween.Kill();
+
+        _playerTween = null;
+        _isPlayerTweening = false;
+
+        if (releasePoseDriven && player != null)
+            player.PoseDriven = false;
     }
 
     void InitializeActiveCamera()

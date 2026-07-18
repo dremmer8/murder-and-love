@@ -46,6 +46,16 @@ public class DialogueTrigger : MonoBehaviour
     [Tooltip("If true, starting this trigger aborts any active dialogue and starts immediately.")]
     public bool forceCancelPrevious;
 
+    [Header("Player Pose")]
+    [Tooltip("Optional mark the player tweens to when this dialogue starts. Leave empty to keep current pose.")]
+    [SerializeField] private Transform playerPoseMark;
+
+    [Tooltip("If true and Player Pose Mark is set, tween the player into that mark when dialogue starts.")]
+    [SerializeField] private bool tweenPlayerToMark = true;
+
+    [Tooltip("Tween length in seconds. Uses CameraManager default when < 0. 0 = snap.")]
+    [SerializeField] private float playerTweenDuration = -1f;
+
     [Header("Sequence")]
     [Tooltip("If set, this trigger starts automatically when the current dialogue ends.")]
     [SerializeField] private DialogueTrigger nextDialogueTrigger;
@@ -268,7 +278,30 @@ public class DialogueTrigger : MonoBehaviour
 
         SubscribeDialogueEnded();
         manager.EnterDialogue(inkFile, knotToPlay, presentationMode);
+        TryTweenPlayerToMark();
         return true;
+    }
+
+    void TryTweenPlayerToMark()
+    {
+        if (!tweenPlayerToMark || playerPoseMark == null)
+            return;
+
+        // Modes that keep free movement should not steal the player pose.
+        if (presentationMode == DialoguePresentationMode.InternalMonologue
+            || presentationMode == DialoguePresentationMode.Pager)
+            return;
+
+        if (CameraManager.Instance == null)
+        {
+            Debug.LogWarning($"{name}: No CameraManager in scene — cannot tween player pose.", this);
+            return;
+        }
+
+        if (playerTweenDuration < 0f)
+            CameraManager.Instance.TweenPlayerTo(playerPoseMark);
+        else
+            CameraManager.Instance.TweenPlayerTo(playerPoseMark, playerTweenDuration);
     }
 
     /// <summary>

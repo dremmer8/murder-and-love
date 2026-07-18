@@ -21,9 +21,9 @@ public enum DialoguePresentationMode
     InternalMonologue = 2,
 
     /// <summary>
-    /// Jason pager inbox: messages live on the pager. Tab opens/locks,
-    /// Space advances messages, arrows scroll. Re-openable until a new
-    /// Jason conversation replaces it.
+    /// Jason pager inbox: messages live on the pager. Tab opens (locks movement,
+    /// look stays free), Space advances messages, arrows scroll. Re-openable
+    /// until a new Jason conversation replaces it.
     /// </summary>
     Pager = 3
 }

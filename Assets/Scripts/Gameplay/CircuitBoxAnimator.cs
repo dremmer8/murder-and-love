@@ -35,6 +35,9 @@ public class CircuitBoxAnimator : MonoBehaviour
     [Tooltip("If true, Exit + LockInteraction after the sequence completes.")]
     [SerializeField] bool exitAndLockOnComplete = true;
 
+    [Tooltip("Optional object enabled when the minigame sequence completes.")]
+    [SerializeField] GameObject objectToEnableOnComplete;
+
     Step step = Step.OpenDoor;
     bool busy;
 
@@ -98,6 +101,9 @@ public class CircuitBoxAnimator : MonoBehaviour
             yield return new WaitForSeconds(closeDoorDelay);
 
         step = Step.Done;
+
+        if (objectToEnableOnComplete != null)
+            objectToEnableOnComplete.SetActive(true);
 
         if (exitAndLockOnComplete && minigameActivator != null)
         {

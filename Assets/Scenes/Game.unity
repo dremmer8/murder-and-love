@@ -524,6 +524,9 @@ MonoBehaviour:
   forcedStoryPhase: 21
   presentationMode: 2
   forceCancelPrevious: 1
+  playerPoseMark: {fileID: 0}
+  tweenPlayerToMark: 0
+  playerTweenDuration: -1
   nextDialogueTrigger: {fileID: 0}
   storyPhaseController: {fileID: 40544323}
 --- !u!1001 &40727769
@@ -1600,7 +1603,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff7690d6943d30c4097de0453588a032, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  activationMode: 1
+  activationMode: 2
   interactKey: 101
   recheckWhileInside: 1
   requiredStayDuration: 20
@@ -1611,6 +1614,9 @@ MonoBehaviour:
   forcedStoryPhase: 11
   presentationMode: 2
   forceCancelPrevious: 0
+  playerPoseMark: {fileID: 0}
+  tweenPlayerToMark: 0
+  playerTweenDuration: -1
   nextDialogueTrigger: {fileID: 0}
   storyPhaseController: {fileID: 55097653}
 --- !u!1001 &55596851
@@ -2101,6 +2107,9 @@ MonoBehaviour:
   forcedStoryPhase: 8
   presentationMode: 2
   forceCancelPrevious: 0
+  playerPoseMark: {fileID: 0}
+  tweenPlayerToMark: 0
+  playerTweenDuration: -1
   nextDialogueTrigger: {fileID: 1786521903}
   storyPhaseController: {fileID: 117337418}
 --- !u!1 &118477508
@@ -3382,6 +3391,9 @@ MonoBehaviour:
   forcedStoryPhase: 16
   presentationMode: 2
   forceCancelPrevious: 0
+  playerPoseMark: {fileID: 0}
+  tweenPlayerToMark: 0
+  playerTweenDuration: -1
   nextDialogueTrigger: {fileID: 0}
   storyPhaseController: {fileID: 182909818}
 --- !u!4 &196020918 stripped
@@ -3795,6 +3807,9 @@ MonoBehaviour:
   forcedStoryPhase: 14
   presentationMode: 2
   forceCancelPrevious: 1
+  playerPoseMark: {fileID: 0}
+  tweenPlayerToMark: 0
+  playerTweenDuration: -1
   nextDialogueTrigger: {fileID: 0}
   storyPhaseController: {fileID: 219990334}
 --- !u!1 &221227088
@@ -4084,6 +4099,9 @@ MonoBehaviour:
   forcedStoryPhase: 25
   presentationMode: 2
   forceCancelPrevious: 0
+  playerPoseMark: {fileID: 0}
+  tweenPlayerToMark: 0
+  playerTweenDuration: -1
   nextDialogueTrigger: {fileID: 0}
   storyPhaseController: {fileID: 265181226}
 --- !u!1001 &266797887
@@ -4810,6 +4828,7 @@ GameObject:
   - component: {fileID: 339123858}
   - component: {fileID: 339123859}
   - component: {fileID: 339123860}
+  - component: {fileID: 339123861}
   m_Layer: 0
   m_Name: Root
   m_TagString: Untagged
@@ -4897,7 +4916,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cfbe431e9a1665145a55b7f905d4bd8a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gameProgression: 23
+  gameProgression: 21
 --- !u!114 &339123857
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4977,6 +4996,9 @@ MonoBehaviour:
   proxyCamera: {fileID: 0}
   defaultTransitionDuration: 1
   transitionEase: 10
+  player: {fileID: 1753429734}
+  defaultPlayerTweenDuration: 1
+  playerTweenEase: 10
 --- !u!114 &339123860
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4995,6 +5017,28 @@ MonoBehaviour:
   minDisplaySeconds: 1.4
   maxDisplaySeconds: 7.5
   gapBetweenLines: 0.2
+--- !u!114 &339123861
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 339123851}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6646f648fb5e27a4fa4985975f5db9d9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  phases:
+  - storyPhase: 22
+    objectsToActivate:
+    - {fileID: 768471491}
+    - {fileID: 561557987}
+    objectsToDeactivate:
+    - {fileID: 1309415051}
+    - {fileID: 428807631}
+    - {fileID: 881747968}
+  applyOnProgressionChange: 1
 --- !u!1 &343331020
 GameObject:
   m_ObjectHideFlags: 0
@@ -5045,6 +5089,67 @@ MonoBehaviour:
   reverseDirection: 0
   radiusSeparation: 0
   alignedOnCenter: 1
+--- !u!1001 &355820416
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 619371174}
+    m_Modifications:
+    - target: {fileID: 7223816828412751021, guid: 036f2e1dc5431024d875601c7c0c0bde, type: 3}
+      propertyPath: m_Name
+      value: Lau_leaning_1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7223816828412751021, guid: 036f2e1dc5431024d875601c7c0c0bde, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8642399914456048703, guid: 036f2e1dc5431024d875601c7c0c0bde, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -3.942
+      objectReference: {fileID: 0}
+    - target: {fileID: 8642399914456048703, guid: 036f2e1dc5431024d875601c7c0c0bde, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.11341769
+      objectReference: {fileID: 0}
+    - target: {fileID: 8642399914456048703, guid: 036f2e1dc5431024d875601c7c0c0bde, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 2.453
+      objectReference: {fileID: 0}
+    - target: {fileID: 8642399914456048703, guid: 036f2e1dc5431024d875601c7c0c0bde, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8642399914456048703, guid: 036f2e1dc5431024d875601c7c0c0bde, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8642399914456048703, guid: 036f2e1dc5431024d875601c7c0c0bde, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0.00000037252897
+      objectReference: {fileID: 0}
+    - target: {fileID: 8642399914456048703, guid: 036f2e1dc5431024d875601c7c0c0bde, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8642399914456048703, guid: 036f2e1dc5431024d875601c7c0c0bde, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8642399914456048703, guid: 036f2e1dc5431024d875601c7c0c0bde, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8642399914456048703, guid: 036f2e1dc5431024d875601c7c0c0bde, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 036f2e1dc5431024d875601c7c0c0bde, type: 3}
 --- !u!1 &358465844
 GameObject:
   m_ObjectHideFlags: 0
@@ -5472,7 +5577,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff7690d6943d30c4097de0453588a032, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  activationMode: 1
+  activationMode: 2
   interactKey: 101
   recheckWhileInside: 1
   requiredStayDuration: 0
@@ -5483,6 +5588,9 @@ MonoBehaviour:
   forcedStoryPhase: 29
   presentationMode: 3
   forceCancelPrevious: 0
+  playerPoseMark: {fileID: 0}
+  tweenPlayerToMark: 0
+  playerTweenDuration: -1
   nextDialogueTrigger: {fileID: 0}
   storyPhaseController: {fileID: 391321795}
 --- !u!65 &391321797
@@ -6245,6 +6353,11 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 427979163}
   m_CullTransparentMesh: 1
+--- !u!1 &428807631 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7223816828412751021, guid: 036f2e1dc5431024d875601c7c0c0bde, type: 3}
+  m_PrefabInstance: {fileID: 497567072004551278}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &442440804
 GameObject:
   m_ObjectHideFlags: 0
@@ -7245,6 +7358,16 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 5d74c28497be82e44b3e4981e63e2c06, type: 3}
   m_PrefabInstance: {fileID: 543900863}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &561557987 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7223816828412751021, guid: 036f2e1dc5431024d875601c7c0c0bde, type: 3}
+  m_PrefabInstance: {fileID: 355820416}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &561557988 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8642399914456048703, guid: 036f2e1dc5431024d875601c7c0c0bde, type: 3}
+  m_PrefabInstance: {fileID: 355820416}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &572017812
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7945,7 +8068,9 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4172702389323318471}
+  - {fileID: 768471492}
   - {fileID: 497567072004551279}
+  - {fileID: 561557988}
   - {fileID: 722725927}
   m_Father: {fileID: 72378916}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -9078,7 +9203,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff7690d6943d30c4097de0453588a032, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  activationMode: 2
+  activationMode: 0
   interactKey: 101
   recheckWhileInside: 1
   requiredStayDuration: 0
@@ -9089,6 +9214,9 @@ MonoBehaviour:
   forcedStoryPhase: 23
   presentationMode: 3
   forceCancelPrevious: 0
+  playerPoseMark: {fileID: 0}
+  tweenPlayerToMark: 0
+  playerTweenDuration: -1
   nextDialogueTrigger: {fileID: 0}
   storyPhaseController: {fileID: 727183471}
 --- !u!1 &729576784
@@ -9867,6 +9995,16 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: b9a331edd658feb4ba4de90524905757, type: 3}
   m_PrefabInstance: {fileID: 767438760}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &768471491 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4790675739695170524, guid: 44baba6e04bb9094393a4bbf906332a1, type: 3}
+  m_PrefabInstance: {fileID: 774865782}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &768471492 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8708744428689353539, guid: 44baba6e04bb9094393a4bbf906332a1, type: 3}
+  m_PrefabInstance: {fileID: 774865782}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &768905044
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -9995,6 +10133,67 @@ MonoBehaviour:
   impulse: 0.1
   returnSpeed: 3
   onOccupiedDialogue: {fileID: 0}
+--- !u!1001 &774865782
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 619371174}
+    m_Modifications:
+    - target: {fileID: 4790675739695170524, guid: 44baba6e04bb9094393a4bbf906332a1, type: 3}
+      propertyPath: m_Name
+      value: Mandy_backroom_1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4790675739695170524, guid: 44baba6e04bb9094393a4bbf906332a1, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8708744428689353539, guid: 44baba6e04bb9094393a4bbf906332a1, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 2.559
+      objectReference: {fileID: 0}
+    - target: {fileID: 8708744428689353539, guid: 44baba6e04bb9094393a4bbf906332a1, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.07341769
+      objectReference: {fileID: 0}
+    - target: {fileID: 8708744428689353539, guid: 44baba6e04bb9094393a4bbf906332a1, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 5.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 8708744428689353539, guid: 44baba6e04bb9094393a4bbf906332a1, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: -0.00000026822087
+      objectReference: {fileID: 0}
+    - target: {fileID: 8708744428689353539, guid: 44baba6e04bb9094393a4bbf906332a1, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8708744428689353539, guid: 44baba6e04bb9094393a4bbf906332a1, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8708744428689353539, guid: 44baba6e04bb9094393a4bbf906332a1, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8708744428689353539, guid: 44baba6e04bb9094393a4bbf906332a1, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8708744428689353539, guid: 44baba6e04bb9094393a4bbf906332a1, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 180
+      objectReference: {fileID: 0}
+    - target: {fileID: 8708744428689353539, guid: 44baba6e04bb9094393a4bbf906332a1, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 44baba6e04bb9094393a4bbf906332a1, type: 3}
 --- !u!1 &785084657 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8158691520664978231, guid: 7c6abc990ba23ec449a25be40c122549, type: 3}
@@ -11285,10 +11484,11 @@ Transform:
   m_GameObject: {fileID: 866511827}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: 0.7071057, z: -0, w: 0.7071079}
-  m_LocalPosition: {x: 3.085, y: 1.13, z: -0.883}
-  m_LocalScale: {x: 1.5720106, y: 2.0760972, z: 1}
+  m_LocalPosition: {x: 3.085, y: 1, z: -0.814}
+  m_LocalScale: {x: 1.5720106, y: 2, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1113132494}
   m_Father: {fileID: 1106555185}
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
 --- !u!114 &866511829
@@ -11338,17 +11538,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   activationMode: 1
-  interactKey: 101
+  interactKey: 0
   recheckWhileInside: 1
   requiredStayDuration: 0
-  minStoryPhase: 24
-  useMaxStoryPhase: 0
-  maxStoryPhase: 0
+  minStoryPhase: 22
+  useMaxStoryPhase: 1
+  maxStoryPhase: 26
   useForcedStoryPhase: 1
   forcedStoryPhase: 26
   presentationMode: 0
-  forceCancelPrevious: 0
-  nextDialogueTrigger: {fileID: 0}
+  forceCancelPrevious: 1
+  playerPoseMark: {fileID: 1113132494}
+  tweenPlayerToMark: 1
+  playerTweenDuration: -1
+  nextDialogueTrigger: {fileID: 391321796}
   storyPhaseController: {fileID: 866511829}
 --- !u!1 &868626709
 GameObject:
@@ -11746,6 +11949,9 @@ MonoBehaviour:
   forcedStoryPhase: 20
   presentationMode: 2
   forceCancelPrevious: 0
+  playerPoseMark: {fileID: 0}
+  tweenPlayerToMark: 0
+  playerTweenDuration: -1
   nextDialogueTrigger: {fileID: 0}
   storyPhaseController: {fileID: 916087794}
 --- !u!1 &918130698
@@ -12526,7 +12732,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff7690d6943d30c4097de0453588a032, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  activationMode: 2
+  activationMode: 0
   interactKey: 101
   recheckWhileInside: 1
   requiredStayDuration: 0
@@ -12537,6 +12743,9 @@ MonoBehaviour:
   forcedStoryPhase: 17
   presentationMode: 3
   forceCancelPrevious: 0
+  playerPoseMark: {fileID: 0}
+  tweenPlayerToMark: 0
+  playerTweenDuration: -1
   nextDialogueTrigger: {fileID: 0}
   storyPhaseController: {fileID: 988889116}
 --- !u!1 &995685890
@@ -13407,6 +13616,9 @@ MonoBehaviour:
   forcedStoryPhase: 1
   presentationMode: 0
   forceCancelPrevious: 0
+  playerPoseMark: {fileID: 0}
+  tweenPlayerToMark: 0
+  playerTweenDuration: -1
   nextDialogueTrigger: {fileID: 0}
   storyPhaseController: {fileID: 1072823012}
 --- !u!114 &1072823012
@@ -13714,6 +13926,9 @@ MonoBehaviour:
   forcedStoryPhase: 1
   presentationMode: 1
   forceCancelPrevious: 0
+  playerPoseMark: {fileID: 0}
+  tweenPlayerToMark: 0
+  playerTweenDuration: -1
   nextDialogueTrigger: {fileID: 0}
   storyPhaseController: {fileID: 1094983230}
 --- !u!1 &1106555184
@@ -13819,6 +14034,37 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 2.0158105, z: 0.24105872}
   m_Center: {x: 3.0386898e-11, y: 1.0734162, z: 0.23910129}
+--- !u!1 &1113132493
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1113132494}
+  m_Layer: 0
+  m_Name: mark
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1113132494
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1113132493}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0.70710665, z: -0, w: 0.70710695}
+  m_LocalPosition: {x: 0.1, y: 0, z: -0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 866511828}
+  m_LocalEulerAnglesHint: {x: 0, y: -90, z: 0}
 --- !u!1 &1121792783
 GameObject:
   m_ObjectHideFlags: 0
@@ -14063,6 +14309,7 @@ MonoBehaviour:
   closeDoorDelay: 0.5
   minigameActivator: {fileID: 1799539365}
   exitAndLockOnComplete: 1
+  objectToEnableOnComplete: {fileID: 881747968}
 --- !u!1001 &1175573516
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -15395,6 +15642,11 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
+--- !u!1 &1309415051 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4790675739695170524, guid: 44baba6e04bb9094393a4bbf906332a1, type: 3}
+  m_PrefabInstance: {fileID: 4172702389323318470}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1314130445
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -18854,6 +19106,9 @@ MonoBehaviour:
   forcedStoryPhase: 1
   presentationMode: 0
   forceCancelPrevious: 0
+  playerPoseMark: {fileID: 0}
+  tweenPlayerToMark: 0
+  playerTweenDuration: -1
   nextDialogueTrigger: {fileID: 0}
   storyPhaseController: {fileID: 1567918948}
 --- !u!114 &1567918948
@@ -18949,7 +19204,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff7690d6943d30c4097de0453588a032, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  activationMode: 0
+  activationMode: 2
   interactKey: 101
   recheckWhileInside: 1
   requiredStayDuration: 0
@@ -18960,6 +19215,9 @@ MonoBehaviour:
   forcedStoryPhase: 4
   presentationMode: 2
   forceCancelPrevious: 0
+  playerPoseMark: {fileID: 0}
+  tweenPlayerToMark: 0
+  playerTweenDuration: -1
   nextDialogueTrigger: {fileID: 0}
   storyPhaseController: {fileID: 1576357943}
 --- !u!20 &1589901554 stripped
@@ -20346,6 +20604,17 @@ Transform:
   - {fileID: 1304943197307586335}
   m_Father: {fileID: 839456301}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1753429734 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5238895165373792660, guid: 24d806c07e389d646ae2c9475c35b794, type: 3}
+  m_PrefabInstance: {fileID: 1475635636}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b7a0117126a98f445b18f80d847a7a64, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1785238579
 GameObject:
   m_ObjectHideFlags: 0
@@ -20549,6 +20818,9 @@ MonoBehaviour:
   forcedStoryPhase: 9
   presentationMode: 3
   forceCancelPrevious: 0
+  playerPoseMark: {fileID: 0}
+  tweenPlayerToMark: 0
+  playerTweenDuration: -1
   nextDialogueTrigger: {fileID: 0}
   storyPhaseController: {fileID: 1786521902}
 --- !u!1 &1792657820
@@ -20984,6 +21256,9 @@ MonoBehaviour:
   forcedStoryPhase: 13
   presentationMode: 2
   forceCancelPrevious: 0
+  playerPoseMark: {fileID: 0}
+  tweenPlayerToMark: 0
+  playerTweenDuration: -1
   nextDialogueTrigger: {fileID: 0}
   storyPhaseController: {fileID: 1806872014}
 --- !u!1001 &1809330014
@@ -21329,6 +21604,9 @@ MonoBehaviour:
   forcedStoryPhase: 19
   presentationMode: 0
   forceCancelPrevious: 1
+  playerPoseMark: {fileID: 0}
+  tweenPlayerToMark: 0
+  playerTweenDuration: -1
   nextDialogueTrigger: {fileID: 0}
   storyPhaseController: {fileID: 1829389206}
 --- !u!1 &1832687305
@@ -22639,6 +22917,9 @@ MonoBehaviour:
   forcedStoryPhase: 12
   presentationMode: 2
   forceCancelPrevious: 0
+  playerPoseMark: {fileID: 0}
+  tweenPlayerToMark: 0
+  playerTweenDuration: -1
   nextDialogueTrigger: {fileID: 0}
   storyPhaseController: {fileID: 1894698929}
 --- !u!1 &1897153930
@@ -23201,7 +23482,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff7690d6943d30c4097de0453588a032, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  activationMode: 0
+  activationMode: 2
   interactKey: 101
   recheckWhileInside: 1
   requiredStayDuration: 0
@@ -23212,6 +23493,9 @@ MonoBehaviour:
   forcedStoryPhase: 5
   presentationMode: 2
   forceCancelPrevious: 0
+  playerPoseMark: {fileID: 0}
+  tweenPlayerToMark: 0
+  playerTweenDuration: -1
   nextDialogueTrigger: {fileID: 0}
   storyPhaseController: {fileID: 1914196875}
 --- !u!1 &1917022880
@@ -23955,8 +24239,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.3038521, y: 0.37162474, z: 1.0373061}
-  m_Center: {x: 0.62251717, y: 0.3141876, z: -0.004509568}
+  m_Size: {x: 1.3200092, y: 1, z: 1.7172327}
+  m_Center: {x: 0.11443878, y: 0, z: -0.03823924}
 --- !u!114 &1959473061
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -23969,17 +24253,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff7690d6943d30c4097de0453588a032, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  activationMode: 0
+  activationMode: 1
   interactKey: 101
   recheckWhileInside: 1
-  requiredStayDuration: 0
-  minStoryPhase: 22
+  requiredStayDuration: 30
+  minStoryPhase: 23
   useMaxStoryPhase: 1
   maxStoryPhase: 24
   useForcedStoryPhase: 1
   forcedStoryPhase: 24
   presentationMode: 2
   forceCancelPrevious: 0
+  playerPoseMark: {fileID: 0}
+  tweenPlayerToMark: 0
+  playerTweenDuration: -1
   nextDialogueTrigger: {fileID: 0}
   storyPhaseController: {fileID: 1959473059}
 --- !u!1001 &1962556865
@@ -24554,15 +24841,18 @@ MonoBehaviour:
   activationMode: 1
   interactKey: 101
   recheckWhileInside: 0
-  requiredStayDuration: 10
+  requiredStayDuration: 0
   minStoryPhase: 20
-  useMaxStoryPhase: 0
-  maxStoryPhase: 0
+  useMaxStoryPhase: 1
+  maxStoryPhase: 22
   useForcedStoryPhase: 1
   forcedStoryPhase: 22
   presentationMode: 2
   forceCancelPrevious: 0
-  nextDialogueTrigger: {fileID: 0}
+  playerPoseMark: {fileID: 0}
+  tweenPlayerToMark: 0
+  playerTweenDuration: -1
+  nextDialogueTrigger: {fileID: 727183472}
   storyPhaseController: {fileID: 2052075778}
 --- !u!1 &2061069823
 GameObject:
@@ -27102,7 +27392,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 7223816828412751021, guid: 036f2e1dc5431024d875601c7c0c0bde, type: 3}
       propertyPath: m_Name
-      value: Lau
+      value: Lau_sitting_1
       objectReference: {fileID: 0}
     - target: {fileID: 8642399914456048703, guid: 036f2e1dc5431024d875601c7c0c0bde, type: 3}
       propertyPath: m_LocalPosition.x
@@ -31911,7 +32201,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 4790675739695170524, guid: 44baba6e04bb9094393a4bbf906332a1, type: 3}
       propertyPath: m_Name
-      value: Mandy
+      value: Mandy_counter_1
       objectReference: {fileID: 0}
     - target: {fileID: 8708744428689353539, guid: 44baba6e04bb9094393a4bbf906332a1, type: 3}
       propertyPath: m_LocalPosition.x

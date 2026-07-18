@@ -38,6 +38,7 @@ public class PlayerController : MonoBehaviour
     private CharacterController characterController;
     private int numberOfJumps;
     private bool canMove = true;
+    private bool poseDriven;
     private bool wantsCrouch;
     private float currentHeight;
     private float heightVelocity;
@@ -144,30 +145,78 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// When true, movement / look / gravity are skipped so an external system
+    /// (e.g. CameraManager player pose tween) can drive the transform.
+    /// </summary>
+    public bool PoseDriven
+    {
+        get => poseDriven;
+        set => poseDriven = value;
+    }
+
+    /// <summary>
+    /// Places the character at a world pose. Yaw drives the body; pitch drives the camera look.
+    /// Safe to call while a CharacterController is present.
+    /// </summary>
+    public void ApplyWorldPose(Vector3 worldPosition, Quaternion worldRotation)
+    {
+        if (characterController == null)
+            characterController = GetComponent<CharacterController>();
+
+        float yaw = worldRotation.eulerAngles.y;
+        float pitch = worldRotation.eulerAngles.x;
+        if (pitch > 180f)
+            pitch -= 360f;
+
+        rotationX = Mathf.Clamp(pitch, -lookXLimit, lookXLimit);
+
+        bool wasEnabled = characterController != null && characterController.enabled;
+        if (wasEnabled)
+            characterController.enabled = false;
+
+        transform.SetPositionAndRotation(worldPosition, Quaternion.Euler(0f, yaw, 0f));
+
+        if (playerCamera != null)
+            playerCamera.transform.localRotation = Quaternion.Euler(rotationX, 0f, 0f);
+
+        if (wasEnabled)
+            characterController.enabled = true;
+
+        moveDirection = Vector3.zero;
+        SyncFollowTargets();
+    }
+
     private void HandleStateChange(GameState newState)
     {
+        // Pager locks movement but keeps look free so the player can aim at the screen.
         canMove = newState == GameState.Gameplay;
     }
 
     void Update()
     {
         Debug.Log(GameStateManager.CurrentState);
-        
-        if (!canMove)
-        {
-            ApplyGravityOnly();
-            return;
-        }
 
-        if (playerCamera != null)
+        if (poseDriven)
+            return;
+
+        bool canLook = canMove || GameStateManager.CurrentState == GameState.Pager;
+
+        if (canLook && playerCamera != null)
         {
             Vector2 lookInput = lookAction.ReadValue<Vector2>();
 
             rotationX += -lookInput.y * lookSpeed;
             rotationX = Mathf.Clamp(rotationX, -lookXLimit, lookXLimit);
             playerCamera.transform.localRotation = Quaternion.Euler(rotationX, 0, 0);
-            
+
             transform.Rotate(0, lookInput.x * lookSpeed, 0);
+        }
+
+        if (!canMove)
+        {
+            ApplyGravityOnly();
+            return;
         }
 
         Vector2 moveInput = moveAction.ReadValue<Vector2>();
