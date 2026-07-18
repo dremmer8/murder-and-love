@@ -9,6 +9,11 @@ public class GlobalVariableOperator : MonoBehaviour
     public const string GameProgressionVar = "game_progression";
     public const string StoryPhaseVar = "story_phase";
 
+    /// <summary>
+    /// Once game_progression reaches this value, it will never be lowered below it.
+    /// </summary>
+    public const int ProgressionFloorLock = 28;
+
     static readonly string[] TrackedVariables =
     {
         "kitchen_knife",
@@ -99,6 +104,7 @@ public class GlobalVariableOperator : MonoBehaviour
 
     public void SetGameProgression(int value)
     {
+        value = ClampProgression(value);
         gameProgression = value;
         _lastSeenProgression = value;
         _variables[GameProgressionVar] = value;
@@ -221,10 +227,33 @@ public class GlobalVariableOperator : MonoBehaviour
 
     void ApplyProgressionFromValue(object value)
     {
-        int progression = ToInt(value, gameProgression);
+        int requested = ToInt(value, gameProgression);
+        int progression = ClampProgression(requested);
+
         gameProgression = progression;
         _lastSeenProgression = progression;
         _variables[GameProgressionVar] = progression;
+
+        // Ink may have written a lower value (e.g. re-entering an earlier knot);
+        // push the clamped value back so story state stays consistent.
+        if (progression != requested
+            && _boundStory != null
+            && _boundStory.variablesState.GlobalVariableExistsWithName(GameProgressionVar))
+        {
+            _boundStory.variablesState[GameProgressionVar] = progression;
+        }
+    }
+
+    /// <summary>
+    /// Once progression has hit <see cref="ProgressionFloorLock"/>, never allow it below that floor.
+    /// Values at or above the floor (including later endings) are unchanged.
+    /// </summary>
+    int ClampProgression(int value)
+    {
+        if (gameProgression >= ProgressionFloorLock && value < ProgressionFloorLock)
+            return gameProgression;
+
+        return value;
     }
 
     static int ToInt(object value, int defaultValue = 0)

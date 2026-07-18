@@ -129,6 +129,8 @@ public class DialogueManager : MonoBehaviour
             GlobalVariableOperator.Instance.BindStory(currentStory);
         }
 
+        BindInkExternals(currentStory);
+
         if (!string.IsNullOrEmpty(knotName))
             currentStory.ChoosePathString(knotName);
 
@@ -147,6 +149,21 @@ public class DialogueManager : MonoBehaviour
                 BeginPager();
                 break;
         }
+    }
+
+    void BindInkExternals(Story story)
+    {
+        if (story == null)
+            return;
+
+        GameManager gameManager = GameManager.Instance;
+        if (gameManager == null)
+            gameManager = FindFirstObjectByType<GameManager>();
+
+        if (gameManager != null)
+            gameManager.BindInkExternals(story);
+        else
+            Debug.LogWarning($"{name}: No GameManager found — PlayEndingCutscene will not be bound.", this);
     }
 
     private void BeginStandard()

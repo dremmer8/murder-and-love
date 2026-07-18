@@ -172,12 +172,7 @@ public class IntroSequencePresenter : MonoBehaviour
             return;
         }
 
-        // Text-only bit (e.g. final closing lines). Space will advance.
-        if (!_story.canContinue && _story.currentChoices.Count == 0)
-        {
-            // Stay on last text; next Space finishes.
-            return;
-        }
+        // Text-only bit (e.g. final closing lines). Space will advance / finish.
     }
 
     private void AppendToActiveText(string extra)

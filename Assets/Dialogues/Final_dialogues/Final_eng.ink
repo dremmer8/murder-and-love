@@ -1,5 +1,10 @@
+// Ending cutscenes (GameManager): 1 = escapeEnding, 2 = confessionEnding, 3 = CompletionEnding
+EXTERNAL PlayEndingCutscene(cinematicIndex)
+
 //story phase nubmer
-VAR story_phase = 23
+VAR story_phase = 27
+
+
 
 
 // Unity (GlobalVariableOperator) syncs and stores this across dialogues.
@@ -76,6 +81,7 @@ VAR told_lie_busy = false
     - 29: ->Boyfriend_pager_ending
     
     - 30: ->Lau_confess_ending
+    - 31: ->Boyfriend_ending_dialogue
 
 }
 
@@ -941,7 +947,6 @@ Mandy: Think about it, Vivian. Take your time.
 //  PHASE 28 If the player admitted, but not accept her help yet.
 // =============================================================================
 == Mandy_smoking_scene_3 ==
-~ game_progression = 28
 - (final_choices_mandy)
 * [How is Toi Cing city like?]
 You: How is Toi Cing city like?
@@ -952,6 +957,7 @@ Mandy: People are closer to each another there, and I'm sure you'll get used to 
 You: I don’t know… I need to think.
 Mandy: Take your time. I'll be here smoking for a while. 
 Mandy: you can come back to me whenever you're ready.
+~ game_progression = 28
 -> END
 
 = Mandy_escape_ending
@@ -975,32 +981,24 @@ You: If I make it there, please come to visit me.
 You: Bring your son. We could find a job there, start a new life. 
 You: I will miss you…
 Mandy: I will visit you. Take care of yourself, Vivian.
+~ game_progression = 28
+~ PlayEndingCutscene(1)
 -> END
+
 
 // =============================================================================
 //  PHASE 29 After you talk to mandy, you will recieve a message from your boyfriend.
 // =============================================================================
 == Boyfriend_pager_ending ==
 ~ game_progression = 29
-J: Just arrived home. Write me as soon as you're done.
-+[(Ignore first)] 
--> END
-*[(To Complete Mission) (Ending)]
-J: I know I can trust you, sweetheart.
-J: Come home when it's done. Can't wait to cuddle you.
-J: Long night.
-J: Things will get better. You've got me. We'll get through this.
-J: Sorry it turned out this way. I was protecting us. Bad guy is gone.
-J: Forget it now. Trip to another city. Too many criminals here.
-J: Pick clothes up and come home. Setting off tomorrow. Road trip for two.
-J: This night will pass. We still have tomorrow.
--> END
+J: I just arrive home. Tell me you done it.
++[(Igore first)] -> END
+*[(To Complete Misson) (Ending)] -> Boyfriend_ending_dialogue
 
 // =============================================================================
 //  PHASE 30 After mandy talks to you, if player goes to Lau and press E.
 // =============================================================================
 == Lau_confess_ending ==
-~ game_progression = 30
 What's that face for, sweet heart? You look like you just saw a ghost.
 + [Nothing.]
 You: I'm just tired.
@@ -1028,6 +1026,38 @@ Cop: Were you a part of this?
   Cop: ...Miss, you did a right thing. 
   It took courage to confess and report a crime of your lover.
   Now, please come with me.
+  ~ game_progression = 30
+  ~ PlayEndingCutscene(2)
   -> END
 
+// =============================================================================
+//  PHASE 31 Standard dialogue after choosing to complete the mission on the pager.
+// =============================================================================
+== Boyfriend_ending_dialogue ==
+~ game_progression = 31
+You: I’m done. The wash cycles should be finished in a few minutes.
+J: I know that I can trust you, sweetheart.
+Come back home when it's done. I can't wait to cuddle you.
+It's been a long night.
+ *[Yeah]
+ You: Yeah. I don't know if I can fall asleep so easily.
+ J: Things will get better. You’ve got me by your side. We’ll get through this.
+   **[We can try.]
+   You: Yeah. We can try.
+   J: I’m sorry things turned out this way. 
+   I was protecting us. But now the bad guy is gone.
+   Forget about it now. We should go on a trip to another city. 
+   There are far too many criminals here.
+   Where do you want to go, bb?
+   ***[Toi Cing City.]
+   You: Toi Cing City seems to be a good choice.
+   ***[Don't know.]
+   You: I don't know. Anywhere should work.
+   - J: Sure. Pick clothes up and come home. 
+   We’re setting off tomorrow.
+   Road trip for two, haha.
+      ****[Sure] You: Sure. I need this.
+      J: I promise you: this night and these memories will pass. 
+      We still have tomorrow.
+~ PlayEndingCutscene(3)
 -> END

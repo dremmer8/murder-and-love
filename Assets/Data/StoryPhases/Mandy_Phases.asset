@@ -44,7 +44,7 @@ MonoBehaviour:
   - storyPhase: 27
     knotName: Mandy_smoking_scene_2
     requiredProgression: 26
-    maxProgression: 27
+    maxProgression: 28
     playOnce: 0
   - storyPhase: 28
     knotName: Mandy_smoking_scene_3

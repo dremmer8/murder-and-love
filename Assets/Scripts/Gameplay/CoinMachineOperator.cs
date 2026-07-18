@@ -10,8 +10,11 @@ public class CoinMachineOperator : MonoBehaviour
     [SerializeField] Collider billSlit;
     [SerializeField] float failAnimDuration = 14f;
 
-    [Tooltip("Seconds to wait after the success (win) event before exiting the minigame.")]
+    [Tooltip("Seconds to wait after the success (win) trigger before firing the end trigger.")]
     [SerializeField] float successAnimDuration = 9f;
+
+    [Tooltip("Seconds to wait after the end trigger before exiting the minigame.")]
+    [SerializeField] float endExitDelay = 4f;
 
     [SerializeField] MinigameActivator minigameActivator;
     public DialogueTrigger afterSecondFailDialogue;
@@ -74,6 +77,7 @@ public class CoinMachineOperator : MonoBehaviour
         animator.SetTrigger("win");
         yield return new WaitForSeconds(successAnimDuration);
         animator.SetTrigger("end");
+        yield return new WaitForSeconds(endExitDelay);
         step = Step.Done;
 
         if (minigameActivator != null)

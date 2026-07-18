@@ -18,7 +18,7 @@ MonoBehaviour:
   phases:
   - storyPhase: 4
     knotName: Thought_about_not_leaving_clothes
-    requiredProgression: 3
+    requiredProgression: 2
     maxProgression: 9999
     playOnce: 1
   - storyPhase: 5
@@ -28,17 +28,17 @@ MonoBehaviour:
     playOnce: 1
   - storyPhase: 8
     knotName: Inner_voice_backroom_phase_1
-    requiredProgression: 7
+    requiredProgression: 6
     maxProgression: 9999
     playOnce: 0
   - storyPhase: 11
     knotName: Thought_about_how_detergent_looks
-    requiredProgression: 9
+    requiredProgression: 8
     maxProgression: 9999
     playOnce: 1
   - storyPhase: 12
     knotName: Thought_about_got_right_detergent
-    requiredProgression: 11
+    requiredProgression: 8
     maxProgression: 9999
     playOnce: 1
   - storyPhase: 13
