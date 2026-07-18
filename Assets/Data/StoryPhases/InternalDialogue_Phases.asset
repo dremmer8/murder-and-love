@@ -23,7 +23,7 @@ MonoBehaviour:
     playOnce: 1
   - storyPhase: 5
     knotName: Thought_about_empty_detergent
-    requiredProgression: 4
+    requiredProgression: 2
     maxProgression: 9999
     playOnce: 1
   - storyPhase: 8

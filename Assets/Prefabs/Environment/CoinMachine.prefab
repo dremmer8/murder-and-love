@@ -272,6 +272,9 @@ MonoBehaviour:
   billSlit: {fileID: 3525758734363675511}
   failAnimDuration: 14
   successAnimDuration: 9
+  endExitDelay: 4
+  minigameActivator: {fileID: 0}
+  afterSecondFailDialogue: {fileID: 0}
 --- !u!1 &6719973659250365724
 GameObject:
   m_ObjectHideFlags: 0
@@ -1503,7 +1506,8 @@ PrefabInstance:
     m_RemovedComponents:
     - {fileID: 2498286691624918554, guid: 620d93405475311439301540c25e53dd, type: 3}
     - {fileID: 2203431713786267649, guid: 620d93405475311439301540c25e53dd, type: 3}
-    m_RemovedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: 5943022727718597573, guid: 620d93405475311439301540c25e53dd, type: 3}
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: 6359032284606352480, guid: 620d93405475311439301540c25e53dd, type: 3}
       insertIndex: -1

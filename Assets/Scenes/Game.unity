@@ -5384,7 +5384,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cfbe431e9a1665145a55b7f905d4bd8a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gameProgression: 26
+  gameProgression: 6
 --- !u!114 &339123857
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -18207,7 +18207,7 @@ MonoBehaviour:
   interactKey: 101
   recheckWhileInside: 1
   requiredStayDuration: 0
-  minStoryPhase: 26
+  minStoryPhase: 29
   useMaxStoryPhase: 0
   maxStoryPhase: 29
   useForcedStoryPhase: 1

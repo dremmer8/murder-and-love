@@ -1105,6 +1105,7 @@ MonoBehaviour:
   machineId: 0
   minigameActivator: {fileID: 3625660002362473942}
   exitDelayAfterStart: 1.5
+  exitDelayAfterLastCloth: 0.5
   secondClothDialogue: {fileID: 0}
   afterMachineDialogue: {fileID: 0}
   firstClothDialogue: {fileID: 0}
@@ -2509,6 +2510,8 @@ MonoBehaviour:
   showCursorInMinigame: 1
   allowExitWithKey: 1
   exitKey: 27
+  autoEndWithTimer: 0
+  autoEndDelay: 3
 --- !u!114 &657898517183491655
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4002,7 +4005,9 @@ PrefabInstance:
     m_RemovedComponents:
     - {fileID: 2203431713786267649, guid: 620d93405475311439301540c25e53dd, type: 3}
     - {fileID: 2498286691624918554, guid: 620d93405475311439301540c25e53dd, type: 3}
-    m_RemovedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: 8461313969263891941, guid: 620d93405475311439301540c25e53dd, type: 3}
+    - {fileID: 3958388201931985868, guid: 620d93405475311439301540c25e53dd, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 620d93405475311439301540c25e53dd, type: 3}

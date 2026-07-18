@@ -71,6 +71,7 @@ public class DialogueTrigger : MonoBehaviour
     private bool zoneFiredThisStay;
     private float stayTimer;
     private Coroutine pendingNextRoutine;
+    private string waitingForKnot;
 
     public DialogueActivationMode ActivationMode
     {
@@ -287,7 +288,7 @@ public class DialogueTrigger : MonoBehaviour
                 GlobalVariableOperator.Instance.SetStoryPhase(phase);
         }
 
-        SubscribeDialogueEnded();
+        SubscribeDialogueEnded(knotToPlay);
 
         DialoguePresentationMode mode = presentationMode;
         if (isRespondSupportPager)
@@ -340,15 +341,17 @@ public class DialogueTrigger : MonoBehaviour
             && !transform.IsChildOf(aimed.transform);
     }
 
-    private void SubscribeDialogueEnded()
+    private void SubscribeDialogueEnded(string knotName)
     {
-        if (waitingForDialogueEnd)
-            return;
-
         DialogueManager manager = DialogueManager.GetInstance();
         if (manager == null)
             return;
 
+        // Always re-bind so a replaced pager thread tracks the new knot.
+        if (waitingForDialogueEnd)
+            manager.OnDialogueEnded -= HandleDialogueEnded;
+
+        waitingForKnot = knotName ?? "";
         manager.OnDialogueEnded += HandleDialogueEnded;
         waitingForDialogueEnd = true;
     }
@@ -363,10 +366,18 @@ public class DialogueTrigger : MonoBehaviour
             manager.OnDialogueEnded -= HandleDialogueEnded;
 
         waitingForDialogueEnd = false;
+        waitingForKnot = null;
     }
 
     private void HandleDialogueEnded(string completedKnot)
     {
+        // Pager stays subscribed while the player can still talk to NPCs.
+        // Ignore other dialogues ending so nextDialogueTrigger does not bleed.
+        if (!string.IsNullOrEmpty(waitingForKnot)
+            && !string.IsNullOrEmpty(completedKnot)
+            && completedKnot != waitingForKnot)
+            return;
+
         UnsubscribeDialogueEnded();
 
         if (storyPhaseController != null && !string.IsNullOrEmpty(completedKnot))
