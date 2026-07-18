@@ -151,7 +151,7 @@ public class WashingMachineClothOperator : MonoBehaviour
     {
         if (step == Step.Done || !animator) return false;
         var ray = cam.ScreenPointToRay(Input.mousePosition);
-        if (!Physics.Raycast(ray, out var hit, 200f)) return false;
+        if (!Physics.Raycast(ray, out var hit, 200f, GameLayers.MinigameZoneMask)) return false;
         var c = hit.collider;
         switch (step)
         {
@@ -202,7 +202,7 @@ public class WashingMachineClothOperator : MonoBehaviour
         int count = ClothCount;
         if (done >= count || !cloths[done]) return;
         var ray = cam.ScreenPointToRay(Input.mousePosition);
-        var hits = Physics.RaycastAll(ray, 200f);
+        var hits = Physics.RaycastAll(ray, 200f, GameLayers.MinigameZoneMask);
         bool ok = false;
         var c = cloths[done];
         foreach (var hit in hits)

@@ -515,7 +515,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8021368186929355698}
   - component: {fileID: 3525758734363675511}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: slitCollider
   m_TagString: Untagged
   m_Icon: {fileID: 0}

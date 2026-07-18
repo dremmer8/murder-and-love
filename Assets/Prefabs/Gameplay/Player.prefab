@@ -423,6 +423,9 @@ MonoBehaviour:
   interactableLayer:
     serializedVersion: 2
     m_Bits: 64
+  dialogueLayer:
+    serializedVersion: 2
+    m_Bits: 256
   interactKey: 101
   interactionSystem: {fileID: 7168751834971011413}
   gizmoColor: {r: 1, g: 0.10298692, b: 0, a: 1}

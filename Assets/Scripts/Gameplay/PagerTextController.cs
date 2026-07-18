@@ -36,8 +36,8 @@ public class PagerTextController : MonoBehaviour
     [SerializeField] private string emptyInboxText = "no messages";
 
     [Header("Prop Screen")]
-    [Tooltip("World/prop pager display (visible while the true pager is closed).")]
-    [SerializeField] private TextMeshPro propScreenText;
+    [Tooltip("World/prop pager displays (visible while the true pager is closed).")]
+    [SerializeField] private List<TextMeshPro> propScreenTexts = new();
     [SerializeField] private string unreadPropText = "new message";
     [SerializeField] private string blankPropText = "";
 
@@ -612,10 +612,15 @@ public class PagerTextController : MonoBehaviour
 
     void RefreshPropDisplay()
     {
-        if (propScreenText == null)
+        if (propScreenTexts == null || propScreenTexts.Count == 0)
             return;
 
-        propScreenText.text = _hasUnreadMessage ? unreadPropText : blankPropText;
+        string text = _hasUnreadMessage ? unreadPropText : blankPropText;
+        for (int i = 0; i < propScreenTexts.Count; i++)
+        {
+            if (propScreenTexts[i] != null)
+                propScreenTexts[i].text = text;
+        }
     }
 
     void ForceCloseWithoutUnlock()

@@ -234,7 +234,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5355779014742246062}
   - component: {fileID: 2907808130976047678}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: barrellCollider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -418,7 +418,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7334089315177442787}
   - component: {fileID: 2387501611432680172}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: startCollider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -521,7 +521,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1023303848728281735}
   - component: {fileID: 6760160751735250193}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: trayCollider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -917,7 +917,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4802304262010211722}
   - component: {fileID: 2638126379123601629}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: coinCollider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -970,7 +970,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8118487730614093179}
   - component: {fileID: 186181032891527885}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: doorCollider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1646,7 +1646,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1333203943027717690}
   - component: {fileID: 6715999721809362744}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: basketCollider
   m_TagString: Untagged
   m_Icon: {fileID: 0}

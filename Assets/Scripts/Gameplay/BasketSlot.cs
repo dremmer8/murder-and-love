@@ -99,9 +99,13 @@ public class BasketSlot : MonoBehaviour
         _prevWorldPos = transform.position;
         _prevWorldRot = transform.rotation;
 
+        // Inertia sway is horizontal only — ignore vertical travel.
+        worldDelta.y = 0f;
+
         if (worldDelta.sqrMagnitude > 1e-8f)
         {
             _offset += transform.InverseTransformDirection(-worldDelta) * impulse;
+            _offset.y = 0f;
             _offset = Vector3.ClampMagnitude(_offset, maxOffset);
         }
 
@@ -116,6 +120,7 @@ public class BasketSlot : MonoBehaviour
         }
 
         _offset = Vector3.Lerp(_offset, Vector3.zero, Time.deltaTime * returnSpeed);
+        _offset.y = 0f;
         _tilt = Vector3.Lerp(_tilt, Vector3.zero, Time.deltaTime * returnSpeed);
 
         transform.localPosition = _restLocalPos + _offset;

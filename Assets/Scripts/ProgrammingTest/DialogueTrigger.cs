@@ -132,9 +132,9 @@ public class DialogueTrigger : MonoBehaviour
                     return;
                 if (!Input.GetKeyDown(interactKey))
                     return;
-                // Standing in a dialogue volume must not steal E from a look-targeted Interactable
-                // (coin machine, detergent, etc.). InteractionSystem owns that press.
-                if (IsAimingAtForeignInteractable())
+                // Standing in a dialogue volume must not steal E from look-targeted
+                // Interactables or DialogueZone NPCs — InteractionSystem owns those presses.
+                if (IsAimingAtLookTarget())
                     return;
                 TryStartDialogue();
                 break;
@@ -323,9 +323,10 @@ public class DialogueTrigger : MonoBehaviour
     }
 
     /// <summary>
-    /// True when the player is aiming at an <see cref="Interactable"/> that is not this trigger.
+    /// True when the crosshair is on an Interactable or DialogueZone target.
+    /// Those presses are owned by <see cref="InteractionSystem"/> (separate layer masks).
     /// </summary>
-    private bool IsAimingAtForeignInteractable()
+    private bool IsAimingAtLookTarget()
     {
         InteractionSystem interaction = InteractionSystem.Instance;
         if (interaction == null)
@@ -334,11 +335,8 @@ public class DialogueTrigger : MonoBehaviour
         if (interaction == null)
             return false;
 
-        if (!interaction.TryGetAimedInteractable(out Interactable aimed))
-            return false;
-
-        return aimed.transform != transform && !aimed.transform.IsChildOf(transform)
-            && !transform.IsChildOf(aimed.transform);
+        return interaction.TryGetAimedInteractable(out _)
+            || interaction.TryGetAimedDialogueTrigger(out _);
     }
 
     private void SubscribeDialogueEnded(string knotName)

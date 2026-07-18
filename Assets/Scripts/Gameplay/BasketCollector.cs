@@ -3,14 +3,33 @@ using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 
+[System.Serializable]
+public class BasketPhaseCleanupEntry
+{
+    [Tooltip("Applies when game_progression >= this value.")]
+    public int storyPhase;
+
+    [Tooltip("Enabled when this phase threshold is reached.")]
+    public List<GameObject> objectsToActivate = new();
+
+    [Tooltip("Disabled when this phase threshold is reached.")]
+    public List<GameObject> objectsToDeactivate = new();
+}
+
 public class BasketCollector : MonoBehaviour
 {
     [SerializeField] float duration = 0.45f;
     [SerializeField] float archHeight = 0.35f;
 
+    [Header("Phase Cleanup")]
+    [SerializeField] List<BasketPhaseCleanupEntry> phaseCleanups = new();
+
     readonly Dictionary<string, BasketSlot> _slots = new();
     readonly Dictionary<Transform, Tween> _tweens = new();
     public static BasketCollector Instance;
+
+    int _lastSeenProgression = int.MinValue;
+    readonly HashSet<int> _appliedCleanupIndices = new();
 
     void Awake()
     {
@@ -24,6 +43,21 @@ public class BasketCollector : MonoBehaviour
         if (Instance == null)
             Instance = this;
         RescanSlots();
+        TryApplyPhaseCleanups();
+    }
+
+    void Start()
+    {
+        TryApplyPhaseCleanups();
+    }
+
+    void Update()
+    {
+        int progression = CurrentProgression();
+        if (progression == _lastSeenProgression)
+            return;
+
+        TryApplyPhaseCleanups();
     }
 
     void OnDestroy()
@@ -33,6 +67,53 @@ public class BasketCollector : MonoBehaviour
 
         foreach (var tween in _tweens.Values)
             tween?.Kill();
+    }
+
+    void TryApplyPhaseCleanups()
+    {
+        int progression = CurrentProgression();
+        _lastSeenProgression = progression;
+
+        if (phaseCleanups == null || phaseCleanups.Count == 0)
+            return;
+
+        for (int i = 0; i < phaseCleanups.Count; i++)
+        {
+            if (_appliedCleanupIndices.Contains(i))
+                continue;
+
+            BasketPhaseCleanupEntry entry = phaseCleanups[i];
+            if (entry == null || progression < entry.storyPhase)
+                continue;
+
+            ApplyCleanupEntry(entry);
+            _appliedCleanupIndices.Add(i);
+        }
+    }
+
+    static void ApplyCleanupEntry(BasketPhaseCleanupEntry entry)
+    {
+        SetActiveList(entry.objectsToActivate, true);
+        SetActiveList(entry.objectsToDeactivate, false);
+    }
+
+    static void SetActiveList(List<GameObject> list, bool active)
+    {
+        if (list == null)
+            return;
+
+        for (int i = 0; i < list.Count; i++)
+        {
+            if (list[i] != null)
+                list[i].SetActive(active);
+        }
+    }
+
+    static int CurrentProgression()
+    {
+        return GlobalVariableOperator.Instance != null
+            ? GlobalVariableOperator.Instance.GameProgression
+            : 0;
     }
 
     /// <summary>

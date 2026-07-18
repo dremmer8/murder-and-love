@@ -61,7 +61,7 @@ public class CircuitBoxAnimator : MonoBehaviour
     bool TrySequenceClick()
     {
         var ray = cam.ScreenPointToRay(Input.mousePosition);
-        if (!Physics.Raycast(ray, out var hit, 200f)) return false;
+        if (!Physics.Raycast(ray, out var hit, 200f, GameLayers.MinigameZoneMask)) return false;
 
         var c = hit.collider;
         switch (step)

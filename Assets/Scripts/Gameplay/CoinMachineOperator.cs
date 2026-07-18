@@ -39,7 +39,7 @@ public class CoinMachineOperator : MonoBehaviour
     bool TryBillSlitClick()
     {
         var ray = cam.ScreenPointToRay(Input.mousePosition);
-        if (!Physics.Raycast(ray, out var hit, 200f)) return false;
+        if (!Physics.Raycast(ray, out var hit, 200f, GameLayers.MinigameZoneMask)) return false;
         if (hit.collider != billSlit) return false;
 
         switch (step)
