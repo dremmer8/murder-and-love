@@ -1,79 +1,9 @@
 fileFormatVersion: 2
-guid: fd68f7e90bedb974cafe52108857ab8b
+guid: 3a637bfeb379db34d8d5c5b4f1cd807c
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
-  externalObjects:
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Dress
-    second: {fileID: 2100000, guid: 26d47802488120d4d9621b7328a84424, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Dress_Bottom
-    second: {fileID: 2100000, guid: 26d47802488120d4d9621b7328a84424, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Earings
-    second: {fileID: 2100000, guid: 26d47802488120d4d9621b7328a84424, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: EyeLashes
-    second: {fileID: 2100000, guid: 26d47802488120d4d9621b7328a84424, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: EyePupils
-    second: {fileID: 2100000, guid: 26d47802488120d4d9621b7328a84424, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Eyeballs
-    second: {fileID: 2100000, guid: 26d47802488120d4d9621b7328a84424, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Eyebrows
-    second: {fileID: 2100000, guid: 26d47802488120d4d9621b7328a84424, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Hair
-    second: {fileID: 2100000, guid: 26d47802488120d4d9621b7328a84424, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Hands_Arms
-    second: {fileID: 2100000, guid: 26d47802488120d4d9621b7328a84424, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Head
-    second: {fileID: 2100000, guid: 26d47802488120d4d9621b7328a84424, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Legs
-    second: {fileID: 2100000, guid: 26d47802488120d4d9621b7328a84424, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Shoes
-    second: {fileID: 2100000, guid: 26d47802488120d4d9621b7328a84424, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Teeth
-    second: {fileID: 2100000, guid: 26d47802488120d4d9621b7328a84424, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Tongue
-    second: {fileID: 2100000, guid: 26d47802488120d4d9621b7328a84424, type: 2}
+  externalObjects: {}
   materials:
     materialImportMode: 2
     materialName: 0
