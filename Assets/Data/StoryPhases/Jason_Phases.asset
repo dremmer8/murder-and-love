@@ -34,10 +34,10 @@ MonoBehaviour:
   - storyPhase: 29
     knotName: Boyfriend_pager_ending
     requiredProgression: 26
-    maxProgression: 9999
+    maxProgression: 28
     playOnce: 1
   - storyPhase: 31
-    knotName: Boyfriend_pager_ending
+    knotName: Boyfriend_ending_dialogue_final
     requiredProgression: 26
     maxProgression: 9999
-    playOnce: 0
+    playOnce: 1

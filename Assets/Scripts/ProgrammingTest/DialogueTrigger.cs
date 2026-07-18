@@ -46,6 +46,9 @@ public class DialogueTrigger : MonoBehaviour
     [Tooltip("If true, starting this trigger aborts any active dialogue and starts immediately.")]
     public bool forceCancelPrevious;
 
+    [Tooltip("Pager only: after the inbound message, Space shows \"start typing\" and any key types the canned reply. When finished, plays the completion ending cutscene and fires Next Dialogue Trigger. Tab is the only way to leave the pager during this sequence.")]
+    [SerializeField] private bool isRespondSupportPager;
+
     [Header("Player Pose")]
     [Tooltip("Optional mark the player tweens to when this dialogue starts. Leave empty to keep current pose.")]
     [SerializeField] private Transform playerPoseMark;
@@ -81,6 +84,12 @@ public class DialogueTrigger : MonoBehaviour
         set => presentationMode = value;
     }
 
+    public bool IsRespondSupportPager
+    {
+        get => isRespondSupportPager;
+        set => isRespondSupportPager = value;
+    }
+
     public bool PlayerInRange => playerInRange;
     public bool IsWaitingForDialogueEnd => waitingForDialogueEnd;
 
@@ -111,7 +120,8 @@ public class DialogueTrigger : MonoBehaviour
 
         if (!forceCancelPrevious
             && waitingForDialogueEnd
-            && presentationMode != DialoguePresentationMode.Pager)
+            && presentationMode != DialoguePresentationMode.Pager
+            && !isRespondSupportPager)
             return;
 
         switch (activationMode)
@@ -233,7 +243,8 @@ public class DialogueTrigger : MonoBehaviour
 
     private bool BeginDialogue(string knotToPlay, int storyPhaseToSet, bool force = false)
     {
-        if (!force && presentationMode != DialoguePresentationMode.Pager && waitingForDialogueEnd)
+        if (!force && presentationMode != DialoguePresentationMode.Pager && !isRespondSupportPager
+            && waitingForDialogueEnd)
             return false;
 
         DialogueManager manager = DialogueManager.GetInstance();
@@ -248,11 +259,11 @@ public class DialogueTrigger : MonoBehaviour
             UnsubscribeDialogueEnded();
             manager.AbortActivePresentation();
         }
-        else if (manager.IsBusy && presentationMode != DialoguePresentationMode.Pager)
+        else if (manager.IsBusy && presentationMode != DialoguePresentationMode.Pager && !isRespondSupportPager)
             return false;
 
         // Pager threads replace each other; don't block on IsBusy from NPCs.
-        if (presentationMode == DialoguePresentationMode.Pager
+        if ((presentationMode == DialoguePresentationMode.Pager || isRespondSupportPager)
             && manager.ActiveMode == DialoguePresentationMode.Pager
             && waitingForDialogueEnd)
         {
@@ -277,7 +288,12 @@ public class DialogueTrigger : MonoBehaviour
         }
 
         SubscribeDialogueEnded();
-        manager.EnterDialogue(inkFile, knotToPlay, presentationMode);
+
+        DialoguePresentationMode mode = presentationMode;
+        if (isRespondSupportPager)
+            mode = DialoguePresentationMode.Pager;
+
+        manager.EnterDialogue(inkFile, knotToPlay, mode, isRespondSupportPager);
         TryTweenPlayerToMark();
         return true;
     }
@@ -289,7 +305,8 @@ public class DialogueTrigger : MonoBehaviour
 
         // Modes that keep free movement should not steal the player pose.
         if (presentationMode == DialoguePresentationMode.InternalMonologue
-            || presentationMode == DialoguePresentationMode.Pager)
+            || presentationMode == DialoguePresentationMode.Pager
+            || isRespondSupportPager)
             return;
 
         if (CameraManager.Instance == null)

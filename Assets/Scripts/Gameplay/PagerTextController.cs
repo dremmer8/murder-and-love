@@ -9,10 +9,21 @@ using Ink.Runtime;
 /// Space advances messages forward only. Arrows scroll the visible window.
 /// Conversation stays until a new one replaces it. "no messages" when fully read.
 /// Prop screen shows "new message" until the player finishes reading the thread.
+/// Respond-support mode: after the inbound message, Space shows "start typing"; any key
+/// types a canned reply; finishing plays the completion ending and completes the knot.
 /// </summary>
 public class PagerTextController : MonoBehaviour
 {
     public static PagerTextController Instance { get; private set; }
+
+    enum RespondPhase
+    {
+        None,
+        ReadingInbound,
+        StartTypingPrompt,
+        TypingReply,
+        Finished
+    }
 
     [Header("Hardware")]
     public Animator animator;
@@ -30,6 +41,11 @@ public class PagerTextController : MonoBehaviour
     [SerializeField] private string unreadPropText = "new message";
     [SerializeField] private string blankPropText = "";
 
+    [Header("Respond Support")]
+    [SerializeField] private string startTypingText = "start typing";
+    [SerializeField] private string respondSupportReply =
+        "I'm done. The wash cycles should be finished in a few minutes.";
+
     [Header("Input")]
     [SerializeField] private KeyCode toggleKey = KeyCode.Tab;
     [SerializeField] private KeyCode advanceKey = KeyCode.Space;
@@ -43,13 +59,18 @@ public class PagerTextController : MonoBehaviour
     bool _completionFired;
     bool _hasUnreadMessage;
 
+    bool _respondSupportMode;
+    RespondPhase _respondPhase = RespondPhase.None;
+    int _typedCharCount;
+
     Story _story;
     string _knotName;
     Action<string> _onConversationComplete;
 
     public bool IsOpen => _isOpen;
     public bool HasConversation => _hasConversation;
-    public bool IsWaitingForChoice => _waitingForChoice;
+    public bool IsWaitingForChoice => _waitingForChoice && !_respondSupportMode;
+    public bool IsRespondSupportMode => _respondSupportMode;
 
     void Awake()
     {
@@ -88,10 +109,14 @@ public class PagerTextController : MonoBehaviour
 
     void Update()
     {
+        // During respond-support, Tab is the only way out of the open pager.
         if (Input.GetKeyDown(toggleKey))
             TogglePager();
 
         if (!_isOpen)
+            return;
+
+        if (_respondSupportMode && HandleRespondSupportInput())
             return;
 
         if (Input.GetKeyDown(KeyCode.LeftArrow))
@@ -112,6 +137,11 @@ public class PagerTextController : MonoBehaviour
     /// </summary>
     public bool BeginConversation(Story story, string knotName, Action<string> onComplete)
     {
+        return BeginConversation(story, knotName, onComplete, respondSupportMode: false);
+    }
+
+    public bool BeginConversation(Story story, string knotName, Action<string> onComplete, bool respondSupportMode)
+    {
         if (story == null)
             return false;
 
@@ -126,8 +156,24 @@ public class PagerTextController : MonoBehaviour
         _completionFired = false;
         _messageIndex = 0;
         _scrollIndex = 0;
+        _respondSupportMode = respondSupportMode;
+        _respondPhase = RespondPhase.None;
+        _typedCharCount = 0;
 
         CollectLinesUntilPause();
+
+        if (_respondSupportMode)
+        {
+            // Choice buttons are replaced by the typing reply flow.
+            _waitingForChoice = false;
+            _respondPhase = RespondPhase.ReadingInbound;
+            _hasUnreadMessage = _messages.Count > 0;
+            RefreshDisplay();
+            RefreshPropDisplay();
+            PokePager();
+            return true;
+        }
+
         _hasUnreadMessage = _messages.Count > 0 || _waitingForChoice;
         RefreshDisplay();
         RefreshPropDisplay();
@@ -148,6 +194,9 @@ public class PagerTextController : MonoBehaviour
         _messageIndex = 0;
         _scrollIndex = 0;
         _waitingForChoice = false;
+        _respondSupportMode = false;
+        _respondPhase = RespondPhase.None;
+        _typedCharCount = 0;
         _hasUnreadMessage = _hasConversation;
 
         if (_hasConversation)
@@ -184,7 +233,10 @@ public class PagerTextController : MonoBehaviour
 
         // After a finished read, reopening lets the player review the thread
         // until Jason sends a new conversation.
-        if (_hasConversation && _messages.Count > 0 && _messageIndex >= _messages.Count)
+        if (!_respondSupportMode
+            && _hasConversation
+            && _messages.Count > 0
+            && _messageIndex >= _messages.Count)
             _messageIndex = 0;
 
         _scrollIndex = 0;
@@ -231,6 +283,9 @@ public class PagerTextController : MonoBehaviour
     /// <summary>Called by DialogueManager when the player picks a pager choice.</summary>
     public void NotifyChoiceMade(int choiceIndex)
     {
+        if (_respondSupportMode)
+            return;
+
         if (!_waitingForChoice || _story == null)
             return;
 
@@ -260,10 +315,175 @@ public class PagerTextController : MonoBehaviour
 
     public IReadOnlyList<Choice> GetPendingChoices()
     {
-        if (!_waitingForChoice || _story == null)
+        if (_respondSupportMode || !_waitingForChoice || _story == null)
             return Array.Empty<Choice>();
 
         return _story.currentChoices;
+    }
+
+    /// <summary>
+    /// Returns true when respond-support consumed this frame's input (skip normal advance/scroll).
+    /// </summary>
+    bool HandleRespondSupportInput()
+    {
+        switch (_respondPhase)
+        {
+            case RespondPhase.ReadingInbound:
+                if (Input.GetKeyDown(KeyCode.LeftArrow))
+                {
+                    ScrollLeft();
+                    return true;
+                }
+
+                if (Input.GetKeyDown(KeyCode.RightArrow))
+                {
+                    ScrollRight();
+                    return true;
+                }
+
+                if (Input.GetKeyDown(advanceKey))
+                {
+                    if (_messageIndex < _messages.Count - 1)
+                    {
+                        _messageIndex++;
+                        _scrollIndex = 0;
+                        RefreshDisplay();
+                    }
+                    else
+                    {
+                        EnterStartTypingPrompt();
+                    }
+
+                    return true;
+                }
+
+                return true;
+
+            case RespondPhase.StartTypingPrompt:
+            case RespondPhase.TypingReply:
+                // Tab is handled above for leaving. Every other key types the canned reply.
+                if (Input.GetKeyDown(toggleKey))
+                    return true;
+
+                if (TryConsumeTypingKey())
+                    return true;
+
+                return true;
+
+            case RespondPhase.Finished:
+                // Stay on the typed reply until Tab closes; no further input advances.
+                return true;
+
+            default:
+                return false;
+        }
+    }
+
+    bool TryConsumeTypingKey()
+    {
+        if (!AnyNonToggleKeyDown())
+            return false;
+
+        if (_respondPhase == RespondPhase.StartTypingPrompt)
+        {
+            _respondPhase = RespondPhase.TypingReply;
+            _typedCharCount = 0;
+        }
+
+        string reply = respondSupportReply ?? "";
+        if (_typedCharCount >= reply.Length)
+            return true;
+
+        _typedCharCount++;
+        _scrollIndex = Mathf.Max(0, _typedCharCount - visibleCharacterCount);
+        RefreshDisplay();
+        PokePager();
+
+        if (_typedCharCount >= reply.Length)
+            FinishRespondSupport();
+
+        return true;
+    }
+
+    static readonly KeyCode[] ModifierKeys =
+    {
+        KeyCode.LeftShift, KeyCode.RightShift,
+        KeyCode.LeftControl, KeyCode.RightControl,
+        KeyCode.LeftAlt, KeyCode.RightAlt,
+        KeyCode.LeftCommand, KeyCode.RightCommand,
+        KeyCode.CapsLock
+    };
+
+    static readonly KeyCode[] KeyboardKeys = BuildKeyboardKeys();
+
+    static KeyCode[] BuildKeyboardKeys()
+    {
+        var keys = new List<KeyCode>();
+        foreach (KeyCode key in (KeyCode[])Enum.GetValues(typeof(KeyCode)))
+        {
+            if (key == KeyCode.None || key == KeyCode.Tab)
+                continue;
+            if ((int)key >= (int)KeyCode.Mouse0)
+                continue;
+            if (IsModifierKey(key))
+                continue;
+            keys.Add(key);
+        }
+
+        return keys.ToArray();
+    }
+
+    static bool AnyNonToggleKeyDown()
+    {
+        // Tab alone must not type — it only toggles the pager.
+        if (Input.GetKeyDown(KeyCode.Tab))
+            return false;
+
+        for (int i = 0; i < KeyboardKeys.Length; i++)
+        {
+            if (Input.GetKeyDown(KeyboardKeys[i]))
+                return true;
+        }
+
+        return false;
+    }
+
+    static bool IsModifierKey(KeyCode key)
+    {
+        for (int i = 0; i < ModifierKeys.Length; i++)
+        {
+            if (ModifierKeys[i] == key)
+                return true;
+        }
+
+        return false;
+    }
+
+    void EnterStartTypingPrompt()
+    {
+        _respondPhase = RespondPhase.StartTypingPrompt;
+        _typedCharCount = 0;
+        _scrollIndex = 0;
+        RefreshDisplay();
+        PokePager();
+    }
+
+    void FinishRespondSupport()
+    {
+        if (_respondPhase == RespondPhase.Finished)
+            return;
+
+        _respondPhase = RespondPhase.Finished;
+        MarkConversationRead();
+        RefreshDisplay();
+
+        // Leave the pager UI so the next dialogue / cutscene are not fighting Pager state.
+        ClosePager();
+
+        if (GameManager.Instance != null)
+            GameManager.Instance.PlayEndingCutscene(GameManager.CompletionEndingCinematicIndex);
+
+        CompleteConversation();
     }
 
     void AdvanceMessage()
@@ -373,6 +593,9 @@ public class PagerTextController : MonoBehaviour
         _hasConversation = false;
         _waitingForChoice = false;
         _completionFired = false;
+        _respondSupportMode = false;
+        _respondPhase = RespondPhase.None;
+        _typedCharCount = 0;
         _story = null;
         _knotName = "";
         _onConversationComplete = null;
@@ -418,6 +641,23 @@ public class PagerTextController : MonoBehaviour
 
     string GetCurrentDisplaySource()
     {
+        if (_respondSupportMode)
+        {
+            switch (_respondPhase)
+            {
+                case RespondPhase.StartTypingPrompt:
+                    return startTypingText;
+
+                case RespondPhase.TypingReply:
+                case RespondPhase.Finished:
+                    string reply = respondSupportReply ?? "";
+                    return reply.Substring(0, Mathf.Clamp(_typedCharCount, 0, reply.Length));
+
+                case RespondPhase.ReadingInbound:
+                    break;
+            }
+        }
+
         if (!_hasConversation || _messages.Count == 0)
             return emptyInboxText;
 
@@ -444,6 +684,13 @@ public class PagerTextController : MonoBehaviour
         string message = GetCurrentDisplaySource();
         if (string.IsNullOrEmpty(message))
         {
+            // Empty typed buffer still shows blank during typing start; otherwise inbox empty.
+            if (_respondSupportMode && _respondPhase == RespondPhase.TypingReply)
+            {
+                screenText.text = "";
+                return;
+            }
+
             screenText.text = emptyInboxText;
             return;
         }

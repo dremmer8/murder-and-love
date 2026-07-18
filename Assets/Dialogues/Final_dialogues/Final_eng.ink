@@ -2,7 +2,7 @@
 EXTERNAL PlayEndingCutscene(cinematicIndex)
 
 //story phase nubmer
-VAR story_phase = 27
+VAR story_phase = 11
 
 
 
@@ -81,7 +81,7 @@ VAR told_lie_busy = false
     - 29: ->Boyfriend_pager_ending
     
     - 30: ->Lau_confess_ending
-    - 31: ->Boyfriend_ending_dialogue
+    - 31: ->Boyfriend_ending_dialogue_final
 
 }
 
@@ -992,8 +992,8 @@ Mandy: I will visit you. Take care of yourself, Vivian.
 == Boyfriend_pager_ending ==
 ~ game_progression = 29
 J: I just arrive home. Tell me you done it.
-+[(Igore first)] -> END
-*[(To Complete Misson) (Ending)] -> Boyfriend_ending_dialogue
+ -> END
+
 
 // =============================================================================
 //  PHASE 30 After mandy talks to you, if player goes to Lau and press E.
@@ -1033,7 +1033,7 @@ Cop: Were you a part of this?
 // =============================================================================
 //  PHASE 31 Standard dialogue after choosing to complete the mission on the pager.
 // =============================================================================
-== Boyfriend_ending_dialogue ==
+== Boyfriend_ending_dialogue_final ==
 ~ game_progression = 31
 You: I’m done. The wash cycles should be finished in a few minutes.
 J: I know that I can trust you, sweetheart.

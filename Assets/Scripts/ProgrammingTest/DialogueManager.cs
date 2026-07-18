@@ -106,6 +106,11 @@ public class DialogueManager : MonoBehaviour
 
     public void EnterDialogue(TextAsset inkFile, string knotName, DialoguePresentationMode mode)
     {
+        EnterDialogue(inkFile, knotName, mode, respondSupportPager: false);
+    }
+
+    public void EnterDialogue(TextAsset inkFile, string knotName, DialoguePresentationMode mode, bool respondSupportPager)
+    {
         if (inkFile == null)
         {
             Debug.LogWarning($"{name}: EnterDialogue called with null ink file.", this);
@@ -146,7 +151,7 @@ public class DialogueManager : MonoBehaviour
                 BeginInternal();
                 break;
             case DialoguePresentationMode.Pager:
-                BeginPager();
+                BeginPager(respondSupportPager);
                 break;
         }
     }
@@ -259,7 +264,7 @@ public class DialogueManager : MonoBehaviour
             GameStateManager.ChangeState(GameState.Gameplay);
     }
 
-    private void BeginPager()
+    private void BeginPager(bool respondSupportPager = false)
     {
         PagerTextController pager = pagerController != null ? pagerController : PagerTextController.Instance;
         if (pager == null)
@@ -276,7 +281,7 @@ public class DialogueManager : MonoBehaviour
         dialogueIsPlaying = false;
         activeMode = DialoguePresentationMode.Pager;
 
-        pager.BeginConversation(currentStory, activeKnotName, HandlePagerCompleted);
+        pager.BeginConversation(currentStory, activeKnotName, HandlePagerCompleted, respondSupportPager);
     }
 
     private void HandlePagerCompleted(string knotName)

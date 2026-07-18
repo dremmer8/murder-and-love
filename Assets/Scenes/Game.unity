@@ -524,6 +524,7 @@ MonoBehaviour:
   forcedStoryPhase: 21
   presentationMode: 2
   forceCancelPrevious: 1
+  isRespondSupportPager: 0
   playerPoseMark: {fileID: 0}
   tweenPlayerToMark: 0
   playerTweenDuration: -1
@@ -1614,6 +1615,7 @@ MonoBehaviour:
   forcedStoryPhase: 11
   presentationMode: 2
   forceCancelPrevious: 0
+  isRespondSupportPager: 0
   playerPoseMark: {fileID: 0}
   tweenPlayerToMark: 0
   playerTweenDuration: -1
@@ -2107,6 +2109,7 @@ MonoBehaviour:
   forcedStoryPhase: 8
   presentationMode: 2
   forceCancelPrevious: 0
+  isRespondSupportPager: 0
   playerPoseMark: {fileID: 0}
   tweenPlayerToMark: 0
   playerTweenDuration: -1
@@ -3391,6 +3394,7 @@ MonoBehaviour:
   forcedStoryPhase: 16
   presentationMode: 2
   forceCancelPrevious: 0
+  isRespondSupportPager: 0
   playerPoseMark: {fileID: 0}
   tweenPlayerToMark: 0
   playerTweenDuration: -1
@@ -3487,6 +3491,7 @@ MonoBehaviour:
   forcedStoryPhase: 30
   presentationMode: 0
   forceCancelPrevious: 1
+  isRespondSupportPager: 0
   playerPoseMark: {fileID: 0}
   tweenPlayerToMark: 0
   playerTweenDuration: -1
@@ -3903,6 +3908,7 @@ MonoBehaviour:
   forcedStoryPhase: 14
   presentationMode: 2
   forceCancelPrevious: 1
+  isRespondSupportPager: 0
   playerPoseMark: {fileID: 0}
   tweenPlayerToMark: 0
   playerTweenDuration: -1
@@ -4195,6 +4201,7 @@ MonoBehaviour:
   forcedStoryPhase: 25
   presentationMode: 2
   forceCancelPrevious: 0
+  isRespondSupportPager: 0
   playerPoseMark: {fileID: 0}
   tweenPlayerToMark: 0
   playerTweenDuration: -1
@@ -4815,6 +4822,7 @@ MonoBehaviour:
   forcedStoryPhase: 0
   presentationMode: 0
   forceCancelPrevious: 1
+  isRespondSupportPager: 0
   playerPoseMark: {fileID: 0}
   tweenPlayerToMark: 0
   playerTweenDuration: -1
@@ -5376,7 +5384,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cfbe431e9a1665145a55b7f905d4bd8a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gameProgression: 16
+  gameProgression: 26
 --- !u!114 &339123857
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6054,10 +6062,11 @@ MonoBehaviour:
   forcedStoryPhase: 29
   presentationMode: 3
   forceCancelPrevious: 1
+  isRespondSupportPager: 1
   playerPoseMark: {fileID: 0}
   tweenPlayerToMark: 0
   playerTweenDuration: -1
-  nextDialogueTrigger: {fileID: 0}
+  nextDialogueTrigger: {fileID: 1453319768}
   storyPhaseController: {fileID: 391321795}
 --- !u!1 &394362776
 GameObject:
@@ -9811,6 +9820,7 @@ MonoBehaviour:
   forcedStoryPhase: 23
   presentationMode: 3
   forceCancelPrevious: 0
+  isRespondSupportPager: 0
   playerPoseMark: {fileID: 0}
   tweenPlayerToMark: 0
   playerTweenDuration: -1
@@ -12221,6 +12231,7 @@ MonoBehaviour:
   forcedStoryPhase: 26
   presentationMode: 0
   forceCancelPrevious: 1
+  isRespondSupportPager: 0
   playerPoseMark: {fileID: 1113132494}
   tweenPlayerToMark: 1
   playerTweenDuration: -1
@@ -12622,6 +12633,7 @@ MonoBehaviour:
   forcedStoryPhase: 20
   presentationMode: 2
   forceCancelPrevious: 0
+  isRespondSupportPager: 0
   playerPoseMark: {fileID: 0}
   tweenPlayerToMark: 0
   playerTweenDuration: -1
@@ -13550,6 +13562,7 @@ MonoBehaviour:
   forcedStoryPhase: 17
   presentationMode: 3
   forceCancelPrevious: 0
+  isRespondSupportPager: 0
   playerPoseMark: {fileID: 0}
   tweenPlayerToMark: 0
   playerTweenDuration: -1
@@ -14423,6 +14436,7 @@ MonoBehaviour:
   forcedStoryPhase: 1
   presentationMode: 0
   forceCancelPrevious: 0
+  isRespondSupportPager: 0
   playerPoseMark: {fileID: 0}
   tweenPlayerToMark: 0
   playerTweenDuration: -1
@@ -14733,6 +14747,7 @@ MonoBehaviour:
   forcedStoryPhase: 1
   presentationMode: 1
   forceCancelPrevious: 0
+  isRespondSupportPager: 0
   playerPoseMark: {fileID: 0}
   tweenPlayerToMark: 0
   playerTweenDuration: -1
@@ -18199,6 +18214,7 @@ MonoBehaviour:
   forcedStoryPhase: 31
   presentationMode: 0
   forceCancelPrevious: 0
+  isRespondSupportPager: 0
   playerPoseMark: {fileID: 0}
   tweenPlayerToMark: 0
   playerTweenDuration: -1
@@ -20377,6 +20393,7 @@ MonoBehaviour:
   forcedStoryPhase: 1
   presentationMode: 0
   forceCancelPrevious: 0
+  isRespondSupportPager: 0
   playerPoseMark: {fileID: 0}
   tweenPlayerToMark: 0
   playerTweenDuration: -1
@@ -20536,6 +20553,7 @@ MonoBehaviour:
   forcedStoryPhase: 4
   presentationMode: 2
   forceCancelPrevious: 0
+  isRespondSupportPager: 0
   playerPoseMark: {fileID: 0}
   tweenPlayerToMark: 0
   playerTweenDuration: -1
@@ -22308,6 +22326,7 @@ MonoBehaviour:
   forcedStoryPhase: 9
   presentationMode: 3
   forceCancelPrevious: 0
+  isRespondSupportPager: 0
   playerPoseMark: {fileID: 0}
   tweenPlayerToMark: 0
   playerTweenDuration: -1
@@ -22746,6 +22765,7 @@ MonoBehaviour:
   forcedStoryPhase: 13
   presentationMode: 2
   forceCancelPrevious: 0
+  isRespondSupportPager: 0
   playerPoseMark: {fileID: 0}
   tweenPlayerToMark: 0
   playerTweenDuration: -1
@@ -23197,6 +23217,7 @@ MonoBehaviour:
   forcedStoryPhase: 19
   presentationMode: 0
   forceCancelPrevious: 1
+  isRespondSupportPager: 0
   playerPoseMark: {fileID: 1119711960}
   tweenPlayerToMark: 1
   playerTweenDuration: -1
@@ -24510,6 +24531,7 @@ MonoBehaviour:
   forcedStoryPhase: 12
   presentationMode: 2
   forceCancelPrevious: 0
+  isRespondSupportPager: 0
   playerPoseMark: {fileID: 0}
   tweenPlayerToMark: 0
   playerTweenDuration: -1
@@ -25086,6 +25108,7 @@ MonoBehaviour:
   forcedStoryPhase: 5
   presentationMode: 2
   forceCancelPrevious: 0
+  isRespondSupportPager: 0
   playerPoseMark: {fileID: 0}
   tweenPlayerToMark: 0
   playerTweenDuration: -1
@@ -25907,6 +25930,7 @@ MonoBehaviour:
   forcedStoryPhase: 24
   presentationMode: 2
   forceCancelPrevious: 0
+  isRespondSupportPager: 0
   playerPoseMark: {fileID: 0}
   tweenPlayerToMark: 0
   playerTweenDuration: -1
@@ -26492,6 +26516,7 @@ MonoBehaviour:
   forcedStoryPhase: 22
   presentationMode: 2
   forceCancelPrevious: 0
+  isRespondSupportPager: 0
   playerPoseMark: {fileID: 0}
   tweenPlayerToMark: 0
   playerTweenDuration: -1
