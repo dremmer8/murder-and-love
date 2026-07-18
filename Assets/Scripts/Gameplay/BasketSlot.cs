@@ -19,6 +19,7 @@ public class BasketSlot : MonoBehaviour
     Vector3 _offset;
     Vector3 _tilt;
     bool _occupiedDialogueFired;
+    BasketCollector _collector;
 
     public bool IsOccupied => _item != null;
 
@@ -27,6 +28,31 @@ public class BasketSlot : MonoBehaviour
         _restLocalPos = transform.localPosition;
         _restLocalRot = transform.localRotation;
         CacheWorld();
+        TryRegister();
+    }
+
+    void OnEnable()
+    {
+        TryRegister();
+    }
+
+    void OnDestroy()
+    {
+        if (_collector != null)
+            _collector.UnregisterSlot(this);
+        else if (BasketCollector.Instance != null)
+            BasketCollector.Instance.UnregisterSlot(this);
+    }
+
+    void TryRegister()
+    {
+        if (_collector == null)
+            _collector = GetComponentInParent<BasketCollector>();
+        if (_collector == null)
+            _collector = BasketCollector.Instance;
+
+        if (_collector != null)
+            _collector.RegisterSlot(this);
     }
 
     void CacheWorld()

@@ -22,8 +22,17 @@ public class StoryPhaseController : MonoBehaviour
     /// </summary>
     public string ResolveKnot()
     {
+        StoryPhaseEntry best = ResolveBestEntry();
+        return best != null ? best.knotName : string.Empty;
+    }
+
+    /// <summary>
+    /// Latest unlocked phase entry for current <see cref="GlobalVariableOperator.GameProgression"/>, or null.
+    /// </summary>
+    public StoryPhaseEntry ResolveBestEntry()
+    {
         if (GlobalVariableOperator.Instance == null || characterPhases == null)
-            return string.Empty;
+            return null;
 
         int progression = GlobalVariableOperator.Instance.GameProgression;
         StoryPhaseEntry best = null;
@@ -43,17 +52,30 @@ public class StoryPhaseController : MonoBehaviour
                 best = entry;
         }
 
-        return best != null ? best.knotName : string.Empty;
+        return best;
     }
 
     /// <summary>
     /// Returns the knot whose <see cref="StoryPhaseEntry.storyPhase"/> matches
-    /// <paramref name="storyPhase"/>, or empty if none.
+    /// <paramref name="storyPhase"/>, or empty if none / not available at current progression.
     /// </summary>
     public string ResolveKnotForStoryPhase(int storyPhase)
     {
+        StoryPhaseEntry entry = FindEntryForStoryPhase(storyPhase);
+        return entry != null ? entry.knotName : string.Empty;
+    }
+
+    /// <summary>
+    /// Phase catalogue entry for <paramref name="storyPhase"/>, if unlocked and not play-once completed.
+    /// </summary>
+    public StoryPhaseEntry FindEntryForStoryPhase(int storyPhase)
+    {
         if (characterPhases == null)
-            return string.Empty;
+            return null;
+
+        int progression = GlobalVariableOperator.Instance != null
+            ? GlobalVariableOperator.Instance.GameProgression
+            : 0;
 
         foreach (StoryPhaseEntry entry in characterPhases.Phases)
         {
@@ -63,13 +85,36 @@ public class StoryPhaseController : MonoBehaviour
             if (entry.storyPhase != storyPhase)
                 continue;
 
-            if (entry.playOnce && _completedKnots.Contains(entry.knotName))
-                return string.Empty;
+            if (!entry.IsAvailableAt(progression))
+                return null;
 
-            return entry.knotName;
+            if (entry.playOnce && _completedKnots.Contains(entry.knotName))
+                return null;
+
+            return entry;
         }
 
-        return string.Empty;
+        return null;
+    }
+
+    /// <summary>
+    /// Looks up the catalogue entry for a knot name (ignores progression / play-once).
+    /// </summary>
+    public StoryPhaseEntry FindEntryForKnot(string knotName)
+    {
+        if (characterPhases == null || string.IsNullOrEmpty(knotName))
+            return null;
+
+        foreach (StoryPhaseEntry entry in characterPhases.Phases)
+        {
+            if (entry == null || string.IsNullOrEmpty(entry.knotName))
+                continue;
+
+            if (entry.knotName == knotName)
+                return entry;
+        }
+
+        return null;
     }
 
     public void MarkKnotCompleted(string knotName)

@@ -55,40 +55,63 @@ public class Interactable : MonoBehaviour
         return true;
     }
 
-    public void Interact()
+    /// <summary>
+    /// Player look+E path. Respects progression gates.
+    /// </summary>
+    public void Interact() => TryInteract(respectGates: true);
+
+    /// <summary>
+    /// External / UnityEvent entry point. Respects progression gates.
+    /// </summary>
+    public void Activate() => TryInteract(respectGates: true);
+
+    /// <summary>
+    /// External call that ignores progression gates (scripted sequences).
+    /// </summary>
+    public void ForceActivate() => TryInteract(respectGates: false);
+
+    public bool TryInteract(bool respectGates = true)
     {
-        if (!CanInteract())
-            return;
+        if (respectGates && !CanInteract())
+            return false;
 
         if (type == InteractionType.Animation)
         {
             if (animator != null && !string.IsNullOrEmpty(animationTrigger))
-            {
                 animator.SetTrigger(animationTrigger);
-            }
         }
         else if (type == InteractionType.Transform)
         {
             if (targetTransform != null)
             {
                 if (rb != null)
-                {
                     rb.isKinematic = true;
-                }
                 isMoving = true;
             }
         }
         else if (type == InteractionType.Pickup)
         {
-            if (BasketCollector.Instance != null)
+            if (BasketCollector.Instance == null)
             {
-                BasketCollector.Instance.Collect(GetComponent<CollectibleItem>());
+                Debug.LogWarning($"{name}: BasketCollector.Instance is null (is the basket active in the scene?).", this);
+                return false;
             }
+
+            CollectibleItem collectible = GetComponent<CollectibleItem>();
+            if (collectible == null)
+            {
+                Debug.LogWarning($"{name}: Pickup interactable has no CollectibleItem component.", this);
+                return false;
+            }
+
+            return BasketCollector.Instance.Collect(collectible);
         }
         else if (type == InteractionType.Event)
         {
             onInteract?.Invoke();
         }
+
+        return true;
     }
 
     void Update()

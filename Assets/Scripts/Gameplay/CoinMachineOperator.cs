@@ -9,7 +9,12 @@ public class CoinMachineOperator : MonoBehaviour
     [SerializeField] Animator animator;
     [SerializeField] Collider billSlit;
     [SerializeField] float failAnimDuration = 14f;
+
+    [Tooltip("Seconds to wait after the success (win) event before exiting the minigame.")]
     [SerializeField] float successAnimDuration = 9f;
+
+    [SerializeField] MinigameActivator minigameActivator;
+    public DialogueTrigger afterSecondFailDialogue;
 
     Step step = Step.Fail1;
     bool busy;
@@ -17,6 +22,8 @@ public class CoinMachineOperator : MonoBehaviour
     void Awake()
     {
         if (!cam) cam = Camera.main;
+        if (!minigameActivator)
+            minigameActivator = GetComponentInParent<MinigameActivator>();
     }
 
     void Update()
@@ -55,6 +62,10 @@ public class CoinMachineOperator : MonoBehaviour
         yield return new WaitForSeconds(failAnimDuration);
         step = next;
         busy = false;
+
+        // Second fail completes when we advance to Success.
+        if (next == Step.Success && afterSecondFailDialogue != null)
+            afterSecondFailDialogue.TryStartDialogue();
     }
 
     IEnumerator PlaySuccessAndEnd()
@@ -64,6 +75,14 @@ public class CoinMachineOperator : MonoBehaviour
         yield return new WaitForSeconds(successAnimDuration);
         animator.SetTrigger("end");
         step = Step.Done;
+
+        if (minigameActivator != null)
+        {
+            if (minigameActivator.IsActivated)
+                minigameActivator.Exit();
+            minigameActivator.LockInteraction();
+        }
+
         busy = false;
     }
 }

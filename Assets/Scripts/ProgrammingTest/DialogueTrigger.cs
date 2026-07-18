@@ -111,6 +111,10 @@ public class DialogueTrigger : MonoBehaviour
                     return;
                 if (!Input.GetKeyDown(interactKey))
                     return;
+                // Standing in a dialogue volume must not steal E from a look-targeted Interactable
+                // (coin machine, detergent, etc.). InteractionSystem owns that press.
+                if (IsAimingAtForeignInteractable())
+                    return;
                 TryStartDialogue();
                 break;
 
@@ -147,14 +151,14 @@ public class DialogueTrigger : MonoBehaviour
         if (storyPhaseController == null)
             return false;
 
-        string knotToPlay = useForcedStoryPhase
-            ? storyPhaseController.ResolveKnotForStoryPhase(forcedStoryPhase)
-            : storyPhaseController.ResolveKnot();
+        StoryPhaseEntry entry = useForcedStoryPhase
+            ? storyPhaseController.FindEntryForStoryPhase(forcedStoryPhase)
+            : storyPhaseController.ResolveBestEntry();
 
-        if (string.IsNullOrEmpty(knotToPlay))
+        if (entry == null || string.IsNullOrEmpty(entry.knotName))
             return false;
 
-        return BeginDialogue(knotToPlay, force: forceCancelPrevious);
+        return BeginDialogue(entry.knotName, entry.storyPhase, force: forceCancelPrevious);
     }
 
     public bool TryStartDialogue(string knotName)
@@ -165,7 +169,15 @@ public class DialogueTrigger : MonoBehaviour
         if (string.IsNullOrEmpty(knotName))
             return TryStartDialogue();
 
-        return BeginDialogue(knotName, force: forceCancelPrevious);
+        int storyPhase = -1;
+        if (storyPhaseController != null)
+        {
+            StoryPhaseEntry entry = storyPhaseController.FindEntryForKnot(knotName);
+            if (entry != null)
+                storyPhase = entry.storyPhase;
+        }
+
+        return BeginDialogue(knotName, storyPhase, force: forceCancelPrevious);
     }
 
     /// <summary>
@@ -198,10 +210,18 @@ public class DialogueTrigger : MonoBehaviour
         if (string.IsNullOrEmpty(knotName))
             return false;
 
-        return BeginDialogue(knotName, force: true);
+        int storyPhase = -1;
+        if (storyPhaseController != null)
+        {
+            StoryPhaseEntry entry = storyPhaseController.FindEntryForKnot(knotName);
+            if (entry != null)
+                storyPhase = entry.storyPhase;
+        }
+
+        return BeginDialogue(knotName, storyPhase, force: true);
     }
 
-    private bool BeginDialogue(string knotToPlay, bool force = false)
+    private bool BeginDialogue(string knotToPlay, int storyPhaseToSet, bool force = false)
     {
         if (!force && presentationMode != DialoguePresentationMode.Pager && waitingForDialogueEnd)
             return false;
@@ -237,13 +257,37 @@ public class DialogueTrigger : MonoBehaviour
             return false;
         }
 
-        // Push forced story_phase only after stay / progression / busy checks pass.
-        if (useForcedStoryPhase && GlobalVariableOperator.Instance != null)
-            GlobalVariableOperator.Instance.SetStoryPhase(forcedStoryPhase);
+        // Keep Ink story_phase aligned with the knot we actually start (avoids sticky values
+        // from a previous forced trigger looking like the wrong phase is playing).
+        if (GlobalVariableOperator.Instance != null)
+        {
+            int phase = useForcedStoryPhase ? forcedStoryPhase : storyPhaseToSet;
+            if (phase >= 0)
+                GlobalVariableOperator.Instance.SetStoryPhase(phase);
+        }
 
         SubscribeDialogueEnded();
         manager.EnterDialogue(inkFile, knotToPlay, presentationMode);
         return true;
+    }
+
+    /// <summary>
+    /// True when the player is aiming at an <see cref="Interactable"/> that is not this trigger.
+    /// </summary>
+    private bool IsAimingAtForeignInteractable()
+    {
+        InteractionSystem interaction = InteractionSystem.Instance;
+        if (interaction == null)
+            interaction = FindFirstObjectByType<InteractionSystem>();
+
+        if (interaction == null)
+            return false;
+
+        if (!interaction.TryGetAimedInteractable(out Interactable aimed))
+            return false;
+
+        return aimed.transform != transform && !aimed.transform.IsChildOf(transform)
+            && !transform.IsChildOf(aimed.transform);
     }
 
     private void SubscribeDialogueEnded()

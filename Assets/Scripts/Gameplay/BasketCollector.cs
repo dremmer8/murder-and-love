@@ -10,28 +10,81 @@ public class BasketCollector : MonoBehaviour
 
     readonly Dictionary<string, BasketSlot> _slots = new();
     readonly Dictionary<Transform, Tween> _tweens = new();
-    public static BasketCollector Instance; 
+    public static BasketCollector Instance;
 
     void Awake()
-    {BasketCollector.Instance = this;
-        foreach (var slot in GetComponentsInChildren<BasketSlot>())
-            _slots[slot.key] = slot;
+    {
+        Instance = this;
+        RescanSlots();
+    }
+
+    void OnEnable()
+    {
+        // Covers the case where this collector was inactive at scene start.
+        if (Instance == null)
+            Instance = this;
+        RescanSlots();
     }
 
     void OnDestroy()
     {
+        if (Instance == this)
+            Instance = null;
+
         foreach (var tween in _tweens.Values)
             tween?.Kill();
     }
 
+    /// <summary>
+    /// Rebuilds the slot map from every BasketSlot in the scene,
+    /// including inactive objects and slots that are not children of this collector.
+    /// </summary>
+    public void RescanSlots()
+    {
+        _slots.Clear();
+
+#if UNITY_2023_1_OR_NEWER
+        BasketSlot[] found = FindObjectsByType<BasketSlot>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+#else
+        BasketSlot[] found = FindObjectsOfType<BasketSlot>(true);
+#endif
+        for (int i = 0; i < found.Length; i++)
+            RegisterSlot(found[i]);
+    }
+
+    /// <summary>Called by <see cref="BasketSlot"/> so activation order no longer matters.</summary>
+    public void RegisterSlot(BasketSlot slot)
+    {
+        if (slot == null || string.IsNullOrEmpty(slot.key))
+            return;
+
+        _slots[slot.key] = slot;
+    }
+
+    public void UnregisterSlot(BasketSlot slot)
+    {
+        if (slot == null || string.IsNullOrEmpty(slot.key))
+            return;
+
+        if (_slots.TryGetValue(slot.key, out var existing) && existing == slot)
+            _slots.Remove(slot.key);
+    }
+
     public bool IsSlotFree(string key) =>
-        _slots.TryGetValue(key, out var slot) && !slot.IsOccupied;
+        _slots.TryGetValue(key, out var slot) && slot != null && !slot.IsOccupied;
 
     public bool Collect(CollectibleItem item)
     {
         if (item == null || string.IsNullOrEmpty(item.slotKey))
             return false;
-        if (!_slots.TryGetValue(item.slotKey, out var slot) || slot.IsOccupied)
+
+        if (!TryGetSlot(item.slotKey, out var slot))
+        {
+            Debug.LogWarning($"{name}: no basket slot registered for key '{item.slotKey}'.", this);
+            return false;
+        }
+
+        if (slot.IsOccupied)
             return false;
 
         var target = item.Animated;
@@ -39,9 +92,19 @@ public class BasketCollector : MonoBehaviour
         return true;
     }
 
+    bool TryGetSlot(string key, out BasketSlot slot)
+    {
+        if (_slots.TryGetValue(key, out slot) && slot != null)
+            return true;
+
+        // Fallback: slots may live outside this hierarchy or appear after Awake.
+        RescanSlots();
+        return _slots.TryGetValue(key, out slot) && slot != null;
+    }
+
     public bool GiveBack(string slotKey, ItemDestination destination)
     {
-        if (destination == null || !_slots.TryGetValue(slotKey, out var slot) || !slot.IsOccupied)
+        if (destination == null || !TryGetSlot(slotKey, out var slot) || !slot.IsOccupied)
             return false;
 
         var item = slot.Detach();

@@ -1,6 +1,14 @@
 using System.Collections;
 using UnityEngine;
 
+public enum WashingMachineId
+{
+    /// <summary>First washer: second-cloth grab + after start/exit.</summary>
+    A = 0,
+    /// <summary>Second washer: first-cloth grab + last-cloth grab.</summary>
+    B = 1
+}
+
 public class WashingMachineClothOperator : MonoBehaviour
 {
     enum Step { OpenDoor, Clothes, CloseDoor, Detergent, Token, Start, Done }
@@ -14,14 +22,24 @@ public class WashingMachineClothOperator : MonoBehaviour
     [SerializeField] string directionParam = "direction";
 
     [Header("Minigame")]
+    [SerializeField] WashingMachineId machineId = WashingMachineId.A;
     [SerializeField] MinigameActivator minigameActivator;
     [SerializeField] float exitDelayAfterStart = 1.5f;
 
-    [Header("Internal Dialogue")]
+    [Tooltip("Washer B only: seconds to wait after the last-cloth event before exiting the minigame.")]
+    [SerializeField] float exitDelayAfterLastCloth = 0.5f;
+
+    [Header("Washer A — dialogues")]
     [Tooltip("Fired when the player grabs the second cloth.")]
     public DialogueTrigger secondClothDialogue;
     [Tooltip("Fired after the wash cycle starts and the minigame exits.")]
     public DialogueTrigger afterMachineDialogue;
+
+    [Header("Washer B — dialogues")]
+    [Tooltip("Fired when the player grabs the first cloth.")]
+    public DialogueTrigger firstClothDialogue;
+    [Tooltip("Fired when the player grabs the last cloth.")]
+    public DialogueTrigger lastClothDialogue;
 
     int idx = -1, snapIdx = -1, done;
     Step step = Step.OpenDoor;
@@ -31,7 +49,12 @@ public class WashingMachineClothOperator : MonoBehaviour
     float[] segLen;
     bool snapping;
     bool secondClothDialogueFired;
+    bool firstClothDialogueFired;
+    bool lastClothDialogueFired;
     bool completing;
+    bool wasMinigameActive;
+
+    public WashingMachineId MachineId => machineId;
 
     int ClothCount
     {
@@ -75,12 +98,32 @@ public class WashingMachineClothOperator : MonoBehaviour
     {
         UpdateDirection();
         UpdateSetScale();
+        WatchMinigameExit();
         if (completing || step == Step.Done) return;
         if (snapping) { Snap(); return; }
         if (Input.GetMouseButtonDown(0) && !TrySequenceClick()) TryGrab();
         if (idx < 0) return;
         if (Input.GetMouseButton(0)) Drag();
         else Release();
+    }
+
+    void WatchMinigameExit()
+    {
+        if (minigameActivator == null) return;
+        bool active = minigameActivator.IsActivated;
+        if (wasMinigameActive && !active)
+            HideAllClothes();
+        wasMinigameActive = active;
+    }
+
+    void HideAllClothes()
+    {
+        if (cloths == null) return;
+        for (int i = 0; i < cloths.Length; i++)
+        {
+            if (cloths[i])
+                cloths[i].gameObject.SetActive(false);
+        }
     }
 
     void UpdateDirection()
@@ -149,7 +192,8 @@ public class WashingMachineClothOperator : MonoBehaviour
             minigameActivator.LockInteraction();
         }
 
-        FireDialogue(afterMachineDialogue);
+        if (machineId == WashingMachineId.A)
+            FireDialogue(afterMachineDialogue);
     }
 
     void TryGrab()
@@ -167,6 +211,7 @@ public class WashingMachineClothOperator : MonoBehaviour
             if (hit.transform == c || hit.transform.IsChildOf(c)) { ok = true; break; }
         }
         if (!ok) return;
+        int clothIndex = done;
         idx = done;
         t = 0f;
         tVel = 0f;
@@ -175,11 +220,51 @@ public class WashingMachineClothOperator : MonoBehaviour
         if (clothSet && count > 0)
             targetScaleY = Mathf.Lerp(fullScaleY, emptyScaleY, (done + 1) / (float)count);
 
-        // Second cloth is index 1 (0-based).
-        if (done == 1 && !secondClothDialogueFired)
+        OnClothGrabbed(clothIndex, count);
+    }
+
+    void OnClothGrabbed(int clothIndex, int count)
+    {
+        switch (machineId)
         {
-            secondClothDialogueFired = true;
-            FireDialogue(secondClothDialogue);
+            case WashingMachineId.A:
+                // Second cloth is index 1 (0-based).
+                if (clothIndex == 1 && !secondClothDialogueFired)
+                {
+                    secondClothDialogueFired = true;
+                    FireDialogue(secondClothDialogue);
+                }
+                break;
+
+            case WashingMachineId.B:
+                if (clothIndex == 0 && !firstClothDialogueFired)
+                {
+                    firstClothDialogueFired = true;
+                    FireDialogue(firstClothDialogue);
+                }
+
+                if (count > 0 && clothIndex == count - 1 && !lastClothDialogueFired)
+                {
+                    lastClothDialogueFired = true;
+                    FireDialogue(lastClothDialogue);
+                    StartCoroutine(ExitAfterLastCloth());
+                }
+                break;
+        }
+    }
+
+    IEnumerator ExitAfterLastCloth()
+    {
+        if (exitDelayAfterLastCloth > 0f)
+            yield return new WaitForSeconds(exitDelayAfterLastCloth);
+
+        completing = true;
+
+        if (minigameActivator != null)
+        {
+            if (minigameActivator.IsActivated)
+                minigameActivator.Exit();
+            minigameActivator.LockInteraction();
         }
     }
 

@@ -1,5 +1,5 @@
 //story phase nubmer
-VAR story_phase = 1
+VAR story_phase = 23
 
 
 // Unity (GlobalVariableOperator) syncs and stores this across dialogues.
@@ -804,7 +804,6 @@ Mrs. Wong: Thank you, Miss Lee.
     Thoughts: ...I wish Jason could be here with me.
     Thoughts: Right now I have only myself, spinning, spinning, with nothing to hold onto.
     Thoughts: But at least I put all of the clothes in...
-    -> Boyfriend_pager_phase_3
     - 2: 
     Thoughts: The cop grins like he already knows.
     Knows and toys with me, maybe he does, and maybe that's a relief I won't admit to.
@@ -827,6 +826,7 @@ J: It's done.
 J: Rocks in the body bag. Tossed the whole thing in the ocean.
 J: Hurry up!
 J: You don't want our lives ruined because you're slow, right?
+ -> END
 -> How_to_turn_on_circuit_box
 
 // =============================================================================

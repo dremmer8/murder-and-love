@@ -50,9 +50,16 @@ public class MinigameActivator : MonoBehaviour
 
     [SerializeField] KeyCode exitKey = KeyCode.Escape;
 
+    [Tooltip("If true, automatically call Exit after Auto End Delay seconds once entered.")]
+    [SerializeField] bool autoEndWithTimer;
+
+    [Tooltip("Seconds to wait after enter before auto-exiting. Ignored unless Auto End With Timer is on.")]
+    [SerializeField] float autoEndDelay = 3f;
+
     bool _activated;
     bool _interactionLocked;
     Coroutine _visibilityRoutine;
+    Coroutine _autoEndRoutine;
 
     static int s_ActiveCount;
 
@@ -84,6 +91,9 @@ public class MinigameActivator : MonoBehaviour
     {
         if (autoSubscribeToInteractable && interactable != null)
             interactable.onInteract.RemoveListener(Activate);
+
+        StopAutoEndTimer();
+        StopVisibilityRoutine();
 
         if (_activated)
             SetActivated(false);
@@ -139,6 +149,7 @@ public class MinigameActivator : MonoBehaviour
 
         SetActivated(true);
         ApplyVisibilityForEnter();
+        StartAutoEndTimer();
     }
 
     /// <summary>
@@ -150,6 +161,7 @@ public class MinigameActivator : MonoBehaviour
         if (!_activated)
             return;
 
+        StopAutoEndTimer();
         StopVisibilityRoutine();
 
         bool cameraOk = TransitionTo(playerCameraName);
@@ -281,6 +293,34 @@ public class MinigameActivator : MonoBehaviour
 
         StopCoroutine(_visibilityRoutine);
         _visibilityRoutine = null;
+    }
+
+    void StartAutoEndTimer()
+    {
+        StopAutoEndTimer();
+
+        if (!autoEndWithTimer || autoEndDelay < 0f)
+            return;
+
+        _autoEndRoutine = StartCoroutine(AutoEndAfterDelay());
+    }
+
+    void StopAutoEndTimer()
+    {
+        if (_autoEndRoutine == null)
+            return;
+
+        StopCoroutine(_autoEndRoutine);
+        _autoEndRoutine = null;
+    }
+
+    IEnumerator AutoEndAfterDelay()
+    {
+        if (autoEndDelay > 0f)
+            yield return new WaitForSeconds(autoEndDelay);
+
+        _autoEndRoutine = null;
+        Exit();
     }
 
     static void SetActiveList(List<GameObject> list, bool active)

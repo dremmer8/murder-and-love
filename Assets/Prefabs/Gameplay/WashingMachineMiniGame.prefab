@@ -1029,7 +1029,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &4232395179680700050
 Transform:
   m_ObjectHideFlags: 0
@@ -1102,6 +1102,13 @@ MonoBehaviour:
   emptyScaleY: 0.2
   dragPad: 0.25
   directionParam: direction
+  machineId: 0
+  minigameActivator: {fileID: 3625660002362473942}
+  exitDelayAfterStart: 1.5
+  secondClothDialogue: {fileID: 0}
+  afterMachineDialogue: {fileID: 0}
+  firstClothDialogue: {fileID: 0}
+  lastClothDialogue: {fileID: 0}
 --- !u!1 &3925127653151697049
 GameObject:
   m_ObjectHideFlags: 0
@@ -1381,7 +1388,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &2557791490427163036
 Transform:
   m_ObjectHideFlags: 0
@@ -2445,6 +2452,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1036368972833212701}
+  - component: {fileID: 3625660002362473942}
+  - component: {fileID: 657898517183491655}
+  - component: {fileID: 246328429457799504}
   m_Layer: 0
   m_Name: WashingMachineMiniGame
   m_TagString: Untagged
@@ -2469,6 +2479,93 @@ Transform:
   - {fileID: 4232395179680700050}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3625660002362473942
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9162340133822518119}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 288848fdbdb308a41ab3fe62d2e9b065, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  interactable: {fileID: 0}
+  autoSubscribeToInteractable: 1
+  minigameCameraName: WMMinigame_1
+  playerCameraName: Player
+  transitionDuration: -1
+  objectsToHide:
+  - {fileID: 0}
+  - {fileID: 0}
+  objectsToShow:
+  - {fileID: 5173206291631265987}
+  - {fileID: 3843580927338479996}
+  applyVisibilityAfterTransition: 0
+  disableColliderDuringMinigame: 1
+  collidersToDisable:
+  - {fileID: 0}
+  showCursorInMinigame: 1
+  allowExitWithKey: 1
+  exitKey: 27
+--- !u!114 &657898517183491655
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9162340133822518119}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 540d1929bf86f624fb127211f6c64b9c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  type: 3
+  animator: {fileID: 0}
+  animationTrigger: 
+  targetTransform: {fileID: 0}
+  transitionSpeed: 10
+  onInteract:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 3625660002362473942}
+        m_TargetAssemblyTypeName: MinigameActivator, Assembly-CSharp
+        m_MethodName: Activate
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  useMinStoryPhase: 1
+  minStoryPhase: 12
+  useMaxStoryPhase: 1
+  maxStoryPhase: 14
+--- !u!65 &246328429457799504
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9162340133822518119}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.8131392, y: 1.0262715, z: 1.4474272}
+  m_Center: {x: -0.008837104, y: 0.5116443, z: 0.22371358}
 --- !u!1001 &1788852743112739985
 PrefabInstance:
   m_ObjectHideFlags: 0
