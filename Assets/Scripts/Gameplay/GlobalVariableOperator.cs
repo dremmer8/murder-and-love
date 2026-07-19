@@ -9,11 +9,6 @@ public class GlobalVariableOperator : MonoBehaviour
     public const string GameProgressionVar = "game_progression";
     public const string StoryPhaseVar = "story_phase";
 
-    /// <summary>
-    /// Once game_progression reaches this value, it will never be lowered below it.
-    /// </summary>
-    public const int ProgressionFloorLock = 28;
-
     static readonly string[] TrackedVariables =
     {
         "kitchen_knife",
@@ -245,12 +240,16 @@ public class GlobalVariableOperator : MonoBehaviour
     }
 
     /// <summary>
-    /// Once progression has hit <see cref="ProgressionFloorLock"/>, never allow it below that floor.
-    /// Values at or above the floor (including later endings) are unchanged.
+    /// Once progression has hit a <see cref="TaskManager"/> milestone, never allow it
+    /// below that milestone. Each new reached task raises the floor.
     /// </summary>
     int ClampProgression(int value)
     {
-        if (gameProgression >= ProgressionFloorLock && value < ProgressionFloorLock)
+        int floor = TaskManager.Instance != null
+            ? TaskManager.Instance.GetReachedMilestoneFloor(gameProgression)
+            : 0;
+
+        if (floor > 0 && value < floor)
             return gameProgression;
 
         return value;

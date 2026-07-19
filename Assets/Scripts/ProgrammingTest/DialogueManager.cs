@@ -358,7 +358,7 @@ public class DialogueManager : MonoBehaviour
         if (dialoguePanel != null)
             dialoguePanel.SetActive(false);
 
-        ResolveTypewriter()?.Clear(DialogueTextChannel.Standard);
+        ResolveTypewriter()?.Stop(clearText: true);
         if (dialogueText != null)
             dialogueText.text = "";
 
@@ -398,7 +398,7 @@ public class DialogueManager : MonoBehaviour
         if (dialoguePanel != null)
             dialoguePanel.SetActive(false);
 
-        ResolveTypewriter()?.Clear(DialogueTextChannel.Standard);
+        ResolveTypewriter()?.Stop(clearText: true);
         if (dialogueText != null)
             dialogueText.text = "";
 
@@ -437,19 +437,39 @@ public class DialogueManager : MonoBehaviour
         while (string.IsNullOrWhiteSpace(text) && currentStory.canContinue)
             text = currentStory.Continue();
 
+        nextInputTime = Time.time + inputDelay;
+
         if (!string.IsNullOrWhiteSpace(text))
         {
             string trimmed = text.Trim();
             if (writer != null)
-                writer.Play(DialogueTextChannel.Standard, trimmed, dialogueText);
-            else if (dialogueText != null)
+            {
+                // Keep choices hidden until typing finishes. Showing them early let a click
+                // call ChooseChoiceIndex, then ContinueStandardStory early-out on IsTyping,
+                // leaving isChoosing false with buttons still up (clicks dead; Space advances).
+                HideChoiceButtons();
+                writer.Play(DialogueTextChannel.Standard, trimmed, dialogueText, OnStandardLineTyped);
+                return;
+            }
+
+            if (dialogueText != null)
                 dialogueText.text = trimmed;
         }
 
         DisplayChoices();
-        nextInputTime = Time.time + inputDelay;
 
         if (string.IsNullOrWhiteSpace(text) && !currentStory.canContinue && currentStory.currentChoices.Count == 0)
+            ExitStandardDialogue();
+    }
+
+    private void OnStandardLineTyped()
+    {
+        if (!dialogueIsPlaying || activeMode != DialoguePresentationMode.Standard || currentStory == null)
+            return;
+
+        DisplayChoices();
+
+        if (!currentStory.canContinue && currentStory.currentChoices.Count == 0)
             ExitStandardDialogue();
     }
 
@@ -523,15 +543,19 @@ public class DialogueManager : MonoBehaviour
         if (activeMode != DialoguePresentationMode.Standard || currentStory == null)
             return;
 
+        if (choiceIndex < 0 || choiceIndex >= currentStory.currentChoices.Count)
+            return;
+
         isChoosing = false;
+        HideChoiceButtons();
         nextInputTime = Time.time + inputDelay;
 
-        if (GlobalVariableOperator.Instance != null
-            && choiceIndex >= 0
-            && choiceIndex < currentStory.currentChoices.Count)
-        {
+        DialogueTypewriter writer = ResolveTypewriter();
+        if (writer != null && writer.IsTyping)
+            writer.Stop(clearText: false);
+
+        if (GlobalVariableOperator.Instance != null)
             GlobalVariableOperator.Instance.RecordChoice(currentStory.currentChoices[choiceIndex].text);
-        }
 
         currentStory.ChooseChoiceIndex(choiceIndex);
         ContinueStandardStory();

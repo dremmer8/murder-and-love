@@ -19,9 +19,25 @@ public class BasketSlot : MonoBehaviour
     Vector3 _offset;
     Vector3 _tilt;
     bool _occupiedDialogueFired;
+    bool _reserved;
     BasketCollector _collector;
 
-    public bool IsOccupied => _item != null;
+    public bool IsOccupied => _item != null || _reserved;
+
+    /// <summary>Claims the slot for an in-flight collect so another item cannot target it.</summary>
+    public bool TryReserve()
+    {
+        if (_item != null || _reserved)
+            return false;
+
+        _reserved = true;
+        return true;
+    }
+
+    public void CancelReserve()
+    {
+        _reserved = false;
+    }
 
     void Awake()
     {
@@ -63,6 +79,7 @@ public class BasketSlot : MonoBehaviour
 
     public void Attach(Transform item)
     {
+        _reserved = false;
         _item = item;
         _offset = Vector3.zero;
         _tilt = Vector3.zero;

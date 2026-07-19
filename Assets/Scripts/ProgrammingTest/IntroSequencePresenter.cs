@@ -167,7 +167,9 @@ public class IntroSequencePresenter : MonoBehaviour
     {
         prompt = CollectClosingParagraphs(prompt);
 
-        if (!ActivateNextRow(prompt))
+        bool showChoicesAfterType = _story != null && _story.currentChoices.Count > 0;
+
+        if (!ActivateNextRow(prompt, showChoicesAfterType ? OnIntroLineTyped : null))
         {
             // More Ink lines than wired rows — fold remaining text into the last bit.
             AppendToActiveText(prompt);
@@ -190,13 +192,17 @@ public class IntroSequencePresenter : MonoBehaviour
 
         _nextInputTime = Time.time + inputDelay;
 
-        if (_story.currentChoices.Count > 0)
-        {
-            ShowOptionsOnActiveRow();
-            return;
-        }
+        // Choices wait for OnIntroLineTyped when a typewriter is running.
+        // Text-only bits (e.g. final closing lines) advance on Space.
+    }
 
-        // Text-only bit (e.g. final closing lines). Space will advance / finish.
+    private void OnIntroLineTyped()
+    {
+        if (!_active || _story == null)
+            return;
+
+        if (_story.currentChoices.Count > 0)
+            ShowOptionsOnActiveRow();
     }
 
     /// <summary>
@@ -283,7 +289,7 @@ public class IntroSequencePresenter : MonoBehaviour
         return string.IsNullOrWhiteSpace(text) ? string.Empty : text.Trim();
     }
 
-    private bool ActivateNextRow(string prompt)
+    private bool ActivateNextRow(string prompt, Action onTyped = null)
     {
         int next = _activeRowIndex + 1;
         if (bitRows == null || next < 0 || next >= bitRows.Length)
@@ -298,17 +304,27 @@ public class IntroSequencePresenter : MonoBehaviour
         if (row.rowRoot != null)
             row.rowRoot.SetActive(true);
 
+        HideAllOptions(row);
+
         if (row.textBit != null)
         {
             row.textBit.gameObject.SetActive(true);
             DialogueTypewriter writer = ResolveTypewriter();
             if (writer != null)
-                writer.PlayIntro(prompt ?? "", row.textBit);
+            {
+                writer.PlayIntro(prompt ?? "", row.textBit, onTyped);
+            }
             else
+            {
                 row.textBit.text = prompt ?? "";
+                onTyped?.Invoke();
+            }
+        }
+        else
+        {
+            onTyped?.Invoke();
         }
 
-        HideAllOptions(row);
         return true;
     }
 

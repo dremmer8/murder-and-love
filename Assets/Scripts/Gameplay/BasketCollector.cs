@@ -25,6 +25,7 @@ public class BasketCollector : MonoBehaviour
     [SerializeField] List<BasketPhaseCleanupEntry> phaseCleanups = new();
 
     readonly Dictionary<string, BasketSlot> _slots = new();
+    /// <summary>One independent flight tween per animated transform (concurrent collects).</summary>
     readonly Dictionary<Transform, Tween> _tweens = new();
     public static BasketCollector Instance;
 
@@ -65,8 +66,11 @@ public class BasketCollector : MonoBehaviour
         if (Instance == this)
             Instance = null;
 
-        foreach (var tween in _tweens.Values)
-            tween?.Kill();
+        // Copy first — OnKill mutates _tweens.
+        var active = new List<Tween>(_tweens.Values);
+        _tweens.Clear();
+        for (int i = 0; i < active.Count; i++)
+            active[i]?.Kill(false);
     }
 
     void TryApplyPhaseCleanups()
@@ -165,11 +169,27 @@ public class BasketCollector : MonoBehaviour
             return false;
         }
 
-        if (slot.IsOccupied)
+        var target = item.Animated;
+        if (target == null || IsAnimating(target))
             return false;
 
-        var target = item.Animated;
-        AnimateArc(target, () => (slot.transform.position, slot.transform.rotation), () => slot.Attach(target));
+        if (!slot.TryReserve())
+            return false;
+
+        ClaimForFlight(item, target);
+
+        // Slight per-flight variation so parallel arcs stay visually distinct.
+        float flightArch = archHeight * UnityEngine.Random.Range(0.85f, 1.2f);
+        Vector3 lateral = UnityEngine.Random.insideUnitSphere * (archHeight * 0.35f);
+        lateral.y = 0f;
+
+        AnimateArc(
+            target,
+            () => (slot.transform.position, slot.transform.rotation),
+            onComplete: () => slot.Attach(target),
+            onInterrupted: () => slot.CancelReserve(),
+            flightArch,
+            lateral);
         return true;
     }
 
@@ -185,43 +205,110 @@ public class BasketCollector : MonoBehaviour
 
     public bool GiveBack(string slotKey, ItemDestination destination)
     {
-        if (destination == null || !TryGetSlot(slotKey, out var slot) || !slot.IsOccupied)
+        if (destination == null || !TryGetSlot(slotKey, out var slot))
             return false;
 
+        // Detach only succeeds when an item has finished landing (not merely reserved).
         var item = slot.Detach();
+        if (item == null || IsAnimating(item))
+            return false;
+
         var dest = destination.transform;
-        AnimateArc(item, () => (dest.position, dest.rotation), () => item.SetPositionAndRotation(dest.position, dest.rotation));
+        AnimateArc(
+            item,
+            () => (dest.position, dest.rotation),
+            onComplete: () => item.SetPositionAndRotation(dest.position, dest.rotation),
+            onInterrupted: null,
+            archHeight,
+            Vector3.zero);
         return true;
     }
 
-    void AnimateArc(Transform item, Func<(Vector3 pos, Quaternion rot)> getTarget, Action onComplete)
+    bool IsAnimating(Transform item) =>
+        item != null && _tweens.ContainsKey(item);
+
+    static void ClaimForFlight(CollectibleItem item, Transform target)
+    {
+        // World-space flight so parent motion cannot yank other in-flight items.
+        target.SetParent(null, true);
+
+        if (item != null)
+        {
+            var interactable = item.GetComponent<Interactable>();
+            if (interactable != null)
+                interactable.enabled = false;
+
+            var col = item.GetComponent<Collider>();
+            if (col != null)
+                col.enabled = false;
+
+            var rb = item.GetComponent<Rigidbody>();
+            if (rb != null)
+            {
+                rb.isKinematic = true;
+                rb.detectCollisions = false;
+            }
+        }
+
+        var targetRb = target.GetComponent<Rigidbody>();
+        if (targetRb != null)
+        {
+            targetRb.isKinematic = true;
+            targetRb.detectCollisions = false;
+        }
+    }
+
+    void AnimateArc(
+        Transform item,
+        Func<(Vector3 pos, Quaternion rot)> getTarget,
+        Action onComplete,
+        Action onInterrupted,
+        float flightArch,
+        Vector3 lateralOffset)
     {
         KillTween(item);
 
         Vector3 startPos = item.position;
         Quaternion startRot = item.rotation;
+        bool completed = false;
 
-        _tweens[item] = DOVirtual.Float(0f, 1f, duration, t =>
+        Tween tween = DOVirtual.Float(0f, 1f, duration, t =>
         {
+            if (item == null)
+                return;
+
             var (endPos, endRot) = getTarget();
             Vector3 pos = Vector3.Lerp(startPos, endPos, t);
-            pos.y += archHeight * 4f * t * (1f - t);
+            // Parabola + sideways bulge so concurrent arcs do not share one path.
+            float archT = 4f * t * (1f - t);
+            pos.y += flightArch * archT;
+            pos += lateralOffset * archT;
             item.SetPositionAndRotation(pos, Quaternion.Slerp(startRot, endRot, t));
         })
         .SetEase(Ease.OutCubic)
+        .SetId(item)
         .OnComplete(() =>
         {
+            completed = true;
             _tweens.Remove(item);
             onComplete?.Invoke();
+        })
+        .OnKill(() =>
+        {
+            _tweens.Remove(item);
+            if (!completed)
+                onInterrupted?.Invoke();
         });
+
+        _tweens[item] = tween;
     }
 
     void KillTween(Transform item)
     {
-        if (_tweens.TryGetValue(item, out var tween))
-        {
-            tween.Kill();
-            _tweens.Remove(item);
-        }
+        if (item == null || !_tweens.TryGetValue(item, out var tween))
+            return;
+
+        // OnKill removes from _tweens and runs onInterrupted when not completed.
+        tween.Kill(false);
     }
 }
