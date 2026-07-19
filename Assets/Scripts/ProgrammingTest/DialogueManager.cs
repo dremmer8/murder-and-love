@@ -195,6 +195,15 @@ public class DialogueManager : MonoBehaviour
             story.BindExternalFunction("UnhideItem", (string itemId) => itemUnhide.UnhideItem(itemId));
         else
             Debug.LogWarning($"{name}: No DialogueItemUnhide found — UnhideItem will not be bound.", this);
+
+        DialogueItemGiveAway itemGiveAway = DialogueItemGiveAway.Instance;
+        if (itemGiveAway == null)
+            itemGiveAway = FindFirstObjectByType<DialogueItemGiveAway>();
+
+        if (itemGiveAway != null)
+            story.BindExternalFunction("GiveAwayItem", (string itemId) => itemGiveAway.GiveAwayItem(itemId));
+        else
+            Debug.LogWarning($"{name}: No DialogueItemGiveAway found — GiveAwayItem will not be bound.", this);
     }
 
     private void BeginStandard()

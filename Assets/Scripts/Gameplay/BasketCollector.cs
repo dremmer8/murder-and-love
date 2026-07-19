@@ -207,6 +207,9 @@ public class BasketCollector : MonoBehaviour
     }
 
     public bool GiveBack(string slotKey, ItemDestination destination)
+        => GiveBack(slotKey, destination, null);
+
+    public bool GiveBack(string slotKey, ItemDestination destination, Action<Transform> onArrived)
     {
         if (destination == null || !TryGetSlot(slotKey, out var slot))
             return false;
@@ -220,7 +223,12 @@ public class BasketCollector : MonoBehaviour
         AnimateArc(
             item,
             () => (dest.position, dest.rotation),
-            onComplete: () => item.SetPositionAndRotation(dest.position, dest.rotation),
+            onComplete: () =>
+            {
+                if (item != null)
+                    item.SetPositionAndRotation(dest.position, dest.rotation);
+                onArrived?.Invoke(item);
+            },
             onInterrupted: null,
             archHeight,
             Vector3.zero);

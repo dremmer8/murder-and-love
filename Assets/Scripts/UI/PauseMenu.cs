@@ -1,8 +1,8 @@
 using UnityEngine;
 
 /// <summary>
-/// Escape toggles pause: first press shows the pause menu, hides options, and freezes time (<c>timeScale = 0</c>).
-/// Second press hides pause and options and restores time (<c>timeScale = 1</c>).
+/// Escape toggles pause: first press shows the pause menu, hides options, freezes time,
+/// unlocks the cursor, and sets <see cref="GameState.Paused"/>. Second press (or Resume) restores.
 /// </summary>
 public class PauseMenu : MonoBehaviour
 {
@@ -15,6 +15,7 @@ public class PauseMenu : MonoBehaviour
     GameObject m_OptionsRoot;
 
     bool m_IsPaused;
+    GameState m_StateBeforePause = GameState.Gameplay;
 
     /// <summary> True while paused (pause or options may be visible). </summary>
     public bool IsPaused => m_IsPaused;
@@ -24,6 +25,9 @@ public class PauseMenu : MonoBehaviour
         Time.timeScale = 1f;
         m_IsPaused = false;
         SetRootsVisible(false, false);
+
+        if (GameStateManager.CurrentState == GameState.Paused)
+            GameStateManager.ChangeState(GameState.Gameplay);
     }
 
     void Update()
@@ -41,23 +45,35 @@ public class PauseMenu : MonoBehaviour
     void HandleEscape()
     {
         if (!m_IsPaused)
-        {
-            m_IsPaused = true;
-            SetRootsVisible(pauseMenu: true, options: false);
-            Time.timeScale = 0f;
-        }
+            PauseGameplay();
         else
-        {
             ResumeGameplay();
-        }
+    }
+
+    void PauseGameplay()
+    {
+        m_IsPaused = true;
+        m_StateBeforePause = GameStateManager.CurrentState;
+        if (m_StateBeforePause == GameState.Paused)
+            m_StateBeforePause = GameState.Gameplay;
+
+        GameStateManager.ChangeState(GameState.Paused);
+        SetRootsVisible(pauseMenu: true, options: false);
+        Time.timeScale = 0f;
+        ShowCursor();
     }
 
     /// <summary> Close overlays and unpause — same as second Escape while paused. Hook Resume buttons here. </summary>
     public void ResumeGameplay()
     {
+        if (!m_IsPaused)
+            return;
+
         m_IsPaused = false;
         SetRootsVisible(false, false);
         Time.timeScale = 1f;
+        GameStateManager.ChangeState(m_StateBeforePause);
+        RestoreCursorForState(m_StateBeforePause);
     }
 
     /// <summary> From pause menu → options (buttons). Stays paused. </summary>
@@ -85,6 +101,27 @@ public class PauseMenu : MonoBehaviour
 
         if (m_OptionsRoot != null)
             m_OptionsRoot.SetActive(options);
+    }
+
+    static void ShowCursor()
+    {
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+    }
+
+    static void HideCursor()
+    {
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+    }
+
+    static void RestoreCursorForState(GameState state)
+    {
+        // Dialogue (and intro) keep the cursor free for UI; gameplay / pager keep it locked for look.
+        if (state == GameState.Dialogue)
+            ShowCursor();
+        else
+            HideCursor();
     }
 
     #region Unity UI — Button OnClick

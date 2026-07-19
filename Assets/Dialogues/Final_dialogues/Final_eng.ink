@@ -4,6 +4,10 @@ EXTERNAL PlayEndingCutscene(cinematicIndex)
 // Unhide a scene item mid-dialogue (DialogueItemUnhide). Ids: first_laundry_coin, backroom_key, second_laundry_coin
 EXTERNAL UnhideItem(itemId)
 
+// Give away a basket item mid-dialogue (DialogueItemGiveAway → BasketCollector.GiveBack).
+// Change pay: change_coin_1 .. change_coin_4
+EXTERNAL GiveAwayItem(itemId)
+
 //story phase nubmer
 VAR story_phase = 11
 
@@ -689,6 +693,10 @@ J: Just continue. We're so close. Love u.
 ~ game_progression = 18
 Mrs. Wong: You get your change now?
 *[Yes. (pay)]
+~ GiveAwayItem("change_coin_1")
+~ GiveAwayItem("change_coin_2")
+~ GiveAwayItem("change_coin_3")
+~ GiveAwayItem("change_coin_4")
 You: Yes, here.
 ~ UnhideItem("second_laundry_coin")
 Mrs. Wong: Here you are. Washer Nr. 9.

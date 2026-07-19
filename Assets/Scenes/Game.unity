@@ -4568,6 +4568,7 @@ GameObject:
   - component: {fileID: 339123862}
   - component: {fileID: 339123863}
   - component: {fileID: 1084037570}
+  - component: {fileID: 1084037571}
   m_Layer: 0
   m_Name: Root
   m_TagString: Untagged
@@ -5217,7 +5218,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 339123853}
         m_TargetAssemblyTypeName: SceneChangeManager, Assembly-CSharp
         m_MethodName: UI_ExitGame
         m_Mode: 1
@@ -8221,6 +8222,7 @@ Transform:
   - {fileID: 1980155810}
   - {fileID: 231254321}
   - {fileID: 193001054}
+  - {fileID: 1883159560}
   m_Father: {fileID: 72378916}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &632902399
@@ -14317,7 +14319,8 @@ Transform:
   m_LocalPosition: {x: -4.657, y: 1.13, z: 2.2}
   m_LocalScale: {x: 1.5720106, y: 2.0760972, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 2005552253}
   m_Father: {fileID: 1106555185}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &1072823010
@@ -14412,6 +14415,44 @@ MonoBehaviour:
   - itemId: second_laundry_coin
     target: {fileID: 231254322}
     timeOffset: 0.5
+    playOnce: 1
+--- !u!114 &1084037571
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 339123851}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca52326753a74b4abeff5d140249630b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  defaultDestination: {fileID: 2069823522}
+  items:
+  - itemId: change_coin_1
+    slotKey: coin_act_2_1
+    destination: {fileID: 1883159559}
+    timeOffset: 0
+    hideOnArrive: 1
+    playOnce: 1
+  - itemId: change_coin_2
+    slotKey: coin_act_2_2
+    destination: {fileID: 1883159559}
+    timeOffset: 0.3
+    hideOnArrive: 1
+    playOnce: 1
+  - itemId: change_coin_3
+    slotKey: coin_act_2_3
+    destination: {fileID: 1883159559}
+    timeOffset: 0.6
+    hideOnArrive: 1
+    playOnce: 1
+  - itemId: change_coin_4
+    slotKey: coin_act_2_4
+    destination: {fileID: 1883159559}
+    timeOffset: 0.9
+    hideOnArrive: 1
     playOnce: 1
 --- !u!1 &1093077298
 GameObject:
@@ -23961,6 +24002,50 @@ MonoBehaviour:
   m_MaxWidth: 0
   m_FitOnTextChange: 1
   m_FitOnEnable: 1
+--- !u!1 &1883159558
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1883159560}
+  - component: {fileID: 1883159559}
+  m_Layer: 0
+  m_Name: moneyGather
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1883159559
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1883159558}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 06312b9bc29d3214cb44fe3820bbc2c5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &1883159560
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1883159558}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -4.919, y: 0.858, z: 6.78}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 619371174}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1890619773
 GameObject:
   m_ObjectHideFlags: 0
@@ -26330,6 +26415,23 @@ Transform:
   - {fileID: 1003971030}
   m_Father: {fileID: 1627474335}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2004761632
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2005552253}
+  - component: {fileID: 2069823522}
+  m_Layer: 0
+  m_Name: MrsWong_ChangeDestination
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
 --- !u!1 &2004914590
 GameObject:
   m_ObjectHideFlags: 0
@@ -26387,6 +26489,21 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!4 &2005552253
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2004761632}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0.35}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1072823009}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &2012024913
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -27084,6 +27201,18 @@ MonoBehaviour:
   reverseDirection: 0
   radiusSeparation: 0
   alignedOnCenter: 1
+--- !u!114 &2069823522
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2004761632}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 06312b9bc29d3214cb44fe3820bbc2c5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &2071228130
 PrefabInstance:
   m_ObjectHideFlags: 0

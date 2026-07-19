@@ -112,6 +112,11 @@ public class SceneChangeManager : MonoBehaviour
     /// </summary>
     public void RestartGame()
     {
+        // Pause leaves timeScale at 0; reset so the next scene is not frozen.
+        Time.timeScale = 1f;
+        if (GameStateManager.CurrentState == GameState.Paused)
+            GameStateManager.ChangeState(GameState.Gameplay);
+
         if (!TryLoadScene(m_BootstrapSceneName))
             Debug.LogError($"[SceneChangeManager] Restart failed — bootstrap scene '{m_BootstrapSceneName}' missing from Build Settings.", this);
     }
