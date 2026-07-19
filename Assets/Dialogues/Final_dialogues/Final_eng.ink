@@ -110,9 +110,7 @@ He tore through our home, destroyed what we'd built, searching for anything of v
 -
 
 // change page
-Silence returned to the night. Blood seeped deep into the carpet.
-One issue resolved. An even worse one arose.
-Covered in blood was
+Silence returned to the night. Blood seeped deep into the carpet. One issue resolved. An even worse one arose. Covered in blood was
 * his shirt.
 * our bed sheet.
 * my favorite dress.
@@ -120,7 +118,6 @@ Covered in blood was
 
 // change page
 He held me with his bloodied hands, telling me that as long as the blood was washed off our clothes, everything would be all right.
-
 And so here I am, at 3 a.m., trying to wash away the crime we committed.
 -> END
 

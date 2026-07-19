@@ -7,7 +7,7 @@ using Ink.Runtime;
 
 /// <summary>
 /// One intro row: a text bit on the left and optional option buttons on the right.
-/// Row 0 is usually text-only; later rows use up to three option buttons.
+/// Row 0 and the final row are usually text-only; middle rows use up to three option buttons.
 /// </summary>
 [Serializable]
 public class IntroBitRow
@@ -17,27 +17,30 @@ public class IntroBitRow
 
     public TextMeshProUGUI textBit;
 
-    [Tooltip("Up to three option slots (leave empty / unused for the opening text-only bit).")]
+    [Tooltip("Up to three option slots (leave empty for text-only bits).")]
     public Button[] optionButtons = new Button[3];
 }
 
 /// <summary>
-/// Static intro layout: opening text bit, then text+option rows.
-/// After a pick, hide unchosen options and leave text + chosen option.
+/// Static intro layout: opening text bit, text+option rows, then a closing text-only bit.
+/// After a pick, hide all option buttons and leave the text bit.
 /// </summary>
 public class IntroSequencePresenter : MonoBehaviour
 {
     [Header("Layout")]
     [SerializeField] private GameObject rootPanel;
 
-    [Tooltip("Bit 0 = opening text only. Bits 1–3 = text + up to 3 options each.")]
-    [SerializeField] private IntroBitRow[] bitRows = new IntroBitRow[4];
+    [Tooltip("Bit 0 = opening text only. Bits 1–3 = text + options. Bit 4 = closing text only.")]
+    [SerializeField] private IntroBitRow[] bitRows = new IntroBitRow[5];
 
     [Header("Input")]
     [SerializeField] private float inputDelay = 0.2f;
 
     [Tooltip("If true, Space advances when a revealed bit has no pending choices.")]
     [SerializeField] private bool advanceTextWithSpace = true;
+
+    [Header("Typewriter")]
+    [SerializeField] private DialogueTypewriter typewriter;
 
     private Story _story;
     private Action _onComplete;
@@ -57,7 +60,7 @@ public class IntroSequencePresenter : MonoBehaviour
         {
             Debug.LogError(
                 $"{name}: No IntroBitRow slots wired (rowRoot / textBit / optionButtons). " +
-                "Assign 4 rows: opening text + 3 text/option rows.",
+                "Assign 5 rows: opening text + 3 text/option rows + closing text.",
                 this);
             return false;
         }
@@ -99,6 +102,7 @@ public class IntroSequencePresenter : MonoBehaviour
         if (!_active)
             return;
 
+        ResolveTypewriter()?.Stop(clearText: false);
         Finish(invokeCallback: false);
     }
 
@@ -114,7 +118,13 @@ public class IntroSequencePresenter : MonoBehaviour
             return;
 
         if (Input.GetKeyDown(KeyCode.Space))
+        {
+            DialogueTypewriter writer = ResolveTypewriter();
+            if (writer != null && writer.IsTyping && writer.Skip())
+                return;
+
             RevealNextBit();
+        }
     }
 
     private void RevealNextBit()
@@ -125,7 +135,10 @@ public class IntroSequencePresenter : MonoBehaviour
         if (_isChoosing)
             return;
 
-        // Pull next non-empty line (and any immediate glue after prior choice).
+        DialogueTypewriter writer = ResolveTypewriter();
+        if (writer != null && writer.IsTyping)
+            return;
+
         string prompt = PullNextText();
 
         if (string.IsNullOrEmpty(prompt) && !_story.canContinue && _story.currentChoices.Count == 0)
@@ -142,6 +155,17 @@ public class IntroSequencePresenter : MonoBehaviour
             ShowOptionsOnActiveRow();
             return;
         }
+
+        ShowTextBit(prompt);
+    }
+
+    /// <summary>
+    /// Shows <paramref name="prompt"/> on the next row. If the rest of the story has no
+    /// choices (closing beat), also pulls remaining paragraphs into the same field.
+    /// </summary>
+    private void ShowTextBit(string prompt)
+    {
+        prompt = CollectClosingParagraphs(prompt);
 
         if (!ActivateNextRow(prompt))
         {
@@ -175,6 +199,52 @@ public class IntroSequencePresenter : MonoBehaviour
         // Text-only bit (e.g. final closing lines). Space will advance / finish.
     }
 
+    /// <summary>
+    /// When no further choices remain, merge following Ink lines into one closing bit.
+    /// </summary>
+    private string CollectClosingParagraphs(string firstLine)
+    {
+        if (_story == null || string.IsNullOrEmpty(firstLine))
+            return firstLine;
+
+        if (_story.currentChoices.Count > 0 || PeekRemainingHasChoices())
+            return firstLine;
+
+        while (_story.canContinue)
+        {
+            string extra = PullNextText();
+            if (string.IsNullOrEmpty(extra))
+                break;
+
+            firstLine = $"{firstLine}\n{extra}";
+        }
+
+        return firstLine;
+    }
+
+    private bool PeekRemainingHasChoices()
+    {
+        if (_story == null)
+            return false;
+
+        string savedState = _story.state.ToJson();
+        try
+        {
+            while (_story.canContinue)
+            {
+                _story.Continue();
+                if (_story.currentChoices.Count > 0)
+                    return true;
+            }
+
+            return _story.currentChoices.Count > 0;
+        }
+        finally
+        {
+            _story.state.LoadJson(savedState);
+        }
+    }
+
     private void AppendToActiveText(string extra)
     {
         if (string.IsNullOrEmpty(extra) || _activeRowIndex < 0 || bitRows == null)
@@ -187,10 +257,15 @@ public class IntroSequencePresenter : MonoBehaviour
         if (row?.textBit == null)
             return;
 
+        DialogueTypewriter writer = ResolveTypewriter();
+        string coloredExtra = writer != null ? writer.ApplySpeakerColor(extra) : extra;
+
         if (string.IsNullOrEmpty(row.textBit.text))
-            row.textBit.text = extra;
+            row.textBit.text = coloredExtra;
         else
-            row.textBit.text = $"{row.textBit.text}\n{extra}";
+            row.textBit.text = $"{row.textBit.text}\n{coloredExtra}";
+
+        row.textBit.maxVisibleCharacters = int.MaxValue;
     }
 
     private string PullNextText()
@@ -226,11 +301,22 @@ public class IntroSequencePresenter : MonoBehaviour
         if (row.textBit != null)
         {
             row.textBit.gameObject.SetActive(true);
-            row.textBit.text = prompt ?? "";
+            DialogueTypewriter writer = ResolveTypewriter();
+            if (writer != null)
+                writer.PlayIntro(prompt ?? "", row.textBit);
+            else
+                row.textBit.text = prompt ?? "";
         }
 
         HideAllOptions(row);
         return true;
+    }
+
+    DialogueTypewriter ResolveTypewriter()
+    {
+        if (typewriter == null)
+            typewriter = DialogueTypewriter.Instance;
+        return typewriter;
     }
 
     private void ShowOptionsOnActiveRow()
@@ -293,45 +379,43 @@ public class IntroSequencePresenter : MonoBehaviour
         if (GlobalVariableOperator.Instance != null)
             GlobalVariableOperator.Instance.RecordChoice(chosenText);
 
-        // Hide unchosen options; leave the chosen one visible but no longer clickable.
-        if (row != null && row.optionButtons != null)
-        {
-            for (int i = 0; i < row.optionButtons.Length; i++)
-            {
-                Button button = row.optionButtons[i];
-                if (button == null)
-                    continue;
-
-                if (i == choiceIndex)
-                {
-                    button.gameObject.SetActive(true);
-                    button.interactable = false;
-                    button.onClick.RemoveAllListeners();
-                }
-                else
-                {
-                    button.gameObject.SetActive(false);
-                    button.onClick.RemoveAllListeners();
-                }
-            }
-        }
+        HideAllOptions(row);
 
         _isChoosing = false;
         _nextInputTime = Time.time + inputDelay;
 
         _story.ChooseChoiceIndex(choiceIndex);
 
-        // Ink often glues the chosen word back into the sentence — append onto this text bit.
-        string glue = PullNextText();
-        if (!string.IsNullOrEmpty(glue) && row != null && row.textBit != null)
+        // Fold the chosen wording into the text bit (buttons are cleared), then any <> glue.
+        if (row?.textBit != null && !string.IsNullOrEmpty(chosenText))
         {
             if (string.IsNullOrEmpty(row.textBit.text))
-                row.textBit.text = glue;
+                row.textBit.text = chosenText;
             else
-                row.textBit.text = $"{row.textBit.text} {glue}";
+                row.textBit.text = $"{row.textBit.text} {chosenText}";
         }
 
-        // If more choices appeared immediately (unusual), show on same row leftover slots — otherwise next bit.
+        string following = PullNextText();
+        if (!string.IsNullOrEmpty(following))
+        {
+            if (IsSentenceGlue(following) && row?.textBit != null)
+            {
+                row.textBit.text = $"{row.textBit.text} {following}";
+                row.textBit.maxVisibleCharacters = int.MaxValue;
+            }
+            else
+            {
+                if (row?.textBit != null)
+                    row.textBit.maxVisibleCharacters = int.MaxValue;
+
+                ShowTextBit(following);
+                return;
+            }
+        }
+
+        if (row?.textBit != null)
+            row.textBit.maxVisibleCharacters = int.MaxValue;
+
         if (_story.currentChoices.Count > 0)
         {
             ShowOptionsOnActiveRow();
@@ -346,6 +430,19 @@ public class IntroSequencePresenter : MonoBehaviour
         }
 
         Finish(invokeCallback: true);
+    }
+
+    /// <summary>
+    /// Ink <> glue after a choice is typically a lowercase continuation ("tried to take...").
+    /// A new capitalised paragraph is the next intro bit, not glue.
+    /// </summary>
+    private static bool IsSentenceGlue(string text)
+    {
+        if (string.IsNullOrEmpty(text))
+            return false;
+
+        char c = text[0];
+        return char.IsLower(c) || c == ',' || c == ';' || c == ')' || c == ']';
     }
 
     private void HideAllOptions(IntroBitRow row)

@@ -19,6 +19,7 @@ public class DialogueManager : MonoBehaviour
     [SerializeField] private IntroSequencePresenter introPresenter;
     [SerializeField] private InternalMonologuePresenter internalPresenter;
     [SerializeField] private PagerTextController pagerController;
+    [SerializeField] private DialogueTypewriter typewriter;
 
     [Header("Standard Input")]
     [SerializeField] private float inputDelay = 0.2f;
@@ -96,7 +97,20 @@ public class DialogueManager : MonoBehaviour
             return;
 
         if (!isChoosing && Input.GetKeyDown(KeyCode.Space))
+        {
+            DialogueTypewriter writer = ResolveTypewriter();
+            if (writer != null && writer.IsTyping && writer.Skip())
+                return;
+
             ContinueStandardStory();
+        }
+    }
+
+    DialogueTypewriter ResolveTypewriter()
+    {
+        if (typewriter == null)
+            typewriter = DialogueTypewriter.Instance;
+        return typewriter;
     }
 
     public void EnterDialogue(TextAsset inkFile, string knotName = "")
@@ -255,6 +269,7 @@ public class DialogueManager : MonoBehaviour
         if (dialoguePanel != null)
             dialoguePanel.SetActive(false);
 
+        ResolveTypewriter()?.Stop(clearText: true);
         if (dialogueText != null)
             dialogueText.text = "";
 
@@ -343,6 +358,7 @@ public class DialogueManager : MonoBehaviour
         if (dialoguePanel != null)
             dialoguePanel.SetActive(false);
 
+        ResolveTypewriter()?.Clear(DialogueTextChannel.Standard);
         if (dialogueText != null)
             dialogueText.text = "";
 
@@ -382,6 +398,7 @@ public class DialogueManager : MonoBehaviour
         if (dialoguePanel != null)
             dialoguePanel.SetActive(false);
 
+        ResolveTypewriter()?.Clear(DialogueTextChannel.Standard);
         if (dialogueText != null)
             dialogueText.text = "";
 
@@ -397,6 +414,10 @@ public class DialogueManager : MonoBehaviour
     private void ContinueStandardStory()
     {
         if (currentStory == null)
+            return;
+
+        DialogueTypewriter writer = ResolveTypewriter();
+        if (writer != null && writer.IsTyping)
             return;
 
         if (!currentStory.canContinue)
@@ -416,8 +437,14 @@ public class DialogueManager : MonoBehaviour
         while (string.IsNullOrWhiteSpace(text) && currentStory.canContinue)
             text = currentStory.Continue();
 
-        if (!string.IsNullOrWhiteSpace(text) && dialogueText != null)
-            dialogueText.text = text.Trim();
+        if (!string.IsNullOrWhiteSpace(text))
+        {
+            string trimmed = text.Trim();
+            if (writer != null)
+                writer.Play(DialogueTextChannel.Standard, trimmed, dialogueText);
+            else if (dialogueText != null)
+                dialogueText.text = trimmed;
+        }
 
         DisplayChoices();
         nextInputTime = Time.time + inputDelay;

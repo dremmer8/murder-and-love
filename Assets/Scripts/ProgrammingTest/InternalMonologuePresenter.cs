@@ -12,6 +12,7 @@ public class InternalMonologuePresenter : MonoBehaviour
     [Header("UI")]
     [SerializeField] private GameObject panel;
     [SerializeField] private TextMeshProUGUI monologueText;
+    [SerializeField] private DialogueTypewriter typewriter;
 
     [Header("Timing")]
     [SerializeField] private float secondsPerCharacter = 0.045f;
@@ -24,6 +25,7 @@ public class InternalMonologuePresenter : MonoBehaviour
     private bool _active;
     private float _lineExpireTime;
     private bool _holdingLine;
+    private bool _waitingForTypewriter;
 
     public bool IsActive => _active;
 
@@ -33,6 +35,7 @@ public class InternalMonologuePresenter : MonoBehaviour
         _onComplete = onComplete;
         _active = true;
         _holdingLine = false;
+        _waitingForTypewriter = false;
 
         if (panel != null)
             panel.SetActive(true);
@@ -45,12 +48,13 @@ public class InternalMonologuePresenter : MonoBehaviour
         if (!_active)
             return;
 
+        ResolveTypewriter()?.Stop(clearText: true);
         Finish(invokeCallback: false);
     }
 
     private void Update()
     {
-        if (!_active || !_holdingLine)
+        if (!_active || !_holdingLine || _waitingForTypewriter)
             return;
 
         // Intentionally ignore Space — timed only.
@@ -107,24 +111,55 @@ public class InternalMonologuePresenter : MonoBehaviour
         }
 
         string trimmed = text.Trim();
+        float lineStart = Time.time;
+        DialogueTypewriter writer = ResolveTypewriter();
+
+        if (writer != null)
+        {
+            _waitingForTypewriter = true;
+            _holdingLine = false;
+            writer.Play(DialogueTextChannel.Internal, trimmed, monologueText, () => BeginHoldAfterTyping(trimmed, lineStart));
+            return;
+        }
+
         if (monologueText != null)
             monologueText.text = trimmed;
 
-        float duration = Mathf.Clamp(
+        BeginHoldAfterTyping(trimmed, lineStart);
+    }
+
+    void BeginHoldAfterTyping(string trimmed, float lineStart)
+    {
+        if (!_active)
+            return;
+
+        _waitingForTypewriter = false;
+
+        float targetDuration = Mathf.Clamp(
             trimmed.Length * secondsPerCharacter,
             minDisplaySeconds,
             maxDisplaySeconds);
+        float remaining = Mathf.Max(0f, targetDuration - (Time.time - lineStart));
 
-        _lineExpireTime = Time.time + duration + gapBetweenLines;
+        _lineExpireTime = Time.time + remaining + gapBetweenLines;
         _holdingLine = true;
+    }
+
+    DialogueTypewriter ResolveTypewriter()
+    {
+        if (typewriter == null)
+            typewriter = DialogueTypewriter.Instance;
+        return typewriter;
     }
 
     private void Finish(bool invokeCallback)
     {
         _active = false;
         _holdingLine = false;
+        _waitingForTypewriter = false;
         _story = null;
 
+        ResolveTypewriter()?.Clear(DialogueTextChannel.Internal);
         if (monologueText != null)
             monologueText.text = "";
 
