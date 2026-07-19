@@ -59,6 +59,30 @@ public static class BakedLightingScenarioCapture
         }
     }
 
+    [MenuItem("MurderAndLove/Lighting/Reset Reflection Probes To Baked Mode")]
+    static void ResetReflectionProbesToBaked()
+    {
+        ReflectionProbe[] probes = UnityEngine.Object.FindObjectsByType<ReflectionProbe>(
+            FindObjectsInactive.Include,
+            FindObjectsSortMode.None);
+
+        int changed = 0;
+        for (int i = 0; i < probes.Length; i++)
+        {
+            ReflectionProbe probe = probes[i];
+            if (probe == null || probe.mode == ReflectionProbeMode.Baked)
+                continue;
+
+            Undo.RecordObject(probe, "Reset Reflection Probe To Baked");
+            probe.mode = ReflectionProbeMode.Baked;
+            probe.customBakedTexture = null;
+            EditorUtility.SetDirty(probe);
+            changed++;
+        }
+
+        Debug.Log($"[BakedLighting] Reset {changed} ReflectionProbe(s) to Baked mode. Rebake probes if needed.");
+    }
+
     [MenuItem("MurderAndLove/Lighting/Auto-Backup Before Bake", false, 100)]
     static void ToggleAutoBackup()
     {
@@ -185,7 +209,9 @@ public static class BakedLightingScenarioCapture
 
         CaptureLightmaps(scenario, textureFolder, scenarioName, remaps, ref copied, ref failed);
         CaptureLightProbes(scenario);
-        CaptureReflectionProbes(scenario, textureFolder, scenarioName, remaps, ref copied, ref failed);
+        // Reflection probes are not captured/swapped — bake separate probes and toggle via object lists.
+        scenario.applyReflectionProbes = false;
+        scenario.reflectionProbes = Array.Empty<BakedLightingScenario.ReflectionProbeEntry>();
         CaptureEnvironment(scenario, textureFolder, scenarioName, remaps, ref copied, ref failed);
         CaptureLightingDataAsset(scenario, textureFolder, scenarioName, remaps);
 
@@ -205,7 +231,6 @@ public static class BakedLightingScenarioCapture
             Debug.Log(
                 $"[BakedLighting] Captured {copied} texture(s), " +
                 $"{scenario.LightProbeCount} light probes, " +
-                $"{scenario.ReflectionProbeCount} reflection probes, " +
                 $"LightingData={(scenario.lightingDataAsset != null ? "yes" : "no")} → '{textureFolder}'.");
         }
     }
@@ -247,59 +272,6 @@ public static class BakedLightingScenarioCapture
             scenario.bakedProbes = Array.Empty<SphericalHarmonicsL2>();
             Debug.LogWarning("[BakedLighting] No light probe data in the scene to capture.");
         }
-    }
-
-    static void CaptureReflectionProbes(
-        BakedLightingScenario scenario,
-        string textureFolder,
-        string scenarioName,
-        Dictionary<UnityEngine.Object, UnityEngine.Object> remaps,
-        ref int copied,
-        ref int failed)
-    {
-        ReflectionProbe[] sceneProbes = UnityEngine.Object.FindObjectsByType<ReflectionProbe>(
-            FindObjectsInactive.Include,
-            FindObjectsSortMode.None);
-
-        scenario.applyReflectionProbes = true;
-        scenario.reflectionProbes = new BakedLightingScenario.ReflectionProbeEntry[sceneProbes.Length];
-
-        for (int i = 0; i < sceneProbes.Length; i++)
-        {
-            ReflectionProbe probe = sceneProbes[i];
-            if (probe == null)
-                continue;
-
-            string hierarchyPath = BakedLightingScenario.GetHierarchyPath(probe.transform);
-            Texture sourceTex = GetReflectionProbeTexture(probe);
-            string safeName = SanitizeFileName(hierarchyPath);
-
-            scenario.reflectionProbes[i] = new BakedLightingScenario.ReflectionProbeEntry
-            {
-                hierarchyPath = hierarchyPath,
-                cubemap = DuplicateTextureAsset(sourceTex, textureFolder, $"{scenarioName}_RP{i}_{safeName}", remaps, ref copied, ref failed),
-                intensity = probe.intensity,
-                boxProjection = probe.boxProjection,
-                size = probe.size,
-                center = probe.center,
-                blendDistance = probe.blendDistance,
-                importance = probe.importance
-            };
-        }
-
-        if (sceneProbes.Length == 0)
-            Debug.LogWarning("[BakedLighting] No ReflectionProbes found in the scene.");
-        else
-            Debug.Log($"[BakedLighting] Captured {sceneProbes.Length} reflection probe(s).");
-    }
-
-    static Texture GetReflectionProbeTexture(ReflectionProbe probe)
-    {
-        if (probe.mode == ReflectionProbeMode.Custom && probe.customBakedTexture != null)
-            return probe.customBakedTexture;
-        if (probe.bakedTexture != null)
-            return probe.bakedTexture;
-        return probe.texture;
     }
 
     static void CaptureEnvironment(
@@ -782,8 +754,8 @@ public static class BakedLightingScenarioCapture
             $"  LightingData: {(scenario.lightingDataAsset != null ? scenario.lightingDataAsset.name : "none")}\n" +
             $"  Lightmaps: {scenario.LightmapCount}\n" +
             $"  Light probes: {scenario.LightProbeCount}\n" +
-            $"  Reflection probes: {scenario.ReflectionProbeCount}\n" +
-            "Safe to Generate Lighting again — this scenario keeps its own copies.");
+            "Safe to Generate Lighting again — this scenario keeps its own copies.\n" +
+            "Reflection probes are not swapped; bake separate probes and toggle objects on the controller.");
     }
 }
 
@@ -811,12 +783,8 @@ public class BakedLightingScenarioEditor : Editor
         }
 
         EditorGUILayout.HelpBox(
-            "Captures:\n" +
-            "• LightingData.asset (copied + remapped to snapshot textures)\n" +
-            "• Lightmaps (copied textures)\n" +
-            "• Light probe SH coefficients\n" +
-            "• Reflection probe cubemaps\n" +
-            "• Ambient / default reflection\n\n" +
+            "Captures LightingData + lightmaps + light probes only.\n" +
+            "Reflection probes are NOT swapped — bake lit/blackout probes as separate objects and toggle them on BakedLightingController.\n\n" +
             "Bake → Capture → change lights → Bake → Capture.",
             MessageType.Info);
     }
@@ -835,7 +803,8 @@ public class BakedLightingControllerEditor : Editor
         EditorGUILayout.LabelField("Capture / Preview", EditorStyles.boldLabel);
 
         EditorGUILayout.HelpBox(
-            "Capture stores LightingData.asset + lightmaps + probes. Do this after each bake, before the next.",
+            "Capture stores LightingData + lightmaps + light probes (not reflection probes).\n" +
+            "Toggle separate baked reflection probe objects via Realtime Lights / Objects lists.",
             MessageType.Warning);
 
         using (new EditorGUI.DisabledScope(controller.LightsOnScenario == null))
@@ -856,19 +825,21 @@ public class BakedLightingControllerEditor : Editor
         {
             if (GUILayout.Button("Preview Lights On"))
             {
-                if (controller.LightsOnScenario != null)
-                    BakedLightingController.ApplyScenario(controller.LightsOnScenario);
-                else
-                    Debug.LogWarning("No Lights On scenario assigned.");
+                Undo.RegisterCompleteObjectUndo(controller.gameObject, "Preview Lights On");
+                controller.ApplyState(BakedLightingController.LightingState.LightsOn, immediate: true);
+                EditorUtility.SetDirty(controller);
             }
 
             if (GUILayout.Button("Preview Blackout"))
             {
-                if (controller.BlackoutScenario != null)
-                    BakedLightingController.ApplyScenario(controller.BlackoutScenario);
-                else
-                    Debug.LogWarning("No Blackout scenario assigned.");
+                Undo.RegisterCompleteObjectUndo(controller.gameObject, "Preview Blackout");
+                controller.ApplyState(BakedLightingController.LightingState.Blackout, immediate: true);
+                EditorUtility.SetDirty(controller);
             }
         }
+
+        EditorGUILayout.HelpBox(
+            "Preview applies the full state: LightingData / lightmaps / probes AND the Realtime Lights / Objects lists.",
+            MessageType.Info);
     }
 }

@@ -94,7 +94,7 @@ LightmapSettings:
     m_ExportTrainingData: 0
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
-  m_LightingDataAsset: {fileID: 112000000, guid: 69dce3b72d0baf74daf56b85bd716602, type: 2}
+  m_LightingDataAsset: {fileID: 112000000, guid: a2c49f8b653335d499afefcbc5c972f4, type: 2}
   m_LightingSettings: {fileID: 4890085278179872738, guid: e9798affc54477042b7a333161858864, type: 2}
 --- !u!196 &4
 NavMeshSettings:
@@ -5287,7 +5287,7 @@ ReflectionProbe:
   m_RenderDynamicObjects: 0
   m_UseOcclusionCulling: 1
   m_Importance: 1
-  m_CustomBakedTexture: {fileID: 8900000, guid: 42cd80e6a2013a74ebe033f57a6d1e50, type: 3}
+  m_CustomBakedTexture: {fileID: 8900000, guid: 6dd3e29c7262eb54a9a45d376e81b28b, type: 3}
 --- !u!1 &343331020
 GameObject:
   m_ObjectHideFlags: 0
@@ -6248,12 +6248,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 396177186}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.512, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.51199996, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 801476559}
+  m_Father: {fileID: 1753429735}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!108 &396177188
 Light:
@@ -11365,7 +11365,7 @@ ReflectionProbe:
   m_RenderDynamicObjects: 0
   m_UseOcclusionCulling: 1
   m_Importance: 1
-  m_CustomBakedTexture: {fileID: 8900000, guid: 7cff7cf522e3b644caa692bad88a2614, type: 3}
+  m_CustomBakedTexture: {fileID: 8900000, guid: ee4842e664f33ba48a4fd452bb564fc7, type: 3}
 --- !u!1001 &784617353
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -12454,7 +12454,7 @@ ReflectionProbe:
   m_RenderDynamicObjects: 0
   m_UseOcclusionCulling: 1
   m_Importance: 1
-  m_CustomBakedTexture: {fileID: 8900000, guid: 743adfe69195fe34e8ae34c4093a86cc, type: 3}
+  m_CustomBakedTexture: {fileID: 8900000, guid: e136c47f09166684fa4d36a58ffe9d8d, type: 3}
 --- !u!1001 &829178838
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -12879,7 +12879,7 @@ ReflectionProbe:
   m_RenderDynamicObjects: 0
   m_UseOcclusionCulling: 1
   m_Importance: 1
-  m_CustomBakedTexture: {fileID: 8900000, guid: 7cff7cf522e3b644caa692bad88a2614, type: 3}
+  m_CustomBakedTexture: {fileID: 8900000, guid: b24399d1cfb986a4ba4c9036f43edf64, type: 3}
 --- !u!1 &855414187
 GameObject:
   m_ObjectHideFlags: 0
@@ -21090,9 +21090,6 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
-    - targetCorrespondingSourceObject: {fileID: 4834295721105689762, guid: 24d806c07e389d646ae2c9475c35b794, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 396177187}
     - targetCorrespondingSourceObject: {fileID: 1860515275334842728, guid: 24d806c07e389d646ae2c9475c35b794, type: 3}
       insertIndex: -1
       addedObject: {fileID: 921330834}
@@ -21129,6 +21126,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 6540571878358379581, guid: 24d806c07e389d646ae2c9475c35b794, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1323747403}
+    - targetCorrespondingSourceObject: {fileID: 4857124151640144764, guid: 24d806c07e389d646ae2c9475c35b794, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 396177187}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 972364010687164086, guid: 24d806c07e389d646ae2c9475c35b794, type: 3}
       insertIndex: -1
@@ -25018,6 +25018,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7a0117126a98f445b18f80d847a7a64, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!4 &1753429735 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4857124151640144764, guid: 24d806c07e389d646ae2c9475c35b794, type: 3}
+  m_PrefabInstance: {fileID: 1475635636}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1758325279
 GameObject:
   m_ObjectHideFlags: 0
@@ -27207,7 +27212,7 @@ ReflectionProbe:
   m_RenderDynamicObjects: 0
   m_UseOcclusionCulling: 1
   m_Importance: 1
-  m_CustomBakedTexture: {fileID: 8900000, guid: 42cd80e6a2013a74ebe033f57a6d1e50, type: 3}
+  m_CustomBakedTexture: {fileID: 8900000, guid: 9c0de41d87e6e1c429c8880ba7d99b80, type: 3}
 --- !u!1001 &1881519745
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -31789,7 +31794,7 @@ ReflectionProbe:
   m_RenderDynamicObjects: 0
   m_UseOcclusionCulling: 1
   m_Importance: 1
-  m_CustomBakedTexture: {fileID: 8900000, guid: 743adfe69195fe34e8ae34c4093a86cc, type: 3}
+  m_CustomBakedTexture: {fileID: 8900000, guid: 31ee26f8967225c4c837d1677cbb0878, type: 3}
 --- !u!1 &2117024937
 GameObject:
   m_ObjectHideFlags: 0
@@ -40492,9 +40497,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 6719973659250365724, guid: 440be01638b24c34786e3b838f0b3a34, type: 3}
       insertIndex: -1
       addedObject: {fileID: 5132975186010745180}
-    - targetCorrespondingSourceObject: {fileID: 3199900537930497207, guid: 440be01638b24c34786e3b838f0b3a34, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 0}
   m_SourcePrefab: {fileID: 100100000, guid: 440be01638b24c34786e3b838f0b3a34, type: 3}
 --- !u!4 &5132975186010745176 stripped
 Transform:

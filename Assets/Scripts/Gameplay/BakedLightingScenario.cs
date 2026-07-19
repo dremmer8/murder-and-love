@@ -47,9 +47,9 @@ public class BakedLightingScenario : ScriptableObject
     [Tooltip("Baked SH coefficients. Probe count must match the scene Light Probe Group when applied.")]
     public SphericalHarmonicsL2[] bakedProbes = Array.Empty<SphericalHarmonicsL2>();
 
-    [Header("Reflection Probes")]
-    [Tooltip("If true, assign captured cubemaps onto matching scene ReflectionProbes.")]
-    public bool applyReflectionProbes = true;
+    [Header("Reflection Probes (unused)")]
+    [Tooltip("Legacy — custom cubemap swapping is disabled. Bake separate probes and toggle them via BakedLightingController object lists.")]
+    public bool applyReflectionProbes;
 
     public ReflectionProbeEntry[] reflectionProbes = Array.Empty<ReflectionProbeEntry>();
 
@@ -205,51 +205,14 @@ public class BakedLightingScenario : ScriptableObject
         }
     }
 
+    /// <summary>
+    /// Custom reflection-probe cubemap swapping is disabled.
+    /// Bake separate probes for each lighting state and enable/disable them with
+    /// <see cref="BakedLightingController"/> object lists instead.
+    /// </summary>
     public void ApplyReflectionProbes()
     {
-        if (!applyReflectionProbes || reflectionProbes == null || reflectionProbes.Length == 0)
-            return;
-
-        ReflectionProbe[] sceneProbes = UnityEngine.Object.FindObjectsByType<ReflectionProbe>(
-            FindObjectsInactive.Include,
-            FindObjectsSortMode.None);
-
-        var byPath = new System.Collections.Generic.Dictionary<string, ReflectionProbe>(sceneProbes.Length);
-        for (int i = 0; i < sceneProbes.Length; i++)
-        {
-            if (sceneProbes[i] == null)
-                continue;
-
-            string path = GetHierarchyPath(sceneProbes[i].transform);
-            byPath[path] = sceneProbes[i];
-        }
-
-        int applied = 0;
-        for (int i = 0; i < reflectionProbes.Length; i++)
-        {
-            ReflectionProbeEntry entry = reflectionProbes[i];
-            if (entry == null || entry.cubemap == null || string.IsNullOrEmpty(entry.hierarchyPath))
-                continue;
-
-            if (!byPath.TryGetValue(entry.hierarchyPath, out ReflectionProbe probe) || probe == null)
-            {
-                Debug.LogWarning($"BakedLightingScenario: no ReflectionProbe at path '{entry.hierarchyPath}'.");
-                continue;
-            }
-
-            probe.mode = ReflectionProbeMode.Custom;
-            probe.customBakedTexture = entry.cubemap;
-            probe.intensity = entry.intensity;
-            probe.boxProjection = entry.boxProjection;
-            probe.size = entry.size;
-            probe.center = entry.center;
-            probe.blendDistance = entry.blendDistance;
-            probe.importance = entry.importance;
-            applied++;
-        }
-
-        if (applied > 0)
-            Debug.Log($"BakedLightingScenario: applied {applied} reflection probe cubemap(s).");
+        // Intentionally no-op: do not force Custom mode or overwrite baked cubemaps.
     }
 
     public static string GetHierarchyPath(Transform transform)

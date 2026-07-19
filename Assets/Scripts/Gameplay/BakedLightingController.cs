@@ -169,7 +169,6 @@ public class BakedLightingController : MonoBehaviour
         // In Edit Mode, prefer the full LightingData.asset (lightmaps + probes + renderer bindings).
         if (!Application.isPlaying && TryApplyLightingDataAsset(scenario))
         {
-            scenario.ApplyReflectionProbes();
             scenario.ApplyEnvironment();
             DynamicGI.UpdateEnvironment();
             return;
@@ -183,7 +182,6 @@ public class BakedLightingController : MonoBehaviour
         }
 
         ApplyLightProbes(scenario);
-        scenario.ApplyReflectionProbes();
         scenario.ApplyEnvironment();
         DynamicGI.UpdateEnvironment();
     }
@@ -251,8 +249,19 @@ public class BakedLightingController : MonoBehaviour
 
         for (int i = 0; i < lights.Count; i++)
         {
-            if (lights[i] != null)
-                lights[i].enabled = enabled;
+            Light light = lights[i];
+            if (light == null || light.enabled == enabled)
+                continue;
+
+#if UNITY_EDITOR
+            if (!Application.isPlaying)
+                UnityEditor.Undo.RecordObject(light, enabled ? "Enable Light" : "Disable Light");
+#endif
+            light.enabled = enabled;
+#if UNITY_EDITOR
+            if (!Application.isPlaying)
+                UnityEditor.EditorUtility.SetDirty(light);
+#endif
         }
     }
 
@@ -263,8 +272,19 @@ public class BakedLightingController : MonoBehaviour
 
         for (int i = 0; i < objects.Count; i++)
         {
-            if (objects[i] != null)
-                objects[i].SetActive(active);
+            GameObject go = objects[i];
+            if (go == null || go.activeSelf == active)
+                continue;
+
+#if UNITY_EDITOR
+            if (!Application.isPlaying)
+                UnityEditor.Undo.RecordObject(go, active ? "Enable Object" : "Disable Object");
+#endif
+            go.SetActive(active);
+#if UNITY_EDITOR
+            if (!Application.isPlaying)
+                UnityEditor.EditorUtility.SetDirty(go);
+#endif
         }
     }
 
