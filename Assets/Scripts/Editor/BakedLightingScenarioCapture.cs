@@ -159,6 +159,116 @@ public static class BakedLightingScenarioCapture
         FinishCapture(scenario, path);
     }
 
+    /// <summary>
+    /// Updates only <see cref="BakedLightingScenario.bakedProbes"/> from the current scene bake.
+    /// Leaves lightmaps / LightingData / environment on the asset untouched.
+    /// Use after a blackout (or lit) rebake when lightmaps are already correct.
+    /// </summary>
+    public static void CaptureLightProbesOnly(BakedLightingScenario scenario)
+    {
+        if (scenario == null)
+        {
+            Debug.LogError("BakedLightingScenarioCapture: scenario is null.");
+            return;
+        }
+
+        LightProbes probes = LightmapSettings.lightProbes;
+        if (probes == null || probes.bakedProbes == null || probes.bakedProbes.Length == 0)
+        {
+            EditorUtility.DisplayDialog(
+                "No Light Probes",
+                "Scene has no baked light probe data.\nBake lighting first (Generate Lighting), then capture probes.",
+                "OK");
+            return;
+        }
+
+        Undo.RecordObject(scenario, "Capture Light Probes Only");
+        CaptureLightProbes(scenario);
+        EditorUtility.SetDirty(scenario);
+        AssetDatabase.SaveAssets();
+
+        float energy = AverageProbeEnergy(scenario.bakedProbes);
+        EditorUtility.DisplayDialog(
+            "Light Probes Captured",
+            $"Wrote {scenario.LightProbeCount} probes into '{scenario.name}'.\n" +
+            $"Average probe energy: {energy:F4}\n\n" +
+            "Lightmaps / LightingData on this asset were not changed.",
+            "OK");
+    }
+
+    /// <summary>
+    /// Logs a quick energy comparison so you can tell if two scenarios actually differ.
+    /// </summary>
+    public static void CompareProbeEnergy(BakedLightingScenario a, BakedLightingScenario b)
+    {
+        if (a == null || b == null)
+        {
+            Debug.LogWarning("[BakedLighting] Assign both scenarios before comparing probes.");
+            return;
+        }
+
+        float ea = AverageProbeEnergy(a.bakedProbes);
+        float eb = AverageProbeEnergy(b.bakedProbes);
+        int ca = a.LightProbeCount;
+        int cb = b.LightProbeCount;
+        bool identical = ca == cb && ca > 0 && ProbesApproximatelyEqual(a.bakedProbes, b.bakedProbes);
+
+        Debug.Log(
+            $"[BakedLighting] Probe compare:\n" +
+            $"  '{a.name}': count={ca}, avg energy={ea:F4}\n" +
+            $"  '{b.name}': count={cb}, avg energy={eb:F4}\n" +
+            $"  Approximately identical: {identical}");
+
+        EditorUtility.DisplayDialog(
+            "Probe Compare",
+            $"'{a.name}': {ca} probes, avg energy {ea:F4}\n" +
+            $"'{b.name}': {cb} probes, avg energy {eb:F4}\n\n" +
+            (identical
+                ? "These look IDENTICAL — rebake blackout with lights off, then Capture Probes Only."
+                : "These differ — probe swap should be visible on Blend Probes meshes."),
+            "OK");
+    }
+
+    static float AverageProbeEnergy(SphericalHarmonicsL2[] probes)
+    {
+        if (probes == null || probes.Length == 0)
+            return 0f;
+
+        double sum = 0;
+        for (int i = 0; i < probes.Length; i++)
+        {
+            // DC term of SH ≈ ambient intensity contribution.
+            Color c = new(
+                probes[i][0, 0],
+                probes[i][1, 0],
+                probes[i][2, 0],
+                1f);
+            sum += c.r + c.g + c.b;
+        }
+
+        return (float)(sum / probes.Length);
+    }
+
+    static bool ProbesApproximatelyEqual(SphericalHarmonicsL2[] a, SphericalHarmonicsL2[] b, float epsilon = 1e-4f)
+    {
+        if (a == null || b == null || a.Length != b.Length)
+            return false;
+
+        for (int i = 0; i < a.Length; i++)
+        {
+            for (int rgb = 0; rgb < 3; rgb++)
+            {
+                for (int c = 0; c < 9; c++)
+                {
+                    if (Mathf.Abs(a[i][rgb, c] - b[i][rgb, c]) > epsilon)
+                        return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
     static bool HasCapturableData()
     {
         if (Lightmapping.lightingDataAsset != null)
@@ -773,7 +883,7 @@ public class BakedLightingScenarioEditor : Editor
         {
             if (EditorUtility.DisplayDialog(
                     "Overwrite Scenario?",
-                    "Copies lightmaps, light probes, and reflection probes into this asset.\n" +
+                    "Copies lightmaps, light probes, and LightingData into this asset.\n" +
                     "After this succeeds, you can rebake safely.",
                     "Capture",
                     "Cancel"))
@@ -782,10 +892,16 @@ public class BakedLightingScenarioEditor : Editor
             }
         }
 
+        if (GUILayout.Button("Capture Light Probes Only (keep lightmaps)"))
+        {
+            BakedLightingScenarioCapture.CaptureLightProbesOnly(scenario);
+        }
+
         EditorGUILayout.HelpBox(
-            "Captures LightingData + lightmaps + light probes only.\n" +
-            "Reflection probes are NOT swapped — bake lit/blackout probes as separate objects and toggle them on BakedLightingController.\n\n" +
-            "Bake → Capture → change lights → Bake → Capture.",
+            "Full capture: LightingData + lightmaps + light probes.\n" +
+            "Probes-only: refreshes bakedProbes after a rebake without touching stored lightmaps.\n" +
+            "Unity cannot bake probes alone — Generate Lighting is required, then use Probes Only here.\n\n" +
+            "Reflection probes are NOT swapped — toggle separate baked probes via BakedLightingController lists.",
             MessageType.Info);
     }
 }
@@ -818,6 +934,38 @@ public class BakedLightingControllerEditor : Editor
             if (GUILayout.Button("Capture Bake → Blackout Scenario"))
                 BakedLightingScenarioCapture.CaptureIntoExisting(controller.BlackoutScenario);
         }
+
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField("Light Probes Only", EditorStyles.boldLabel);
+
+        using (new EditorGUILayout.HorizontalScope())
+        {
+            using (new EditorGUI.DisabledScope(controller.LightsOnScenario == null))
+            {
+                if (GUILayout.Button("Capture Probes → Lights On"))
+                    BakedLightingScenarioCapture.CaptureLightProbesOnly(controller.LightsOnScenario);
+            }
+
+            using (new EditorGUI.DisabledScope(controller.BlackoutScenario == null))
+            {
+                if (GUILayout.Button("Capture Probes → Blackout"))
+                    BakedLightingScenarioCapture.CaptureLightProbesOnly(controller.BlackoutScenario);
+            }
+        }
+
+        using (new EditorGUI.DisabledScope(
+                   controller.LightsOnScenario == null || controller.BlackoutScenario == null))
+        {
+            if (GUILayout.Button("Compare Probe Energy (Lights On vs Blackout)"))
+                BakedLightingScenarioCapture.CompareProbeEnergy(
+                    controller.LightsOnScenario,
+                    controller.BlackoutScenario);
+        }
+
+        EditorGUILayout.HelpBox(
+            "Unity cannot bake light probes alone — Generate Lighting always rebakes lightmaps too.\n" +
+            "Your scenario assets keep their copied lightmaps; use Capture Probes Only after a blackout bake.",
+            MessageType.Info);
 
         EditorGUILayout.Space();
 

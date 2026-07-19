@@ -166,9 +166,12 @@ public class BakedLightingController : MonoBehaviour
             return;
 
 #if UNITY_EDITOR
-        // In Edit Mode, prefer the full LightingData.asset (lightmaps + probes + renderer bindings).
+        // In Edit Mode, prefer the full LightingData.asset (lightmaps + renderer bindings).
         if (!Application.isPlaying && TryApplyLightingDataAsset(scenario))
         {
+            // The LightingData swap doesn't reliably refresh active light-probe SH in Edit Mode,
+            // so force the scenario's captured probes on top of it.
+            ApplyLightProbes(scenario);
             scenario.ApplyEnvironment();
             DynamicGI.UpdateEnvironment();
             return;
@@ -227,9 +230,50 @@ public class BakedLightingController : MonoBehaviour
             return;
         }
 
-        // Clone so Unity does not alias the ScriptableObject array.
-        probes.bakedProbes = (SphericalHarmonicsL2[])scenario.bakedProbes.Clone();
+        float scenarioEnergy = AverageProbeEnergy(scenario.bakedProbes);
+
+        // Detach → write → reattach so Unity does not keep a stale probe cache.
+        var copy = (SphericalHarmonicsL2[])scenario.bakedProbes.Clone();
+        LightmapSettings.lightProbes = null;
+        probes.bakedProbes = copy;
         LightmapSettings.lightProbes = probes;
+
+        // Sync tetrahedralize so SH is available this frame (Async can lag a frame).
+        LightProbes.Tetrahedralize();
+
+        float liveEnergy = 0f;
+        LightProbes live = LightmapSettings.lightProbes;
+        if (live != null && live.bakedProbes != null)
+            liveEnergy = AverageProbeEnergy(live.bakedProbes);
+
+        if (Application.isPlaying)
+        {
+            Debug.Log(
+                $"BakedLightingController: applied '{scenario.name}' light probes " +
+                $"({scenario.bakedProbes.Length}). scenario energy={scenarioEnergy:F4}, live energy={liveEnergy:F4}");
+        }
+
+#if UNITY_EDITOR
+        if (!Application.isPlaying)
+        {
+            UnityEditor.EditorUtility.SetDirty(probes);
+            UnityEditor.SceneView.RepaintAll();
+        }
+#endif
+    }
+
+    static float AverageProbeEnergy(SphericalHarmonicsL2[] probes)
+    {
+        if (probes == null || probes.Length == 0)
+            return 0f;
+
+        double sum = 0;
+        for (int i = 0; i < probes.Length; i++)
+        {
+            sum += probes[i][0, 0] + probes[i][1, 0] + probes[i][2, 0];
+        }
+
+        return (float)(sum / probes.Length);
     }
 
     void ApplyRealtimeToggles(LightingState state)
