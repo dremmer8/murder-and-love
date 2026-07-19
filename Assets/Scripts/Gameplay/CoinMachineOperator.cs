@@ -3,11 +3,15 @@ using UnityEngine;
 
 public class CoinMachineOperator : MonoBehaviour
 {
-    enum Step { Fail1, Fail2, Success, Done }
+    enum Step { KickOff, Fail1, Fail2, Success, Done }
 
     [SerializeField] Camera cam;
     [SerializeField] Animator animator;
     [SerializeField] Collider billSlit;
+
+    [Tooltip("Seconds to wait after kickOff before bill-slit clicks are accepted.")]
+    [SerializeField] float kickOffAnimDuration = 2f;
+
     [SerializeField] float failAnimDuration = 14f;
 
     [Tooltip("Seconds to wait after the success (win) trigger before firing the end trigger.")]
@@ -19,8 +23,9 @@ public class CoinMachineOperator : MonoBehaviour
     [SerializeField] MinigameActivator minigameActivator;
     public DialogueTrigger afterSecondFailDialogue;
 
-    Step step = Step.Fail1;
+    Step step = Step.KickOff;
     bool busy;
+    bool wasMinigameActive;
 
     void Awake()
     {
@@ -31,9 +36,20 @@ public class CoinMachineOperator : MonoBehaviour
 
     void Update()
     {
-        if (busy || step == Step.Done || !animator) return;
+        WatchMinigameEnter();
+        if (busy || step == Step.Done || step == Step.KickOff || !animator) return;
+        if (minigameActivator != null && !minigameActivator.IsActivated) return;
         if (!Input.GetMouseButtonDown(0)) return;
         TryBillSlitClick();
+    }
+
+    void WatchMinigameEnter()
+    {
+        if (minigameActivator == null || !animator) return;
+        bool active = minigameActivator.IsActivated;
+        if (active && !wasMinigameActive && step == Step.KickOff && !busy)
+            StartCoroutine(PlayKickOff());
+        wasMinigameActive = active;
     }
 
     bool TryBillSlitClick()
@@ -56,6 +72,16 @@ public class CoinMachineOperator : MonoBehaviour
         }
 
         return true;
+    }
+
+    IEnumerator PlayKickOff()
+    {
+        busy = true;
+        animator.SetTrigger("kickOff");
+        if (kickOffAnimDuration > 0f)
+            yield return new WaitForSeconds(kickOffAnimDuration);
+        step = Step.Fail1;
+        busy = false;
     }
 
     IEnumerator PlayFailThen(Step next)

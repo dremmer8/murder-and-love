@@ -8,6 +8,9 @@ EXTERNAL UnhideItem(itemId)
 // Change pay: change_coin_1 .. change_coin_4
 EXTERNAL GiveAwayItem(itemId)
 
+// Swap baked lighting scenarios (BakedLightingController). 1 = blackout, 0 = lights on.
+EXTERNAL SetBlackout(blackout)
+
 //story phase nubmer
 VAR story_phase = 11
 
@@ -809,6 +812,7 @@ Mrs. Wong: Not again… I need to check the circuit box in the back room...
 You: I can do it. I'm standing next to it.
 Mrs. Wong: Thank you, Miss Lee.
 ~ black_out_happened = true
+~ SetBlackout(1)
 -> END
 
 // =============================================================================

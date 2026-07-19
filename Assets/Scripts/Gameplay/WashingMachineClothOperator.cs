@@ -29,6 +29,9 @@ public class WashingMachineClothOperator : MonoBehaviour
     [Tooltip("Washer B only: seconds to wait after the last-cloth event before exiting the minigame.")]
     [SerializeField] float exitDelayAfterLastCloth = 0.5f;
 
+    [Tooltip("Fired when this washing machine minigame exits.")]
+    public DoWorkTrigger doWorkTrigger;
+
     [Header("Washer A — dialogues")]
     [Tooltip("Fired when the player grabs the second cloth.")]
     public DialogueTrigger secondClothDialogue;
@@ -192,6 +195,9 @@ public class WashingMachineClothOperator : MonoBehaviour
             minigameActivator.LockInteraction();
         }
 
+        if (doWorkTrigger != null)
+            doWorkTrigger.DoWork();
+
         if (machineId == WashingMachineId.A)
             FireDialogue(afterMachineDialogue);
     }
@@ -266,6 +272,9 @@ public class WashingMachineClothOperator : MonoBehaviour
                 minigameActivator.Exit();
             minigameActivator.LockInteraction();
         }
+
+        if (doWorkTrigger != null)
+            doWorkTrigger.DoWork();
     }
 
     void FireDialogue(DialogueTrigger trigger)

@@ -204,6 +204,13 @@ public class DialogueManager : MonoBehaviour
             story.BindExternalFunction("GiveAwayItem", (string itemId) => itemGiveAway.GiveAwayItem(itemId));
         else
             Debug.LogWarning($"{name}: No DialogueItemGiveAway found — GiveAwayItem will not be bound.", this);
+
+        BakedLightingController lighting = BakedLightingController.Instance;
+        if (lighting == null)
+            lighting = FindFirstObjectByType<BakedLightingController>();
+
+        if (lighting != null)
+            lighting.BindInkExternals(story);
     }
 
     private void BeginStandard()
