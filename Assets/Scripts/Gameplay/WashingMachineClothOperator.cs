@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public enum WashingMachineId
@@ -32,6 +33,13 @@ public class WashingMachineClothOperator : MonoBehaviour
     [Tooltip("Fired when this washing machine minigame exits.")]
     public DoWorkTrigger doWorkTrigger;
 
+    [Header("Blackout cleanup")]
+    [Tooltip("If true, blackout exits this minigame and hides held / transferable clothes.")]
+    [SerializeField] bool cleanupClothesOnBlackout = true;
+
+    [Tooltip("Extra cloth / prop objects to hide with the transferables (not in the Cloths array).")]
+    [SerializeField] List<GameObject> additionalTransferableClothes = new();
+
     [Header("Washer A — dialogues")]
     [Tooltip("Fired when the player grabs the second cloth.")]
     public DialogueTrigger secondClothDialogue;
@@ -56,6 +64,7 @@ public class WashingMachineClothOperator : MonoBehaviour
     bool lastClothDialogueFired;
     bool completing;
     bool wasMinigameActive;
+    BakedLightingController _lighting;
 
     public WashingMachineId MachineId => machineId;
 
@@ -84,6 +93,54 @@ public class WashingMachineClothOperator : MonoBehaviour
         if (!minigameActivator)
             minigameActivator = GetComponentInParent<MinigameActivator>();
         RebuildTrack();
+    }
+
+    void OnEnable()
+    {
+        BindLighting();
+    }
+
+    void OnDisable()
+    {
+        UnbindLighting();
+    }
+
+    void BindLighting()
+    {
+        UnbindLighting();
+        _lighting = BakedLightingController.Instance;
+        if (_lighting == null)
+            _lighting = FindFirstObjectByType<BakedLightingController>();
+        if (_lighting != null)
+            _lighting.OnLightingStateChanged += OnLightingStateChanged;
+    }
+
+    void UnbindLighting()
+    {
+        if (_lighting != null)
+        {
+            _lighting.OnLightingStateChanged -= OnLightingStateChanged;
+            _lighting = null;
+        }
+    }
+
+    void OnLightingStateChanged(BakedLightingController.LightingState state)
+    {
+        if (!cleanupClothesOnBlackout)
+            return;
+        if (state != BakedLightingController.LightingState.Blackout)
+            return;
+
+        // Blackout can start mid-drag — drop held cloth, hide transferables, leave minigame.
+        AbortClothInteraction();
+        HideAllTransferableClothes();
+
+        if (minigameActivator != null)
+        {
+            if (minigameActivator.IsActivated)
+                minigameActivator.Exit();
+            minigameActivator.LockInteraction();
+        }
     }
 
     void OnValidate() => RebuildTrack();
@@ -115,17 +172,45 @@ public class WashingMachineClothOperator : MonoBehaviour
         if (minigameActivator == null) return;
         bool active = minigameActivator.IsActivated;
         if (wasMinigameActive && !active)
-            HideAllClothes();
+        {
+            AbortClothInteraction();
+            HideAllTransferableClothes();
+        }
         wasMinigameActive = active;
     }
 
-    void HideAllClothes()
+    /// <summary>Stops mid-drag / snap so a floating held cloth does not keep updating.</summary>
+    void AbortClothInteraction()
     {
-        if (cloths == null) return;
-        for (int i = 0; i < cloths.Length; i++)
+        completing = true;
+        snapping = false;
+        idx = -1;
+        snapIdx = -1;
+        posVel = Vector3.zero;
+        tVel = 0f;
+    }
+
+    void HideAllTransferableClothes()
+    {
+        if (cloths != null)
         {
-            if (cloths[i])
-                cloths[i].gameObject.SetActive(false);
+            for (int i = 0; i < cloths.Length; i++)
+            {
+                if (cloths[i])
+                    cloths[i].gameObject.SetActive(false);
+            }
+        }
+
+        if (clothSet)
+            clothSet.gameObject.SetActive(false);
+
+        if (additionalTransferableClothes != null)
+        {
+            for (int i = 0; i < additionalTransferableClothes.Count; i++)
+            {
+                if (additionalTransferableClothes[i] != null)
+                    additionalTransferableClothes[i].SetActive(false);
+            }
         }
     }
 
@@ -144,7 +229,7 @@ public class WashingMachineClothOperator : MonoBehaviour
 
     void UpdateSetScale()
     {
-        if (!clothSet) return;
+        if (!clothSet || !clothSet.gameObject.activeInHierarchy) return;
         var s = clothSet.localScale;
         s.y = Mathf.SmoothDamp(s.y, targetScaleY, ref scaleYVel, 1f / settle);
         clothSet.localScale = s;
@@ -287,6 +372,12 @@ public class WashingMachineClothOperator : MonoBehaviour
 
     void Drag()
     {
+        if (idx < 0 || cloths == null || idx >= cloths.Length || !cloths[idx])
+        {
+            AbortClothInteraction();
+            return;
+        }
+
         float st = 1f / follow;
         float target = ScreenTrackT();
         t = Mathf.SmoothDamp(t, target, ref tVel, st);
@@ -316,6 +407,12 @@ public class WashingMachineClothOperator : MonoBehaviour
 
     void Release()
     {
+        if (idx < 0 || cloths == null || idx >= cloths.Length || !cloths[idx])
+        {
+            AbortClothInteraction();
+            return;
+        }
+
         var ray = cam.ScreenPointToRay(Input.mousePosition);
         bool ok = t >= barrelT || (barrelZone && barrelZone.Raycast(ray, out _, 200f));
         if (ok && snapIdx < 0) { snapIdx = idx; snapping = true; }

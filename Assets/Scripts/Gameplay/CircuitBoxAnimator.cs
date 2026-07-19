@@ -4,6 +4,7 @@ using UnityEngine;
 /// <summary>
 /// Circuit box minigame: open door → flip main switch → close door.
 /// Door clicks fire animator trigger "toggle"; switch fires "on".
+/// Flipping the switch restores baked lighting via <see cref="BakedLightingController"/>.
 /// Only that order is accepted.
 /// </summary>
 public class CircuitBoxAnimator : MonoBehaviour
@@ -29,6 +30,13 @@ public class CircuitBoxAnimator : MonoBehaviour
     [Tooltip("Seconds to wait after closing the door before exiting the minigame.")]
     [SerializeField] float closeDoorDelay = 0.5f;
 
+    [Header("Lighting")]
+    [Tooltip("When the main switch 'on' trigger fires, restore the lights-on baked scenario.")]
+    [SerializeField] bool restoreLightsOnSwitch = true;
+
+    [Tooltip("Optional override. Uses BakedLightingController.Instance when empty.")]
+    [SerializeField] BakedLightingController lightingController;
+
     [Header("Minigame")]
     [SerializeField] MinigameActivator minigameActivator;
 
@@ -48,6 +56,8 @@ public class CircuitBoxAnimator : MonoBehaviour
             minigameActivator = GetComponentInParent<MinigameActivator>();
         if (!animator)
             animator = GetComponentInChildren<Animator>();
+        if (!lightingController)
+            lightingController = BakedLightingController.Instance;
     }
 
     void Update()
@@ -71,7 +81,7 @@ public class CircuitBoxAnimator : MonoBehaviour
                 return true;
 
             case Step.FlipSwitch when c == mainSwitchTrigger:
-                StartCoroutine(PlayStep(onTrigger, switchOnDelay, Step.CloseDoor));
+                StartCoroutine(FlipSwitchAndRestoreLights());
                 return true;
 
             case Step.CloseDoor when c == doorTrigger:
@@ -81,6 +91,38 @@ public class CircuitBoxAnimator : MonoBehaviour
 
         // Absorb clicks on our triggers so they don't fall through.
         return c == doorTrigger || c == mainSwitchTrigger;
+    }
+
+    IEnumerator FlipSwitchAndRestoreLights()
+    {
+        busy = true;
+        animator.SetTrigger(onTrigger);
+
+        if (restoreLightsOnSwitch)
+            RestoreLights();
+
+        if (switchOnDelay > 0f)
+            yield return new WaitForSeconds(switchOnDelay);
+
+        step = Step.CloseDoor;
+        busy = false;
+    }
+
+    void RestoreLights()
+    {
+        BakedLightingController lighting = lightingController;
+        if (lighting == null)
+            lighting = BakedLightingController.Instance;
+        if (lighting == null)
+            lighting = FindFirstObjectByType<BakedLightingController>();
+
+        if (lighting == null)
+        {
+            Debug.LogWarning($"{name}: No BakedLightingController found — cannot restore lights.", this);
+            return;
+        }
+
+        lighting.ApplyLightsOn();
     }
 
     IEnumerator PlayStep(string trigger, float delay, Step next)

@@ -211,6 +211,8 @@ public class DialogueManager : MonoBehaviour
 
         if (lighting != null)
             lighting.BindInkExternals(story);
+        else
+            Debug.LogWarning($"{name}: No BakedLightingController found — SetBlackout will not be bound.", this);
     }
 
     private void BeginStandard()

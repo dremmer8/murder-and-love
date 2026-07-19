@@ -806,13 +806,13 @@ Thought: I don't know if I'm doing the correct thing...
 // =============================================================================
 == Chaos_blackout ==
 ~ game_progression = 21
+~ black_out_happened = true
+~ SetBlackout(1)
 Drunk cop: Ah, what the hell is this?
 Mrs. Wong: Not again… I need to check the circuit box in the back room...
 *[I will do it.]
 You: I can do it. I'm standing next to it.
 Mrs. Wong: Thank you, Miss Lee.
-~ black_out_happened = true
-~ SetBlackout(1)
 -> END
 
 // =============================================================================

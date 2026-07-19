@@ -143,12 +143,21 @@ public class BakedLightingController : MonoBehaviour
         }
 
         ApplyRealtimeToggles(state);
+        ApplyWorkingMachines(state);
         _currentState = state;
 
         if (logTransitions)
             Debug.Log($"BakedLightingController: applied {state}");
 
         OnLightingStateChanged?.Invoke(state);
+    }
+
+    static void ApplyWorkingMachines(LightingState state)
+    {
+        if (state == LightingState.Blackout)
+            DoWorkTrigger.PauseAllForBlackout();
+        else
+            DoWorkTrigger.ResumeAllAfterBlackout();
     }
 
     public static void ApplyScenario(BakedLightingScenario scenario)
