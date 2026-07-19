@@ -1,6 +1,9 @@
 // Ending cutscenes (GameManager): 1 = escapeEnding, 2 = confessionEnding, 3 = CompletionEnding
 EXTERNAL PlayEndingCutscene(cinematicIndex)
 
+// Unhide a scene item mid-dialogue (DialogueItemUnhide). Ids: first_laundry_coin, backroom_key, second_laundry_coin
+EXTERNAL UnhideItem(itemId)
+
 //story phase nubmer
 VAR story_phase = 11
 
@@ -320,6 +323,7 @@ You: I'm short on cash, so I'll just wash one load.
 Mrs. Wong: Sure.That comes to 80 cents in total.
 * [Give the money]
 You: Here.
+~ UnhideItem("first_laundry_coin")
 Mrs. Wong: Here you go. Machine Nr. 4. It's the one on your left.
  * *[Thank you.]
  You: Thank you, Mrs. Wong. 
@@ -399,6 +403,7 @@ Mrs. Wong: I will rest here then.
 -> Ending_mandy_story_phase_2
 
 = Ending_mandy_story_phase_2
+~ UnhideItem("backroom_key")
 Mrs. Wong: Here is the key to the backroom. It's near Washer Nr. X. 
 Mrs. Wong: The detergent you want is called Enzyme Laundry Detergent, the blue one on the shelf.
 You: Thank you, Mrs. Wong.
@@ -685,6 +690,7 @@ J: Just continue. We're so close. Love u.
 Mrs. Wong: You get your change now?
 *[Yes. (pay)]
 You: Yes, here.
+~ UnhideItem("second_laundry_coin")
 Mrs. Wong: Here you are. Washer Nr. 9.
 -> END
 

@@ -45,11 +45,6 @@ public class MinigameActivator : MonoBehaviour
     [Tooltip("If true, show and unlock the mouse cursor while in the minigame.")]
     [SerializeField] bool showCursorInMinigame = true;
 
-    [Tooltip("If true, pressing the exit key while in the minigame calls Exit.")]
-    [SerializeField] bool allowExitWithKey = true;
-
-    [SerializeField] KeyCode exitKey = KeyCode.Escape;
-
     [Tooltip("If true, automatically call Exit after Auto End Delay seconds once entered.")]
     [SerializeField] bool autoEndWithTimer;
 
@@ -108,15 +103,6 @@ public class MinigameActivator : MonoBehaviour
 
         if (_activated)
             SetActivated(false);
-    }
-
-    void Update()
-    {
-        if (!_activated || !allowExitWithKey)
-            return;
-
-        if (Input.GetKeyDown(exitKey))
-            Exit();
     }
 
     /// <summary>

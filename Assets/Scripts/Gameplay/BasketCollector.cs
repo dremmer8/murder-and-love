@@ -158,6 +158,9 @@ public class BasketCollector : MonoBehaviour
     public bool IsSlotFree(string key) =>
         _slots.TryGetValue(key, out var slot) && slot != null && !slot.IsOccupied;
 
+    public bool IsSlotOccupied(string key) =>
+        TryGetSlot(key, out var slot) && slot != null && slot.IsOccupied;
+
     public bool Collect(CollectibleItem item)
     {
         if (item == null || string.IsNullOrEmpty(item.slotKey))

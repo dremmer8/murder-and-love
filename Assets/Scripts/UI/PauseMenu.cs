@@ -30,7 +30,7 @@ public class PauseMenu : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            // Let active minigames consume Escape instead of opening pause.
+            // Minigames no longer exit on Escape; also block pause so Escape is a no-op mid-minigame.
             if (MinigameActivator.IsAnyActive)
                 return;
 

@@ -26,6 +26,13 @@ public class Interactable : MonoBehaviour
 
     [SerializeField] private int maxStoryPhase = 0;
 
+    [Header("Basket Slot Gate")]
+    [Tooltip("If enabled, the named basket slot must be occupied before this can be interacted with.")]
+    [SerializeField] private bool requireBasketSlotOccupied = false;
+
+    [Tooltip("BasketSlot.key that must be occupied, e.g. Token_act_1 or Key_act_1.")]
+    [SerializeField] private string requiredBasketSlotKey = "";
+
     private bool isMoving = false;
     private Rigidbody rb;
 
@@ -35,9 +42,20 @@ public class Interactable : MonoBehaviour
     }
 
     /// <summary>
-    /// True when current game_progression is within the optional min/max range.
+    /// True when progression and optional basket-slot gates allow interaction.
     /// </summary>
     public bool CanInteract()
+    {
+        if (!PassesProgressionGate())
+            return false;
+
+        if (!PassesBasketSlotGate())
+            return false;
+
+        return true;
+    }
+
+    bool PassesProgressionGate()
     {
         if (!useMinStoryPhase && !useMaxStoryPhase)
             return true;
@@ -55,6 +73,20 @@ public class Interactable : MonoBehaviour
         return true;
     }
 
+    bool PassesBasketSlotGate()
+    {
+        if (!requireBasketSlotOccupied)
+            return true;
+
+        if (string.IsNullOrEmpty(requiredBasketSlotKey))
+            return false;
+
+        if (BasketCollector.Instance == null)
+            return false;
+
+        return BasketCollector.Instance.IsSlotOccupied(requiredBasketSlotKey);
+    }
+
     /// <summary>
     /// Player look+E path. Respects progression gates.
     /// </summary>
@@ -66,7 +98,7 @@ public class Interactable : MonoBehaviour
     public void Activate() => TryInteract(respectGates: true);
 
     /// <summary>
-    /// External call that ignores progression gates (scripted sequences).
+    /// External call that ignores progression and basket-slot gates (scripted sequences).
     /// </summary>
     public void ForceActivate() => TryInteract(respectGates: false);
 

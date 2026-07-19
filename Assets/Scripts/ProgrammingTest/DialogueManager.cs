@@ -186,6 +186,15 @@ public class DialogueManager : MonoBehaviour
             gameManager.BindInkExternals(story);
         else
             Debug.LogWarning($"{name}: No GameManager found — PlayEndingCutscene will not be bound.", this);
+
+        DialogueItemUnhide itemUnhide = DialogueItemUnhide.Instance;
+        if (itemUnhide == null)
+            itemUnhide = FindFirstObjectByType<DialogueItemUnhide>();
+
+        if (itemUnhide != null)
+            story.BindExternalFunction("UnhideItem", (string itemId) => itemUnhide.UnhideItem(itemId));
+        else
+            Debug.LogWarning($"{name}: No DialogueItemUnhide found — UnhideItem will not be bound.", this);
     }
 
     private void BeginStandard()
