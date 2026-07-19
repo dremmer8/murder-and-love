@@ -56,6 +56,11 @@ public class MinigameActivator : MonoBehaviour
     [Tooltip("Seconds to wait after enter before auto-exiting. Ignored unless Auto End With Timer is on.")]
     [SerializeField] float autoEndDelay = 3f;
 
+    [Header("Control Hints")]
+    [Tooltip("How-to-play text shown top-right by ControlHintsPresenter while this minigame is active. Leave empty to use the presenter's fallback.")]
+    [TextArea]
+    [SerializeField] string controlHints = "";
+
     bool _activated;
     bool _interactionLocked;
     Coroutine _visibilityRoutine;
@@ -70,6 +75,12 @@ public class MinigameActivator : MonoBehaviour
 
     /// <summary>True while any MinigameActivator is in the minigame.</summary>
     public static bool IsAnyActive => s_ActiveCount > 0;
+
+    /// <summary>The most recently activated minigame (null when none active). Used for context hints.</summary>
+    public static MinigameActivator ActiveInstance { get; private set; }
+
+    /// <summary>How-to-play hint text for this minigame (may be empty).</summary>
+    public string ControlHints => controlHints;
 
     void Awake()
     {
@@ -182,6 +193,7 @@ public class MinigameActivator : MonoBehaviour
         if (value)
         {
             s_ActiveCount++;
+            ActiveInstance = this;
             if (showCursorInMinigame)
                 ShowCursor();
             SetCollidersEnabled(false);
@@ -189,6 +201,8 @@ public class MinigameActivator : MonoBehaviour
         else
         {
             s_ActiveCount = Mathf.Max(0, s_ActiveCount - 1);
+            if (ActiveInstance == this)
+                ActiveInstance = null;
             if (s_ActiveCount == 0)
                 HideCursor();
             if (!_interactionLocked)

@@ -51,6 +51,9 @@ public class IntroSequencePresenter : MonoBehaviour
 
     public bool IsActive => _active;
 
+    /// <summary>True while option buttons are shown and awaiting a click.</summary>
+    public bool IsChoosing => _isChoosing;
+
     /// <returns>False if the static layout is not wired; caller should fall back.</returns>
     public bool Begin(Story story, Action onComplete)
     {

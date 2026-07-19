@@ -219,6 +219,39 @@ public class DialogueTrigger : MonoBehaviour
         return true;
     }
 
+    /// <summary>
+    /// True when a look+E press would actually start this dialogue right now: KeyPress mode,
+    /// story phase allowed, a knot resolves, and no active/pending dialogue is blocking it.
+    /// Side-effect free — used by the control-hints HUD to only show the prompt when usable.
+    /// </summary>
+    public bool CanStartFromLook()
+    {
+        if (activationMode != DialogueActivationMode.KeyPress)
+            return false;
+
+        if (!IsStoryPhaseAllowed())
+            return false;
+
+        if (storyPhaseController == null)
+            return false;
+
+        StoryPhaseEntry entry = useForcedStoryPhase
+            ? storyPhaseController.FindEntryForStoryPhase(forcedStoryPhase)
+            : storyPhaseController.ResolveBestEntry();
+
+        if (entry == null || string.IsNullOrEmpty(entry.knotName))
+            return false;
+
+        // Mirror BeginDialogue's non-force gating so blocked triggers stay hintless.
+        if (!forceCancelPrevious
+            && waitingForDialogueEnd
+            && presentationMode != DialoguePresentationMode.Pager
+            && !isRespondSupportPager)
+            return false;
+
+        return true;
+    }
+
     public void StartDialogue() => TryStartDialogue();
 
     public void StartDialogue(string knotName) => TryStartDialogue(knotName);

@@ -35,6 +35,9 @@ public class DialogueManager : MonoBehaviour
     public bool dialogueIsPlaying { get; private set; }
     public DialoguePresentationMode ActiveMode => activeMode;
 
+    /// <summary>True while choice buttons are shown and awaiting a click.</summary>
+    public bool IsChoosing => isChoosing;
+
     /// <summary>Fired when a presentation finishes. Argument is the knot that was entered.</summary>
     public event Action<string> OnDialogueEnded;
 

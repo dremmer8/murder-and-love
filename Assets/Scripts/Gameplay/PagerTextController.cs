@@ -6,7 +6,7 @@ using Ink.Runtime;
 
 /// <summary>
 /// Pager inbox for Jason conversations. Tab opens/closes (locks movement while open; look stays free).
-/// Space advances messages forward only. Arrows scroll the visible window.
+/// Space advances messages forward only. A/D scroll the visible window.
 /// Conversation stays until a new one replaces it. "no messages" when fully read.
 /// Prop screen shows "new message" until the player finishes reading the thread.
 /// Respond-support mode: after the inbound message, Space shows "start typing"; any key
@@ -49,6 +49,8 @@ public class PagerTextController : MonoBehaviour
     [Header("Input")]
     [SerializeField] private KeyCode toggleKey = KeyCode.Tab;
     [SerializeField] private KeyCode advanceKey = KeyCode.Space;
+    [SerializeField] private KeyCode scrollLeftKey = KeyCode.A;
+    [SerializeField] private KeyCode scrollRightKey = KeyCode.D;
 
     readonly List<string> _messages = new();
     int _messageIndex;
@@ -69,8 +71,16 @@ public class PagerTextController : MonoBehaviour
 
     public bool IsOpen => _isOpen;
     public bool HasConversation => _hasConversation;
+    public bool HasUnreadMessage => _hasUnreadMessage;
     public bool IsWaitingForChoice => _waitingForChoice && !_respondSupportMode;
     public bool IsRespondSupportMode => _respondSupportMode;
+
+    /// <summary>Respond-support: reading the inbound thread (A/D scroll, Space continues / starts the reply).</summary>
+    public bool IsRespondReadingInbound => _respondSupportMode && _respondPhase == RespondPhase.ReadingInbound;
+
+    /// <summary>Respond-support: the "start typing" / typing phase (any key types the reply).</summary>
+    public bool IsRespondTyping => _respondSupportMode
+        && (_respondPhase == RespondPhase.StartTypingPrompt || _respondPhase == RespondPhase.TypingReply);
 
     void Awake()
     {
@@ -110,6 +120,7 @@ public class PagerTextController : MonoBehaviour
     void Update()
     {
         // During respond-support, Tab is the only way out of the open pager.
+        // Scroll swapped from arrows to A/D (see scrollLeftKey / scrollRightKey).
         if (Input.GetKeyDown(toggleKey))
             TogglePager();
 
@@ -119,10 +130,10 @@ public class PagerTextController : MonoBehaviour
         if (_respondSupportMode && HandleRespondSupportInput())
             return;
 
-        if (Input.GetKeyDown(KeyCode.LeftArrow))
+        if (Input.GetKeyDown(scrollLeftKey))
             ScrollLeft();
 
-        if (Input.GetKeyDown(KeyCode.RightArrow))
+        if (Input.GetKeyDown(scrollRightKey))
             ScrollRight();
 
         if (_waitingForChoice)
@@ -329,13 +340,13 @@ public class PagerTextController : MonoBehaviour
         switch (_respondPhase)
         {
             case RespondPhase.ReadingInbound:
-                if (Input.GetKeyDown(KeyCode.LeftArrow))
+                if (Input.GetKeyDown(scrollLeftKey))
                 {
                     ScrollLeft();
                     return true;
                 }
 
-                if (Input.GetKeyDown(KeyCode.RightArrow))
+                if (Input.GetKeyDown(scrollRightKey))
                 {
                     ScrollRight();
                     return true;
