@@ -18,4 +18,18 @@ public class MinigameStepHintEntry
 
     [Tooltip("World transform the shared hint object snaps to while this step is active.")]
     public Transform anchor;
+
+    [Tooltip("Optional. Used when Anchor is empty — snaps to this collider's transform.")]
+    public Collider anchorCollider;
+
+    /// <summary>Resolved world anchor for the shared hint object, or null.</summary>
+    public Transform ResolvedAnchor
+    {
+        get
+        {
+            if (anchor != null)
+                return anchor;
+            return anchorCollider != null ? anchorCollider.transform : null;
+        }
+    }
 }

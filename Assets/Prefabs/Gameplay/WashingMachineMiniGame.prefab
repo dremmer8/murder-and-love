@@ -2530,6 +2530,31 @@ MonoBehaviour:
   autoEndWithTimer: 0
   autoEndDelay: 3
   controlHints: 
+  stepHints:
+  - stepId: OpenDoor
+    hintText: Click the door to open it
+    anchor: {fileID: 8118487730614093179}
+    anchorCollider: {fileID: 0}
+  - stepId: Clothes
+    hintText: Drag clothes from the basket into the washer
+    anchor: {fileID: 1333203943027717690}
+    anchorCollider: {fileID: 0}
+  - stepId: CloseDoor
+    hintText: Click the door to close it
+    anchor: {fileID: 8118487730614093179}
+    anchorCollider: {fileID: 0}
+  - stepId: Detergent
+    hintText: Open the tray and add detergent
+    anchor: {fileID: 1023303848728281735}
+    anchorCollider: {fileID: 0}
+  - stepId: Token
+    hintText: Insert a token into the slot
+    anchor: {fileID: 4802304262010211722}
+    anchorCollider: {fileID: 0}
+  - stepId: Start
+    hintText: Press the start button
+    anchor: {fileID: 7334089315177442787}
+    anchorCollider: {fileID: 0}
 --- !u!114 &657898517183491655
 MonoBehaviour:
   m_ObjectHideFlags: 0

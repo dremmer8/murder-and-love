@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Text;
 using DG.Tweening;
 using TMPro;
 using UnityEngine;
@@ -22,6 +23,8 @@ public class TaskManager : MonoBehaviour
 {
     public static TaskManager Instance { get; private set; }
 
+    const string DefaultDecodeChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&*";
+
     [Header("UI")]
     [SerializeField] private TMP_Text taskLabel;
 
@@ -41,6 +44,12 @@ public class TaskManager : MonoBehaviour
     [SerializeField] private Ease fadeOutEase = Ease.InQuad;
     [SerializeField] private Ease fadeInEase = Ease.OutQuad;
 
+    [Tooltip("Letter scramble → resolve left-to-right when a new task appears. 0 = skip.")]
+    private float decodeDuration = 0.7f;
+
+    [Tooltip("Glyphs used while undecoded letters are scrambling.")]
+    [SerializeField] private string decodeChars = DefaultDecodeChars;
+
     [Header("Tasks")]
     [SerializeField] private List<TaskPhaseEntry> tasks = new();
 
@@ -48,6 +57,7 @@ public class TaskManager : MonoBehaviour
     string _currentText = "";
     Tween _textTween;
     Color _labelBaseColor = Color.white;
+    readonly StringBuilder _decodeBuilder = new StringBuilder(64);
 
     public string CurrentTaskText => _currentText;
     public IReadOnlyList<TaskPhaseEntry> Tasks => tasks;
@@ -160,6 +170,7 @@ public class TaskManager : MonoBehaviour
 
         bool hadVisibleText = !string.IsNullOrWhiteSpace(_currentText);
         bool willBeVisible = !string.IsNullOrWhiteSpace(next);
+        bool runDecode = willBeVisible && decodeDuration > 0f;
         _currentText = next;
 
         Sequence sequence = DOTween.Sequence().SetUpdate(true).SetTarget(taskLabel);
@@ -178,7 +189,7 @@ public class TaskManager : MonoBehaviour
 
         sequence.AppendCallback(() =>
         {
-            taskLabel.text = _currentText;
+            taskLabel.text = runDecode ? BuildDecodedText(_currentText, 0f) : _currentText;
             ApplyVisibilityForEmpty();
             if (willBeVisible)
                 EnsureLabelVisible();
@@ -187,18 +198,78 @@ public class TaskManager : MonoBehaviour
         if (willBeVisible)
             SoundManager.PlayOneShot("newTask");
 
-        if (willBeVisible && fadeInDuration > 0f)
+        if (willBeVisible)
         {
-            sequence.Append(
-                DOTween.To(GetLabelAlpha, SetLabelAlpha, _labelBaseColor.a, fadeInDuration)
-                    .SetEase(fadeInEase));
-        }
-        else if (willBeVisible)
-        {
-            sequence.AppendCallback(() => SetLabelAlpha(_labelBaseColor.a));
+            Sequence reveal = DOTween.Sequence().SetUpdate(true);
+
+            if (fadeInDuration > 0f)
+            {
+                reveal.Join(
+                    DOTween.To(GetLabelAlpha, SetLabelAlpha, _labelBaseColor.a, fadeInDuration)
+                        .SetEase(fadeInEase));
+            }
+            else
+            {
+                reveal.AppendCallback(() => SetLabelAlpha(_labelBaseColor.a));
+            }
+
+            if (runDecode)
+            {
+                reveal.Join(
+                    DOVirtual.Float(0f, 1f, decodeDuration, t =>
+                    {
+                        if (taskLabel != null)
+                            taskLabel.text = BuildDecodedText(_currentText, t);
+                    })
+                        .SetEase(Ease.Linear)
+                        .SetUpdate(true)
+                        .OnComplete(() =>
+                        {
+                            if (taskLabel != null)
+                                taskLabel.text = _currentText;
+                        }));
+            }
+
+            sequence.Append(reveal);
         }
 
         _textTween = sequence;
+    }
+
+    /// <summary>
+    /// Scrambles undecoded glyphs; locks final characters left-to-right as <paramref name="progress"/> goes 0→1.
+    /// Whitespace is never scrambled.
+    /// </summary>
+    string BuildDecodedText(string target, float progress)
+    {
+        if (string.IsNullOrEmpty(target))
+            return "";
+
+        progress = Mathf.Clamp01(progress);
+        int length = target.Length;
+        int resolvedCount = progress >= 1f
+            ? length
+            : Mathf.FloorToInt(progress * length);
+
+        string glyphs = string.IsNullOrEmpty(decodeChars) ? DefaultDecodeChars : decodeChars;
+        int glyphCount = glyphs.Length;
+
+        _decodeBuilder.Clear();
+        _decodeBuilder.EnsureCapacity(length);
+
+        for (int i = 0; i < length; i++)
+        {
+            char c = target[i];
+            if (char.IsWhiteSpace(c) || i < resolvedCount)
+            {
+                _decodeBuilder.Append(c);
+                continue;
+            }
+
+            _decodeBuilder.Append(glyphs[Random.Range(0, glyphCount)]);
+        }
+
+        return _decodeBuilder.ToString();
     }
 
     void SetTextImmediate(string text)

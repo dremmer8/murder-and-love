@@ -46,6 +46,7 @@ public class CameraManager : MonoBehaviour
     bool _isPlayerTweening;
 
     public Camera ActiveCamera => _activeCamera;
+    public Camera ProxyCamera => proxyCamera;
     public bool IsTransitioning => _isTransitioning;
     public bool IsPlayerTweening => _isPlayerTweening;
 
