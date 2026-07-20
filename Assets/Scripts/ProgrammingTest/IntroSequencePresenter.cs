@@ -405,21 +405,17 @@ public class IntroSequencePresenter : MonoBehaviour
 
         _story.ChooseChoiceIndex(choiceIndex);
 
-        // Fold the chosen wording into the text bit (buttons are cleared), then any <> glue.
-        if (row?.textBit != null && !string.IsNullOrEmpty(chosenText))
-        {
-            if (string.IsNullOrEmpty(row.textBit.text))
-                row.textBit.text = chosenText;
-            else
-                row.textBit.text = $"{row.textBit.text} {chosenText}";
-        }
-
+        // Ink already prints non-bracketed choice text on Continue() (e.g. "* gun." → "gun.").
+        // Do not prepend chosenText here or it doubles in the intro bit.
         string following = PullNextText();
         if (!string.IsNullOrEmpty(following))
         {
             if (IsSentenceGlue(following) && row?.textBit != null)
             {
-                row.textBit.text = $"{row.textBit.text} {following}";
+                string spacer = string.IsNullOrEmpty(row.textBit.text) || following[0] == '.'
+                    ? ""
+                    : " ";
+                row.textBit.text = $"{row.textBit.text}{spacer}{following}";
                 row.textBit.maxVisibleCharacters = int.MaxValue;
             }
             else
