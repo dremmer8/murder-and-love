@@ -7,8 +7,12 @@ using UnityEngine;
 /// Flipping the switch restores baked lighting via <see cref="BakedLightingController"/>.
 /// Only that order is accepted.
 /// </summary>
-public class CircuitBoxAnimator : MonoBehaviour
+public class CircuitBoxAnimator : MonoBehaviour, IMinigameStepHintSource
 {
+    public const string HintOpenDoor = "OpenDoor";
+    public const string HintFlipSwitch = "FlipSwitch";
+    public const string HintCloseDoor = "CloseDoor";
+
     enum Step { OpenDoor, FlipSwitch, CloseDoor, Done }
 
     [SerializeField] Camera cam;
@@ -155,5 +159,31 @@ public class CircuitBoxAnimator : MonoBehaviour
         }
 
         busy = false;
+    }
+
+    public bool TryGetCurrentStepHintId(out string stepId)
+    {
+        stepId = null;
+
+        if (busy || step == Step.Done)
+            return false;
+
+        if (minigameActivator != null && !minigameActivator.IsActivated)
+            return false;
+
+        switch (step)
+        {
+            case Step.OpenDoor:
+                stepId = HintOpenDoor;
+                return true;
+            case Step.FlipSwitch:
+                stepId = HintFlipSwitch;
+                return true;
+            case Step.CloseDoor:
+                stepId = HintCloseDoor;
+                return true;
+            default:
+                return false;
+        }
     }
 }

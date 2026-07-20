@@ -2,8 +2,10 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-public class CoinMachineOperator : MonoBehaviour
+public class CoinMachineOperator : MonoBehaviour, IMinigameStepHintSource
 {
+    public const string HintInsertBill = "InsertBill";
+
     enum Step { KickOff, Fail1, Fail2, Success, Done }
 
     [SerializeField] Camera cam;
@@ -151,5 +153,30 @@ public class CoinMachineOperator : MonoBehaviour
 
         DialogueManager dialogue = DialogueManager.GetInstance();
         return dialogue != null && (dialogue.dialogueIsPlaying || dialogue.IsBusy);
+    }
+
+    public bool TryGetCurrentStepHintId(out string stepId)
+    {
+        stepId = null;
+
+        if (busy || step == Step.Done || step == Step.KickOff)
+            return false;
+
+        if (minigameActivator != null && !minigameActivator.IsActivated)
+            return false;
+
+        if (IsDialogueBlocking())
+            return false;
+
+        switch (step)
+        {
+            case Step.Fail1:
+            case Step.Fail2:
+            case Step.Success:
+                stepId = HintInsertBill;
+                return true;
+            default:
+                return false;
+        }
     }
 }

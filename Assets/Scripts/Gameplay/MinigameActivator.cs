@@ -56,6 +56,9 @@ public class MinigameActivator : MonoBehaviour
     [TextArea]
     [SerializeField] string controlHints = "";
 
+    [Tooltip("World-space step hints driven by MinigameStepHintPresenter. Step ids must match IMinigameStepHintSource on this hierarchy.")]
+    [SerializeField] List<MinigameStepHintEntry> stepHints = new();
+
     bool _activated;
     bool _interactionLocked;
     Coroutine _visibilityRoutine;
@@ -76,6 +79,31 @@ public class MinigameActivator : MonoBehaviour
 
     /// <summary>How-to-play hint text for this minigame (may be empty).</summary>
     public string ControlHints => controlHints;
+
+    /// <summary>World-space step hint catalogue for this minigame.</summary>
+    public IReadOnlyList<MinigameStepHintEntry> StepHints => stepHints;
+
+    /// <summary>
+    /// Looks up a configured step hint by id (case-sensitive).
+    /// </summary>
+    public bool TryGetStepHint(string stepId, out MinigameStepHintEntry entry)
+    {
+        entry = null;
+        if (string.IsNullOrEmpty(stepId) || stepHints == null)
+            return false;
+
+        for (int i = 0; i < stepHints.Count; i++)
+        {
+            MinigameStepHintEntry candidate = stepHints[i];
+            if (candidate == null || candidate.stepId != stepId)
+                continue;
+
+            entry = candidate;
+            return true;
+        }
+
+        return false;
+    }
 
     void Awake()
     {

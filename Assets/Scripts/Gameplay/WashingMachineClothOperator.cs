@@ -10,8 +10,15 @@ public enum WashingMachineId
     B = 1
 }
 
-public class WashingMachineClothOperator : MonoBehaviour
+public class WashingMachineClothOperator : MonoBehaviour, IMinigameStepHintSource
 {
+    public const string HintOpenDoor = "OpenDoor";
+    public const string HintClothes = "Clothes";
+    public const string HintCloseDoor = "CloseDoor";
+    public const string HintDetergent = "Detergent";
+    public const string HintToken = "Token";
+    public const string HintStart = "Start";
+
     enum Step { OpenDoor, Clothes, CloseDoor, Detergent, Token, Start, Done }
 
     [SerializeField] Camera cam;
@@ -474,6 +481,41 @@ public class WashingMachineClothOperator : MonoBehaviour
             return Quaternion.Slerp(track[i].rotation, track[i + 1].rotation, segLen[i] > 1e-6f ? d / segLen[i] : 0f);
         }
         return track[track.Length - 1].rotation;
+    }
+
+    public bool TryGetCurrentStepHintId(out string stepId)
+    {
+        stepId = null;
+
+        if (completing || step == Step.Done || snapping || idx >= 0)
+            return false;
+
+        if (minigameActivator != null && !minigameActivator.IsActivated)
+            return false;
+
+        switch (step)
+        {
+            case Step.OpenDoor:
+                stepId = HintOpenDoor;
+                return true;
+            case Step.Clothes:
+                stepId = HintClothes;
+                return true;
+            case Step.CloseDoor:
+                stepId = HintCloseDoor;
+                return true;
+            case Step.Detergent:
+                stepId = HintDetergent;
+                return true;
+            case Step.Token:
+                stepId = HintToken;
+                return true;
+            case Step.Start:
+                stepId = HintStart;
+                return true;
+            default:
+                return false;
+        }
     }
 
     void OnDrawGizmosSelected()
