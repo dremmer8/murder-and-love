@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="AudioFile" id="{e3d7cbe5-6b72-4c6e-bb30-41f9b14cc920}">
+		<property name="assetPath">
+			<value>SFX_impactlightraw01.wav</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>44.0999985</value>
+		</property>
+		<property name="channelCount">
+			<value>2</value>
+		</property>
+		<property name="length">
+			<value>0.7205895691609977</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{da3c6ff6-0deb-4ec5-b8d1-e86b3ac54000}</destination>
+		</relationship>
+	</object>
+</objects>

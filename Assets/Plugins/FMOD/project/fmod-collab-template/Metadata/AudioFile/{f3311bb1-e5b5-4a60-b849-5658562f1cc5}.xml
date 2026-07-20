@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="AudioFile" id="{f3311bb1-e5b5-4a60-b849-5658562f1cc5}">
+		<property name="assetPath">
+			<value>8_gentle_place_in.wav</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>44.0999985</value>
+		</property>
+		<property name="channelCount">
+			<value>2</value>
+		</property>
+		<property name="length">
+			<value>4.0199546485260775</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{da3c6ff6-0deb-4ec5-b8d1-e86b3ac54000}</destination>
+		</relationship>
+	</object>
+</objects>

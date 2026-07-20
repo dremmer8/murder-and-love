@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="AudioFile" id="{4e17eb40-07f0-4e98-b8d5-e2510da7bf38}">
+		<property name="assetPath">
+			<value>516692__amekiano__pasos-steps (mp3cut.net) (3).wav</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>48</value>
+		</property>
+		<property name="channelCount">
+			<value>2</value>
+		</property>
+		<property name="length">
+			<value>0.48308333333333331</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{da3c6ff6-0deb-4ec5-b8d1-e86b3ac54000}</destination>
+		</relationship>
+	</object>
+</objects>

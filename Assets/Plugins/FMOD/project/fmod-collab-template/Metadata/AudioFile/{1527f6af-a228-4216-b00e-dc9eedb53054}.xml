@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="AudioFile" id="{1527f6af-a228-4216-b00e-dc9eedb53054}">
+		<property name="assetPath">
+			<value>punch_long_whoosh_21.wav</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>48</value>
+		</property>
+		<property name="channelCount">
+			<value>2</value>
+		</property>
+		<property name="length">
+			<value>1.5787708333333332</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{da3c6ff6-0deb-4ec5-b8d1-e86b3ac54000}</destination>
+		</relationship>
+	</object>
+</objects>
