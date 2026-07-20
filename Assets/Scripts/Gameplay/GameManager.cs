@@ -43,7 +43,9 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        TryStartSoundscape();
+        // BakedLightingController owns pause/resume during blackout; skip if already dark.
+        if (BakedLightingController.Instance == null || !BakedLightingController.Instance.IsBlackout)
+            StartSoundscape();
 
         if (delayOneFrame)
             StartCoroutine(StartIntroNextFrame());
@@ -142,7 +144,8 @@ public class GameManager : MonoBehaviour
         _cutsceneRoutine = null;
     }
 
-    void TryStartSoundscape()
+    /// <summary>Start the looping soundscape if it is not already playing.</summary>
+    public void StartSoundscape()
     {
         if (_soundscapeInstance.isValid())
             return;
@@ -154,7 +157,8 @@ public class GameManager : MonoBehaviour
             return;
     }
 
-    void StopSoundscape()
+    /// <summary>Stop and release the looping soundscape.</summary>
+    public void StopSoundscape()
     {
         if (!_soundscapeInstance.isValid())
             return;

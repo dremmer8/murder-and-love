@@ -40,6 +40,13 @@ public class BakedLightingController : MonoBehaviour
     [Tooltip("GameObjects enabled only during blackout.")]
     [SerializeField] List<GameObject> objectsActiveWhenBlackout = new();
 
+    [Header("Ceiling Material")]
+    [Tooltip("Renderer whose material is swapped between lit and blackout.")]
+    [SerializeField] Renderer ceilingRenderer;
+
+    [SerializeField] Material ceilingMaterialLit;
+    [SerializeField] Material ceilingMaterialBlackout;
+
     [Header("Transition")]
     [Tooltip("Optional full-screen CanvasGroup faded to black while swapping lightmaps.")]
     [SerializeField] CanvasGroup fadeOverlay;
@@ -144,6 +151,7 @@ public class BakedLightingController : MonoBehaviour
 
         ApplyRealtimeToggles(state);
         ApplyWorkingMachines(state);
+        ApplySoundscape(state);
         _currentState = state;
 
         if (logTransitions)
@@ -158,6 +166,17 @@ public class BakedLightingController : MonoBehaviour
             DoWorkTrigger.PauseAllForBlackout();
         else
             DoWorkTrigger.ResumeAllAfterBlackout();
+    }
+
+    static void ApplySoundscape(LightingState state)
+    {
+        if (!Application.isPlaying || GameManager.Instance == null)
+            return;
+
+        if (state == LightingState.Blackout)
+            GameManager.Instance.StopSoundscape();
+        else
+            GameManager.Instance.StartSoundscape();
     }
 
     public static void ApplyScenario(BakedLightingScenario scenario)
@@ -284,6 +303,27 @@ public class BakedLightingController : MonoBehaviour
         SetLightsEnabled(lightsActiveWhenBlackout, !lit);
         SetObjectsActive(objectsActiveWhenLit, lit);
         SetObjectsActive(objectsActiveWhenBlackout, !lit);
+        ApplyCeilingMaterial(lit);
+    }
+
+    void ApplyCeilingMaterial(bool lit)
+    {
+        if (ceilingRenderer == null)
+            return;
+
+        Material mat = lit ? ceilingMaterialLit : ceilingMaterialBlackout;
+        if (mat == null || ceilingRenderer.sharedMaterial == mat)
+            return;
+
+#if UNITY_EDITOR
+        if (!Application.isPlaying)
+            UnityEditor.Undo.RecordObject(ceilingRenderer, "Swap Ceiling Material");
+#endif
+        ceilingRenderer.sharedMaterial = mat;
+#if UNITY_EDITOR
+        if (!Application.isPlaying)
+            UnityEditor.EditorUtility.SetDirty(ceilingRenderer);
+#endif
     }
 
     static void SetLightsEnabled(List<Light> lights, bool enabled)

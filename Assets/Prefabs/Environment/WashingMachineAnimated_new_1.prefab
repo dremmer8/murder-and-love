@@ -851,7 +851,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   animator: {fileID: 6051488406286473450}
+  activeWhileWorking: {fileID: 46448432386053527}
+  isWorkingParam: isWorking
   playOnStart: 0
+  startWorking: 1
 --- !u!1 &2395003717707440351
 GameObject:
   m_ObjectHideFlags: 0

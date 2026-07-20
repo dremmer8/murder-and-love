@@ -13,6 +13,9 @@ public class DoWorkTrigger : MonoBehaviour
 
     [SerializeField] Animator animator;
 
+    [Tooltip("Optional object enabled while working and disabled while idle (follows blackout pause).")]
+    [SerializeField] GameObject activeWhileWorking;
+
     [Tooltip("Animator bool parameter name.")]
     [SerializeField] string isWorkingParam = "isWorking";
 
@@ -64,12 +67,14 @@ public class DoWorkTrigger : MonoBehaviour
 
     void ApplyAnimatorState()
     {
-        if (!animator)
-            return;
-
         // During blackout, machines visually stop even if they should keep running after power returns.
         bool live = s_PowerAvailable && IsWorking;
-        animator.SetBool(isWorkingParam, live);
+
+        if (animator)
+            animator.SetBool(isWorkingParam, live);
+
+        if (activeWhileWorking)
+            activeWhileWorking.SetActive(live);
     }
 
     /// <summary>Global: stop every machine for blackout (keeps desired state for restore).</summary>
