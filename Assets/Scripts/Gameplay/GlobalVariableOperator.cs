@@ -11,6 +11,7 @@ public class GlobalVariableOperator : MonoBehaviour
 
     static readonly string[] TrackedVariables =
     {
+        "mahjong_mentioned",
         "kitchen_knife",
         "gun_chosen",
         "has_detergent",
@@ -19,6 +20,9 @@ public class GlobalVariableOperator : MonoBehaviour
         "did_insult",
         "told_lie_sick",
         "told_lie_busy",
+        "lied_about_wine",
+        "lied_about_hand",
+        "coin_machine_attempt",
         StoryPhaseVar,
         GameProgressionVar
     };
@@ -62,6 +66,8 @@ public class GlobalVariableOperator : MonoBehaviour
                 _variables[name] = gameProgression;
             else if (name == StoryPhaseVar)
                 _variables[name] = 1;
+            else if (name == "coin_machine_attempt")
+                _variables[name] = 0;
             else
                 _variables[name] = false;
         }

@@ -1106,6 +1106,9 @@ MonoBehaviour:
   minigameActivator: {fileID: 3625660002362473942}
   exitDelayAfterStart: 1.5
   exitDelayAfterLastCloth: 0.5
+  doWorkTrigger: {fileID: 0}
+  cleanupClothesOnBlackout: 1
+  additionalTransferableClothes: []
   secondClothDialogue: {fileID: 0}
   afterMachineDialogue: {fileID: 0}
   firstClothDialogue: {fileID: 0}
@@ -1389,7 +1392,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &2557791490427163036
 Transform:
   m_ObjectHideFlags: 0
@@ -1455,6 +1458,8 @@ MonoBehaviour:
   token: {fileID: 8717774483768119092}
   lightBulbWorking: {fileID: 726933093740857784}
   animator: {fileID: 2083580016155404002}
+  doWorkTrigger: {fileID: 0}
+  isWorkingParam: isWorking
 --- !u!1 &5265339612358849529
 GameObject:
   m_ObjectHideFlags: 0
@@ -2508,10 +2513,9 @@ MonoBehaviour:
   collidersToDisable:
   - {fileID: 0}
   showCursorInMinigame: 1
-  allowExitWithKey: 1
-  exitKey: 27
   autoEndWithTimer: 0
   autoEndDelay: 3
+  controlHints: 
 --- !u!114 &657898517183491655
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2548,6 +2552,8 @@ MonoBehaviour:
   minStoryPhase: 12
   useMaxStoryPhase: 1
   maxStoryPhase: 14
+  requireBasketSlotOccupied: 0
+  requiredBasketSlotKey: 
 --- !u!65 &246328429457799504
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2680,6 +2686,10 @@ PrefabInstance:
     - target: {fileID: 2839987810344768982, guid: 96c14930334790e428a8406b0621e2a2, type: 3}
       propertyPath: m_Name
       value: DraggableCloth (6)
+      objectReference: {fileID: 0}
+    - target: {fileID: 2839987810344768982, guid: 96c14930334790e428a8406b0621e2a2, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7359516647411063790, guid: 96c14930334790e428a8406b0621e2a2, type: 3}
       propertyPath: m_LocalPosition.x
@@ -3095,6 +3105,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: DraggableCloth (5)
       objectReference: {fileID: 0}
+    - target: {fileID: 2839987810344768982, guid: 96c14930334790e428a8406b0621e2a2, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7359516647411063790, guid: 96c14930334790e428a8406b0621e2a2, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.005997658
@@ -3364,6 +3378,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: -90
       objectReference: {fileID: 0}
+    - target: {fileID: 7994958881325164519, guid: 96c14930334790e428a8406b0621e2a2, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 55aac76d39b95cc4b858a18e5604d882, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -3548,6 +3566,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: DraggableCloth (2)
       objectReference: {fileID: 0}
+    - target: {fileID: 2839987810344768982, guid: 96c14930334790e428a8406b0621e2a2, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7359516647411063790, guid: 96c14930334790e428a8406b0621e2a2, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.005997658
@@ -3710,6 +3732,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: DraggableCloth
       objectReference: {fileID: 0}
+    - target: {fileID: 2839987810344768982, guid: 96c14930334790e428a8406b0621e2a2, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7359516647411063790, guid: 96c14930334790e428a8406b0621e2a2, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.005997658
@@ -3871,6 +3897,10 @@ PrefabInstance:
     - target: {fileID: 2839987810344768982, guid: 96c14930334790e428a8406b0621e2a2, type: 3}
       propertyPath: m_Name
       value: DraggableCloth (3)
+      objectReference: {fileID: 0}
+    - target: {fileID: 2839987810344768982, guid: 96c14930334790e428a8406b0621e2a2, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7359516647411063790, guid: 96c14930334790e428a8406b0621e2a2, type: 3}
       propertyPath: m_LocalPosition.x
@@ -4132,6 +4162,10 @@ PrefabInstance:
     - target: {fileID: 2839987810344768982, guid: 96c14930334790e428a8406b0621e2a2, type: 3}
       propertyPath: m_Name
       value: DraggableCloth (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 2839987810344768982, guid: 96c14930334790e428a8406b0621e2a2, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7359516647411063790, guid: 96c14930334790e428a8406b0621e2a2, type: 3}
       propertyPath: m_LocalPosition.x

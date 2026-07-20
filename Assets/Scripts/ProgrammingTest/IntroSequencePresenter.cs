@@ -452,7 +452,8 @@ public class IntroSequencePresenter : MonoBehaviour
     }
 
     /// <summary>
-    /// Ink <> glue after a choice is typically a lowercase continuation ("tried to take...").
+    /// Ink <> glue after a choice is typically a lowercase continuation ("tried to take...")
+    /// or a trailing sentence closer (e.g. "." after "shattered by a loan shark").
     /// A new capitalised paragraph is the next intro bit, not glue.
     /// </summary>
     private static bool IsSentenceGlue(string text)
@@ -461,7 +462,14 @@ public class IntroSequencePresenter : MonoBehaviour
             return false;
 
         char c = text[0];
-        return char.IsLower(c) || c == ',' || c == ';' || c == ')' || c == ']';
+        return char.IsLower(c)
+            || c == ','
+            || c == ';'
+            || c == '.'
+            || c == '!'
+            || c == '?'
+            || c == ')'
+            || c == ']';
     }
 
     private void HideAllOptions(IntroBitRow row)

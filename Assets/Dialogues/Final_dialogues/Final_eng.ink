@@ -12,15 +12,14 @@ EXTERNAL GiveAwayItem(itemId)
 EXTERNAL SetBlackout(blackout)
 
 //story phase nubmer
-VAR story_phase = 11
-
-
+VAR story_phase = 1
 
 
 // Unity (GlobalVariableOperator) syncs and stores this across dialogues.
 VAR game_progression = 0
 
 //story variables
+VAR mahjong_mentioned = false
 VAR kitchen_knife = false
 VAR gun_chosen = false
 VAR has_detergent = false
@@ -30,6 +29,10 @@ VAR black_out_happened = false
 VAR did_insult = false
 VAR told_lie_sick = false
 VAR told_lie_busy = false
+
+VAR lied_about_wine = false
+VAR lied_about_hand = false
+VAR coin_machine_attempt = 0
 
 {story_phase:
     - 1: -> intro
@@ -101,15 +104,15 @@ VAR told_lie_busy = false
 // =============================================================================
 == intro ==
 ~ game_progression = 1
-All we wanted was to settle down in Lam Tong City.
+On a sultry midnight in Lam Tong City. We were just about to go to sleep after a tiring day.
 -> intro_intruder
 
 = intro_intruder
-But on one midnight summer all hope was shattered. When a <>
+But that peace was suddenly shattered by a <>
 * loan shark
 * gangster
 * robber
--<> tried to take everything we had.
+-<>.
 
 // change page
 He tore through our home, destroyed what we'd built, searching for anything of value. My boyfriend said there was only one way out. He turned to me and asked for the 
@@ -140,7 +143,7 @@ And so here I am, at 3 a.m., trying to wash away the crime we committed.
 { LAU_story_phase_1 > 1: -> repeat_visit }
 
 // After talking to Mandy, then walking past Lau for the first time.
-Drunk Man: A pretty lady at this hour? Are you *hiccup* looking for me? 
+Drunk Man: A pretty lady at this hour? Are you looking for me? 
 - (Lau_choice_1)
     * [(Greeting)] 
         You: Good Evening.
@@ -150,15 +153,14 @@ Drunk Man: A pretty lady at this hour? Are you *hiccup* looking for me?
         You: Fuck off.
         ~ did_insult = true
         Drunk Man: Woah, take it easy, young lady. I was just joking around.
-        -> flattery -> clothes_question
-- Drunk Man: You should feel lucky to have me here. I'm a cop and I can catch all bad guys for you.
--> clothes_question
+       -
+       -> flattery -> clothes_question
 
 = flattery
 Drunk Man: You're lucky to have me here, you know. 
-No one would dare to harass a beautiful young lady like yourself in front of a police officer!
-No villains can slip through my fingers.
-->->
+Drunk Man: I'm a cop — no one would dare to harass a beautiful young lady like yourself in front of a police officer!
+Drunk Cop: No villains can slip through my fingers.
+-> clothes_question
 
 = clothes_question
 Drunk Cop: Whose clothes are you washing in the middle of the night?
@@ -167,25 +169,26 @@ Drunk Cop: Whose clothes are you washing in the middle of the night?
         -> silence_branch
     * [For my boyfriend.] 
         You: Just laundry for my boyfriend, Officer.
-        Drunk Officer: Of course, pretty girls always have boyfriends.
+        Drunk Cop: Of course, pretty girls always have boyfriends.
         -> boyfriend_excuse
     * [None of your bussiness.] 
         You: It's none of your business.
-        -> deflect_branch
-
-= deflect_branch
-    * { not did_insult } Woah, take it easy, young lady.
-        -> flattery -> ending
-    * { did_insult } Ooh, pretty lady has some secrets.
-- -> ending
+        { did_insult:
+        Drunk Cop: Ooh, pretty lady has some secrets.
+        -> silence_branch
+        - else:
+        Drunk Man: Woah, take it easy, young lady. 
+        }
+        -> clothes_question
 
 = silence_branch
 Drunk Cop: Let me guess. 
-You just broke up with your boyfriend, and now you're washing away the scent of him.
+Drunk Cop: You just broke up with your boyfriend, and now you're washing away the scent of him.
     * [That's your case, right?] 
         You: That's why you're here, right?
+        Drunk Cop: ...
         Drunk Cop: I just can't sleep being reminded of her.
-        * * [Apologize] 
+        * * [(Apologize)] 
             You: I'm sorry.
         * * [...] 
             You: ...
@@ -197,7 +200,7 @@ You just broke up with your boyfriend, and now you're washing away the scent of 
 = boyfriend_excuse
 Drunk Cop: How touching. 
 Drunk Cop: But he couldn't be bothered to accompany you at this hour?
-    * [He's sick (LIE)] 
+    * [He's sick (Lie)] 
         You: He's sick and he needs his clothes for work tomorrow.
         ~ told_lie_sick = true
         Drunk Cop: Sick but still goes to work? Huh, that's how I lost my wife.
@@ -206,18 +209,23 @@ Drunk Cop: But he couldn't be bothered to accompany you at this hour?
         You: I might as well help him with some chores.
         ~ told_lie_busy = true
         Drunk Cop: Busy at this hour, huh? 
-        Are you sure he's not up to no good?
-- You: Well, I can't stop him.
+        Drunk Cop: Are you sure he's not up to no good?
+- 
+* [Can't stop him.]
+You: Well, I can't stop him from working.
+* [(Excuse)]
+You: ...He's a hardworking guy.
+-
 Drunk Cop: Fair. 
 Drunk Cop: Your boyfriend is lucky to have someone like you to wash his clothes.
 -> ending
 
 = ending
-Go on and wash your clothes then, young lady.
+Drunk Cop: Go on and wash your clothes then, young lady.
 -> END
 
 = repeat_visit
-Lau: All good?
+Drunk Cop: All good?
     + [Nothing.]
         You: ..
     + [Ask which machine]
@@ -231,6 +239,7 @@ Lau: All good?
 // =============================================================================
 == Mandy_story_phase_1 ==
 ~ game_progression = 2
+{ Mandy_story_phase_1 > 1: -> Mandy_phase_1_repeat }
 Mrs. Wong: Hey!
 Mrs. Wong: Isn't that Miss Lee! Doing laundry at this hour?
 
@@ -245,7 +254,7 @@ Mrs. Wong: Isn't that Miss Lee! Doing laundry at this hour?
     Mrs. Wong: Why aren't you saying anything? Is everything alright?
     -> MrsWong_ask_alright
 
-* [I really need to wash these.(lie)] 
+* [I really need to wash these.] 
     You: I have some clothes I really need for tomorrow.
     Mrs. Wong: What's the hurry? 
         * * [My boyfriend needs them for work.] 
@@ -255,15 +264,15 @@ Mrs. Wong: Isn't that Miss Lee! Doing laundry at this hour?
         - 
         -> MrsWong_boyfriend_clothes
   = MrsWong_ask_alright 
-* [Yeah, I'm fine.]
+* [Yeah, I'm fine.(lie)]
 You: Yeah, I'm fine.
 * [Sorry, just had a long day.]
 You: Sorry, just had a long day.
 -
 Mrs. Wong: You look white as a sheet. You sure you're okay?
-* [Too hot to fall asleep.(Lie)]
+* [(Make an excuse)]
 -> MrsWong_comment_sleep
-*[Yes. (Continue)]
+*[Yes. (Lie)]
 You: Yes. Just need to wash these for my boyfriend.
 -> MrsWong_boyfriend_clothes
 
@@ -274,13 +283,14 @@ Mrs. Wong: Fair. I'm the opposite, I'd fall asleep as soon as my head hit the pi
 -> Vi_ask_about_MrsWong_phase_1
 
 = MrsWong_boyfriend_clothes
+~ mahjong_mentioned = true
 Mrs. Wong: And my husband is playing Mahjong somewhere again, leaving me to run this place overnight. It's a wonder what we women put up with. 
--> MrsWong_son_situation
+-> Vivian_question_loop
 
 = Vi_ask_about_MrsWong_phase_1
 - (Vivian_question_loop)
 
-* [Is everything alright?]
+*  {mahjong_mentioned == false} [Is everything alright?]
     You: Is everything alright?
     Mrs. Wong: You could say so.
     Mrs. Wong: My husband is off playing Mahjong again, someone has to run this place.
@@ -289,7 +299,7 @@ Mrs. Wong: And my husband is playing Mahjong somewhere again, leaving me to run 
 * [Couldn't your son help?]
     -> MrsWong_son_situation 
 
-+ [That sounds rough. (continue)]
++ [That sounds rough.]
     You: That sounds rough.
     Mrs. Wong: I'm used to it by now.
     -> MrsWong_phase_1_laundry_coin
@@ -314,21 +324,21 @@ You: I'll do it myself—no need to trouble you. You must be tired.
 Mrs. Wong: Okay. Let me at least help you separate the colors from the whites—
 
 - (laundry_delivery_choice)
-* [I will tuck everything in] 
-You: No, thanks—I’ll just tuck everything in one big load.
+* [(Refuse)] 
+You: No, thanks—I'll just tuck everything in one big load.
 Mrs. Wong: That would ruin your clothes, Miss Lee.
   ** [It will be fine.]
   You: It will be fine.
   ** [I don't mind.]
   You: Nah, I don't mind.
-* [I don't have enough cash.]
+* [(Make an excuse to stop her)]
 You: I'm short on cash, so I'll just wash one load.
 -
     -> give_money
 
 = give_money
-Mrs. Wong: Sure.That comes to 80 cents in total.
-* [Give the money]
+Mrs. Wong: Sure. That comes to 80 cents in total.
+* [(Give the money)]
 You: Here.
 ~ UnhideItem("first_laundry_coin")
 Mrs. Wong: Here you go. Machine Nr. 4. It's the one on your left.
@@ -339,7 +349,13 @@ Mrs. Wong: Here you go. Machine Nr. 4. It's the one on your left.
 -
     -> END
     
-    
+= Mandy_phase_1_repeat
++ [(Ask which washer)]
+You: Which washer was it again?
+Mrs. Wong: Machine Nr. 4. It's the one on your left. -> END
++ [(Nothing)]
+You: Nothing. I got this. -> END
+
 // =============================================================================
 //  PHASE 3 Asking LAU about detergent
 // =============================================================================
@@ -354,7 +370,8 @@ Mrs. Wong: Here you go. Machine Nr. 4. It's the one on your left.
 
 == Thought_about_not_leaving_clothes ==
 ~ game_progression = 4
-You: I shouldn't leave the clothes alone here. I saw some detergent on the table behind the chairs.
+Thoughts: I shouldn't leave the clothes alone here. 
+Thoughts: I saw some detergent on the table behind the chairs.
 -> END
 
 // =============================================================================
@@ -362,7 +379,9 @@ You: I shouldn't leave the clothes alone here. I saw some detergent on the table
 // =============================================================================
 == Thought_about_empty_detergent ==
 ~ game_progression = 5
-You: Shit, they don't have heavy-duty detergent anymore.
+Thoughts: Shit, they're out of heavy-duty detergent.
+Thoughts: I need it to get the bloodstains out... 
+Thoughts: I have to ask around to get some.
 -> END
 
 
@@ -372,15 +391,18 @@ You: Shit, they don't have heavy-duty detergent anymore.
 
 == Mandy_story_phase_2 ==
 ~ game_progression = 6
+{ Mandy_story_phase_2 > 1:-> ask_mandy_questions}
+
 *[(Ask about detergent)]
 You: Mrs. Wong, there's no heavy-duty laundry detergent left.
-Mrs. Wong: Is that so? I remember I put a lot of regular detergent there, isn’t that enough?
+Mrs. Wong: Is that so? I remember I put a lot of regular detergent there, isn't that enough?
   **[Cat peed on the clothes. (lie)]
   ~ lied_about_cat = true
   You: Our cat peed on my boyfriend's clothes. Only heavy-duty detergent can get it out.
   Mrs. Wong: Your cat? I thought your boyfriend didn't allow you to keep a cat? -> cat_secondary_questions
   **[I got my period. (lie)]
   You: You know? I'm in the time of the month. I have to wash these sheets...
+  You: Only heavy-duty detergent can get it out.
   Mrs. Wong: Oh, I understand. It's awful that we women have to go through this every month.
   Mrs. Wong: The heavy-duty detergents are in the backroom. Let me get them for you.
   -> Vi_insist_go_to_backroom
@@ -400,7 +422,7 @@ You: Yeah, pretty wild.
 -> Ending_mandy_story_phase_2
 
 = Vi_insist_go_to_backroom
-*[I will get a whole bottle myself.]
+*[I will get them.]
 You: No, I can just get it myself. I might need a whole bottle though.
 Mrs. Wong: Sure...
 *[No need to bother you.]
@@ -415,6 +437,17 @@ Mrs. Wong: Here is the key to the backroom. It's near Washer Nr. X.
 Mrs. Wong: The detergent you want is called Enzyme Laundry Detergent, the blue one on the shelf.
 You: Thank you, Mrs. Wong.
 
+-> END
+
+= ask_mandy_questions
++ [(Ask where the backroom is)]
+You: Where is the backroom?
+Mrs. Wong: The backroom is at the corner, near the washer Nr. X. -> ask_mandy_questions
++ [(Ask how the heavy-duty detergent look like)]
+You: Which one is the heavy-duty detergent again?  
+Mrs. Wong: It's called Enzyme Laundry Detergent, the blue one on the shelf.
+-> ask_mandy_questions
++ [Nothing.] 
 -> END
 
 // =============================================================================
@@ -432,7 +465,7 @@ You: Thank you, Mrs. Wong.
         Drunk Cop: Can't get enough of me, huh?
     - else:
         Drunk Cop: Can't get enough of me, huh?
-    I told you you can get detergent at the desk
+    Drunk Cop: I told you you can get detergent at the desk
     }
     -> END
 
@@ -442,7 +475,8 @@ Drunk Cop: What does a beauty like you want with me?
         You: Nothing. Just some heavy-duty detergents.
         * [(Asking politely for detergent)]
         You: Sorry to bother you. Do you have some heavy duty detergent by chance?
-        * [(End the conversation)] Nothing.
+        * [(End the conversation)] 
+        You: Nothing.
             -> END
     
     - 
@@ -458,24 +492,24 @@ Drunk Cop: What does a beauty like you want with me?
             ->reason_for_detergent
             -> END
             
-        * [I have a boyfriend.] ...I have a boyfriend.
+        * [I have a boyfriend.] You: ...I have a boyfriend.
             Drunk Cop: Wow, someone is deeply in love.
             Drunk Cop: ...Why do you need heavy duty detergent anyways?
             ->reason_for_detergent
             -> END
             
         * [(Disgust)] 
-        You: Ew, shouldn’t you be with your wife and kids?
+        You: Ew, shouldn't you be with your wife and kids?
             Drunk Cop: Ha, good question. They don't talk to me anymore.
-            * * [(Being sarcastic)] I can see why.
+            * * [(Being sarcastic)] You: I can see why.
                 Drunk Cop: Woah, that was harsh.
                 But <>
-            * * [Why?] why?
+            * * [Why?] You: Why?
                 Drunk Cop: I don't know...
-            * * [(Apologize)] I'm sorry, I didn't mean to...
+            * * [(Apologize)] You: I'm sorry, I didn't mean to...
                 Drunk Cop: It's okay.
                 But <>
-            - - I didn't even see it coming. 
+            - - Drunk Cop: I didn't even see it coming. 
             Drunk Cop: I worked so hard day and night for her and the kid, 
             Drunk Cop: but it was still not enough?
             Drunk Cop: Anyways, I'm single now, so where is my kiss?
@@ -493,7 +527,7 @@ Drunk Cop: What does a beauty like you want with me?
             You: What's wrong with your nose?
             Drunk Cop: What? I have the best nose of the whole precinct.
         - Drunk Cop: Anyways, I don't have the special detergent for you. 
-        You should go ask Mrs. Wong.
+        Drunk Cop: You should go ask Mrs. Wong.
     -> END
     
     
@@ -507,18 +541,23 @@ Drunk Cop: What does a beauty like you want with me?
 ~ game_progression = 8
 { Inner_voice_backroom_phase_1:
     - 1: 
-    Thoughts: I've yet to cry. Yet to be sorrowful or to mourn. 
-    With each step further I become less of a human. How long do I need to hide? 
-    Do I need to carry this secret with me for the rest of our life?
+    Thoughts: The police officer grinned, as if he'd known all along.
+    Thoughts: The look in Mrs. Wong's eyes seemed to hold a hint of pity.
+    Thoughts: Did they all know, but were just toying with me?
+    Thoughts: Had they seen the bloodstains on those clothes?
     - 2: 
-    Thoughts: This won't bring a dead man back. Regardless of how much detergent goes in there.
-    Saying it does not bring him back. Then nothing will give me peace.
-    And when I'm done with this, a murder awaits me at home.
+    Thoughts: I've yet to cry. Yet to be sorrowful or to mourn. 
+    Thoughts: With each step further I become less of a human. How long do I need to hide?
+    Thoughts: Do I need to carry this secret with me for the rest of our life?
     - 3:
-    This won't bring him back. Regardless of how much detergent goes in there.
-    Saying it does not bring him back. 
-    But at least then the crime would exist somewhere outside my own skull. Somewhere  where it won't grow. 
-    Does Jason think the same? 
+    Thoughts: This won't bring a dead man back. Regardless of how much detergent goes in there.
+    Thoughts: Saying it does not bring him back. Then nothing will give me peace.
+    Thoughts: And when I'm done with this, a murder awaits me at home.
+    - 4:
+    Thoughts: This won't bring him back. Regardless of how much detergent goes in there.
+    Thoughts: Saying it does not bring him back.
+    Thoughts: But at least then the crime would exist somewhere outside my own skull. Somewhere  where it won't grow.
+    Thoughts: Does Jason think the same?
     - else: 
     Thoughts: For how long can I keep up this facade, these lies?
 }
@@ -530,12 +569,12 @@ Drunk Cop: What does a beauty like you want with me?
 // =============================================================================
 == Boyfriend_pager_phase_1 ==
 ~ game_progression = 9
-J: Has anyone seen you? Anyone suspicious?
-J: Play it cool, sweetheart.
-J: Don't forget: heavy-duty detergent.
-J: I love you. After this we use the savings and go on a trip. Just me and you. Bonnie and Clyde.
+J: Has anyone seen you?
+J: Play it cool, bb.
+J: Don't forget — use heavy-duty detergent.
 J: Packed up. Driving to the harbor.
-J: Be quick with cleaning up. TTYL.
+J: Be quick with cleaning up!
+J: TTYL.
 -> END
 
 // =============================================================================
@@ -561,12 +600,12 @@ Thoughts: That's the correct detergent. I need to put these into washer Nr. 4 as
 == Thought_washing_clothes_1 ==
 ~ game_progression = 13
 Thoughts: Jason was wearing this shirt when we met. 
-On a rainy day, I accidentally slipped and my groceries fell to the ground. 
-He was the one who helped me pick them up. We were together two weeks later.
-I thought we would continue living this ordinary life together, in love.
-Who could have thought...
-I wonder if we could ever forget what happened after we washed these. 
-Could we really put these shirts on and pretend they were never stained with blood?
+Thoughts: On a rainy day, I accidentally slipped and my groceries fell to the ground.
+Thoughts: He was the one who helped me pick them up. We were together two weeks later.
+Thoughts: I thought we would continue living this ordinary life together, in love.
+Thoughts: Who could have thought...
+Thoughts: I wonder if we could ever forget what happened after we washed these.
+Thoughts: Could we really put these shirts on and pretend they were never stained with blood?
 -> END
 
 // =============================================================================
@@ -575,8 +614,8 @@ Could we really put these shirts on and pretend they were never stained with blo
 == Thought_about_need_another_washer ==
 ~ game_progression = 14
 Thoughts: Shit. Still many clothes left. 
-I should have thought that one round is not enough.
-I need to buy another laundry coin from Mrs. Wong.
+Thoughts: I should have thought that one round is not enough.
+Thoughts: I need to buy another laundry coin from Mrs. Wong.
 -> END
 
 // =============================================================================
@@ -588,7 +627,7 @@ I need to buy another laundry coin from Mrs. Wong.
     - 1: -> Ask_for_laundry_coin_Mandy
     - else:
     Mrs. Wong: You get your change now?
-    + [Not yet. Where is the coin change machine?]
+    + [Where is the coin change machine?]
     You: Not yet. Where is the coin change machine again?
     Mrs. Wong: It's the one in the corner.
     You: Thanks.
@@ -602,22 +641,38 @@ Mrs. Wong: Another one? Did all your clothes fall into a pit or something?
    **[(Summer sweating excuse)]
    You: You know, sweating in the summer and stuff. I can't stand smelly clothes.
    Mrs. Wong: Hmm... I remember you were here just two days ago. 
-   You: Well, clothes get dirty pretty fast in summer. -> Mandy_phase_3_fair
+   You: Well, clothes get dirty pretty fast in summer. 
+   -> Mandy_phase_3_fair
     **{lied_about_cat} [Cat peed everywhere.(lie)]
-    (if cat mentioned) You: I told you, the cat peed on our clothes, so we have to wash all the bedding and stuff, because it stinks so much...
+    You: I told you, the cat peed on our clothes, so we have to wash all the bedding and stuff, because it stinks so much...
     Mrs. Wong: Naughty cat. What's the name? -> Cat_name_question
-    **[None of your bussiness.]
-    You: It's none of your bussiness.
-    Mrs. Wong: ... Hah
-       ***[Sorry.]
-       You: Sorry, I just need some sleep.
-       ***[...]
-       You: ...
-       -
-       ->Mandy_phase_3_ending
        
 = Mandy_phase_3_fair
-Mrs. Wong: Fair.
+Mrs. Wong: Why didn't your boyfriend come and let you rest?
+*[(I volunteered) (lie)]
+You: It was me who offered to help him. He is too busy with work.
+*[(No time)]
+You: He doesn't have time.
+-
+Mrs. Wong: Hah, such a typical excuse.
+**[Someone has to take care of the housework]
+You: Well, someone needs to wash these clothes.
+**[He is hardworking]
+You: He works very hard to earn money though.
+--
+You: He promised  me that we will go on a trip after.
+Mrs. Wong: They always start out romantic.
+Mrs. Wong: My husband used to buy me jewelry and take me to the docks for stargazing every other day.
+Mrs. Wong: Now, he won't even talk to me, unless he wants food or needs me to cover his shifts.
+Mrs. Wong: Men really are useless sometimes.
+Drunk Cop: You're speaking a bit too loudly, aren't you?
+   ***[We were talking about you]
+   You: We were talking about you.
+   ***[Not talking about you]
+   You: We were talking about you.
+   ---
+   Drunk Cop: ...
+   Mrs. Wong: Haha. 
 ->Mandy_phase_3_ending
 
 = Cat_name_question
@@ -639,17 +694,19 @@ Mrs. Wong: Cute.
 ->Mandy_phase_3_ending
 
 = Mandy_phase_3_ending
-Mrs. Wong: It will be another 80 cents then.
+*[(Ask Mrs. Wong for paying)]
+You: The second washer would cost 80 cents, too, right?
+Mrs. Wong: Yes.
 Thoughts: (Fuck, I forget that we got blood on the bill. I need to use the coin change machine.)
-*[Wait, I need to get some change first.]
+**[Wait, I need to get some change first.]
 You: Uhm, give me one second. I have to get some change.
-Mrs Wong: Are you sure? I have change here.
-   **[No worries.]
+Mrs. Wong: Are you sure? I have change here.
+   ***[No worries.]
    You: No worries, I got this.
-   **[(make an excuse)]
+   ***[(make an excuse)]
    You: It's okay, I need some change for payphones anyways.
    -
-   Mrs Wong: Sure.
+   Mrs. Wong: Sure. The coin change machine is in the corner.
 -> END
 
 // =============================================================================
@@ -660,17 +717,18 @@ Thoughts: I just need to put it in...
 -> Boyfriend_pager_phase_2
 
 // =============================================================================
-//  PHASE 16 After first trial and machine didn't work. At 3. time it works and boyfriend texts on pager
+//  PHASE 16 Fired by CoinMachineOperator after each bill attempt.
+//  coin_machine_attempt is persisted via GlobalVariableOperator (visit counts reset per Story).
 // =============================================================================
-// will be triggered everytime putting bill into the coin machine
 == Interaction_with_coin_machine ==
+~ coin_machine_attempt = coin_machine_attempt + 1
 ~ game_progression = 16
-{ Interaction_with_coin_machine:
+{ coin_machine_attempt:
     - 1: 
     Thoughts: Shit, this machine always has this problem. But trying again normally helps.
     - 2:
     Thoughts: Again? It needs to work...
-    else：
+    - else:
     Thoughts: Finally... I should go back to Mrs. Wong to buy the laundry coin.
 }
 -> END
@@ -682,11 +740,13 @@ Thoughts: I just need to put it in...
 ~ game_progression = 17
 //pager beeps and vibrates
 J: A cop just stopped me.
-J: Asked a lot. I lied about the trunk. Nothing to worry about, sweetheart.
-J: Just a speeding ticket. 70 in a 50.
-J: I'm at the harbor already.
-J: You're doing wonderful. Blessing to have you by my side.
-J: Just continue. We're so close. Love u.
+J: Asked a lot. 
+J: I lied about the trunk.
+J: Got away with a speeding ticket.
+J: Hands are shaking. I can barely drive.
+J: Finally at the harbor.
+J: Hurry up with washing.
+J: We got each other.
 -> END
 
 // =============================================================================
@@ -716,29 +776,36 @@ Drunk Cop: Awfully dirty shirt... Also terribly red.
     = LAU_story_phase_3_continue_1
         * [(Lie about accident)] 
         You: Well, my boyfriend accidentally broke a bottle and cut his hand.
-        Cop: Uh, that must’ve hurt.
-        But why is this shirt red?
+        ~ lied_about_hand = true
+        Drunk Cop: Uh, that must've hurt.
+        Drunk Cop: Why is there blood all over the chest area of this shirt?
+        **[(Try to explain)]
         You: We tried to stop the bleeding by wrapping his hand in this shirt.
-        Cop: Poor hand. I hope your boyfriend is doing alright.
-        You: Yes, he is, thanks. That's why he’s home.
+        Drunk Cop: Poor hand. I hope your boyfriend is doing alright.
+        ***[He is.]
+        You: Yes, he is, thanks. That's why he's home.
         -> LAU_story_phase_3_continue_2
         
         * [(Lie about spilled wine.)] 
         You: Well, my boyfriend spilled red wine all over the place.
-        Cop: Really... What kind of wine is that? It's as red as blood.
+        ~ lied_about_wine = true
+        Drunk Cop: Really... What kind of wine is that? It's as red as blood.
             * * [I don't remember.] 
             You: I don't remember. 
             You: He got this wine from the wine shop on the next street over.
-            -> LAU_story_phase_3_ending
             * * [(Make something up)]
             You: la... Toise. Something like it. 
-            Cop: Interesting, never heard of that before. I thought I knew everything about wine.
+            Drunk Cop: Interesting, never heard of that before. I thought I knew everything about wine.
+            ***[It's rare.]
             You: It's rare, my boyfriend got it as a gift from a friend abroad.
+            --
+            Drunk Cop: How strange... 
+            Drunk Cop: You know, regular wine turns purplish-brown when it dries, not dark red.
             -> LAU_story_phase_3_ending
         
         * [None of your bussiness.] You: Just mind your own business.
-        Cop: I‘m a cop and I patrol this area: 
-        Of course, I have to take care of other people's business.
+        Drunk Cop: I'm a cop and I patrol this area: 
+        Drunk Cop: Of course, I have to take care of other people's business.
         -> LAU_story_phase_3_continue_1
     -> END
     
@@ -755,24 +822,25 @@ Drunk Cop: Awfully dirty shirt... Also terribly red.
 
     
     = sick_reply_phase_3
-    Cop: But I thought he stayed at home because he's sick?
+    Drunk Cop: But I thought he stayed at home because he's sick?
+    * [(I said that)]
     You: That as well.
-    Cop: Cut his hand and got sick, that's really tragic. Maybe you should stay home with him.
-    * [He's sleeping.]
+    Drunk Cop: Cut his hand and got sick, that's almost unrealistically tragic. Maybe you should stay home with him.
+    ** [He's sleeping.]
         You: He already fell asleep.
-    * [I want to do some housework.]
+    ** [I want to do some housework.]
         You: He's taking some rest, so I'd just do some housework before this here closes.
-    - Cop: Okay, I thought the constant pager beeping would be from your poor boyfriend.
-    * [It was from my mom.]
+    - Drunk Cop: Okay, I thought the constant pager beeping would be from your poor boyfriend.
+    ** [It was from my mom.]
         You: It was from my mom.
         -> LAU_story_phase_3_ending
-    * [No, from a friend.]
+    ** [No, from a friend.]
         You: No, it's my best friend texting me. 
         You: She recently bought a pager and has been using it all the time.
         -> LAU_story_phase_3_ending
     
     = busy_reply_phase_3
-    Cop: But I thought he stayed at home because he's busy?
+    Drunk Cop: But I thought he stayed at home because he's busy?
     * [(Agree)]
         You: Yes, he had some stuff to do for his work.
         -> LAU_story_phase_3_ending
@@ -782,14 +850,33 @@ Drunk Cop: Awfully dirty shirt... Also terribly red.
 
 
     = LAU_story_phase_3_ending 
-    Cop: All right... I hope you're honest. It's not a good idea to lie to the police officer.
+    Drunk Cop: This stain reminds me of the crime scene I witnesses today. 
+    Drunk Cop: A middle-aged man stabbed his wife to death. 
+    Drunk Cop: He refused to plead guilty, so we had no choice but to put him in jail first. 
+    Drunk Cop: Her shirt was also this red...
+    *{lied_about_wine} [(Make another excuse)]
+    You: Sorry, it was not wine... I'm in the time of the month. 
+    You: When I was folding clothes, it happened... 
+    You: I found it too awkward to admit.
+    *{lied_about_wine}[(Tell he that he was overthinking)]
+    You: There's no need to overthink it. 
+    You: The bottle of wine my boyfriend spilled might just have been made differently.
+    *{lied_about_hand}[(Accuse him of overreacting)]
+    You: Why do you need to overthink so much? 
+    You: Isn't cutting hand accidentally quite normal?
+    *{lied_about_hand}[(Show that you're scared)]
+    You: ...Sounds scary.
+    -
+    Drunk Cop: All right then… I hope you're being honest. 
+    Drunk Cop: You do know what happens if you lie to a police officer, don't you?
     * [(Silence)]
-    ...
+    You: ...
+    Drunk Cop: Haha. I was just joking around. Go wash your clothes.
     -> END
     
     * [I won't lie.]
     You: Of course I won't lie to you.
-    Cop: Sweet girl.
+    Drunk Cop: Sweet girl. Go wash your clothes.
     -> END
 -> END
 
@@ -798,7 +885,16 @@ Drunk Cop: Awfully dirty shirt... Also terribly red.
 // =============================================================================
 == Thought_washing_clothes_2 ==
 ~ game_progression = 20
-Thought: I don't know if I'm doing the correct thing...
+Thoughts: Before that person came in, Jason was holding me tightly.
+Thoughts: He was wearing this. It was so warm and I felt so safe in his arm.
+Thoughts: Then chaos broke out. A nightmare I'll never forget.
+Thoughts: He asked me with despair.
+Thoughts: My arms were shaking as I handed it to him.
+//...
+Thoughts: He did it. Then, with his blood-stained hands, he held me close once more.
+Thoughts: He rocked me back and forth, as if I were trapped in a cradle…
+Thoughts: Will it really be just as he said? Will everything go back to normal once the blood is washed away?
+Thoughts: But why can I still smell that sickening, metallic stench?
 -> END
 
 // =============================================================================
@@ -808,7 +904,7 @@ Thought: I don't know if I'm doing the correct thing...
 ~ game_progression = 21
 ~ black_out_happened = true
 ~ SetBlackout(1)
-Drunk cop: Ah, what the hell is this?
+Drunk Cop: Ah, what the hell is this?
 Mrs. Wong: Not again… I need to check the circuit box in the back room...
 *[I will do it.]
 You: I can do it. I'm standing next to it.
@@ -827,12 +923,12 @@ Mrs. Wong: Thank you, Miss Lee.
     Thoughts: But at least I put all of the clothes in...
     - 2: 
     Thoughts: The cop grins like he already knows.
-    Knows and toys with me, maybe he does, and maybe that's a relief I won't admit to.
-    To be caught would at least mean the end of this act.
+    Thoughts: Knows and toys with me, maybe he does, and maybe that's a relief I won't admit to.
+    Thoughts: To be caught would at least mean the end of this act.
     - else:
-    I don't care about karma anymore.
-    I wish someone could be by my side...
-    Should I give up? But I got nowhere to hide...
+    Thoughts: I don't care about karma anymore.
+    Thoughts: I wish someone could be by my side...
+    Thoughts: Should I give up? But I got nowhere to hide...
 }
 -> END
 
@@ -847,7 +943,6 @@ J: It's done.
 J: Rocks in the body bag. Tossed the whole thing in the ocean.
 J: Hurry up!
 J: You don't want our lives ruined because you're slow, right?
- -> END
 -> How_to_turn_on_circuit_box
 
 // =============================================================================
@@ -875,34 +970,33 @@ J: You don't want our lives ruined because you're slow, right?
 // =============================================================================
 == Mandy_smoking_scene_1 ==
 ~ game_progression = 26
-Mrs. Wong: Is everything okay back there? You’ve been gone quite a while, Miss Lee.
+Mrs. Wong: Is everything okay back there? You've been gone quite a while, Miss Lee.
 *[(Make a excuse)]
-You: Sorry, I couldn’t find the correct switch for the lights.
+You: Sorry, I couldn't find the correct switch for the lights.
 *[Sorry.]
 You: I'm really sorry.
+-
 Mrs. Wong: No need to apologize. Want a cigarette?
-   **[No, thanks.]
+
+- (smoke_choice)
+   *[No, thanks.]
    You: No, thank you.
-   **[Yes.]
-   You: Yeah. I really need one.
+   -
    Mrs. Wong: Mind if we talk for a second? Just between us women.
-      ***[What's it about?]
+      **[What's it about?]
       You: Sure. What's it about?
-      ***[Not sure.]
+      **[Not sure.]
       You: I'm not sure...
       Mrs. Wong: I'm just worried about you.
-      -
-      Mrs. Wong: Someone’s been texting you all the time, right? Is that your boyfriend?
-         ****[Yes. (Make an excuse)]
-         You: Yes, he just worried because it’s late.
-         ****[(Deny)]
+      - -
+      Mrs. Wong: Someone's been texting you all the time, right? Is that your boyfriend?
+         ***[Yes. (Make an excuse)]
+         You: Yes, he just worried because it's late.
+         ***[(Deny)]
          You: No...
-         -
-         Mrs. Wong: You don’t have to lie to me. 
-         Mrs. Wong: Every time you come out from the backroom like a ghost.
-         Mrs. Wong: Something bad must have happened today.
-         You: I don’t know what you’re talking about.
-         Mrs. Wong: Listen to me, Miss Lee. 
+         - - -
+         Mrs. Wong: You can be completely honest with me, Miss Lee.
+         Mrs. Wong: Every time you come out from the backroom like a ghost, and...
          Mrs. Wong: There's more red in your clothes than on your face.
          -> Mandy_smoking_scene_2
 
@@ -921,41 +1015,34 @@ You: Mrs. Wong, I've done something bad...
   - 1:
   You: Mrs. Wong, nothing happened.
   Mrs. Wong: Then I must have been overthinking it. 
-  Mrs. Wong: I’m going to have a smoke here for a bit. 
+  Mrs. Wong: I'm going to have a smoke here for a bit. 
   Mrs. Wong: If you want to come talk to me later, feel free to stop by again.
   - else: 
   You: Nothing.
   Mrs. Wong: Okay.
-  Mrs. Wong: I’m going to have a smoke here for a bit. 
+  Mrs. Wong: I'm going to have a smoke here for a bit. 
   Mrs. Wong: If you want to come talk to me later, feel free to stop by again.
   }
 -> END
 
 = Admit_to_Mandy
 Mrs. Wong: Calm down and take a deep breath. I'm here.
+*[(Try to calm down and explain)]
 You: Someone broke in... 
-You: Jason… he asked me to get a {kitchen_knife: kitchen knife}{gun_chosen: gun}.
-You: I didn't know what to do, so I gave it to him...
-You: And then… then everything happened so fast.
-Mrs. Wong: And then he made you clean the mess? 
-You: He said that as long as the blood was washed away, everything would go back to normal. 
-You: He said we’d be okay.
-Mrs. Wong: Men like that always say these kinds of things without taking any responsibility.
-You: But he loves me! He was protecting me, Mrs. Wong. 
-You: He’s always been so good to me… 
-You: But I can’t stop seeing the blood now…
-Mrs. Wong: They always start out romantic. 
-Mrs. Wong: My husband used to buy me jewelry and take me to the docks for stargazing every other day.
-Mrs. Wong: Now, he won't even talk to me, unless he wants food or needs me to cover his shifts.
-You: But Jason is different. 
-You: He cares about me so much that he’s willing to kill someone.
+You: Jason… he… everything happened so fast. 
+You: he told me if the blood was washed away, everything would go back to normal...
+Mrs. Wong: Men like that always expect women to clean up their messes.
+**[(He's different)]
+You: But he loves me! He was protecting me, Mrs. Wong... 
 Mrs. Wong: Did he do that for you, or for his own safety? 
+*** [(Ask her what I should do)]
 You: Mrs. Wong… What should I do?
-Mrs. Wong: Vivian, you can call me Mandy. 
-Mandy: You're young and there’s always a way to work this out. 
-Mandy: My cousin lives in Toi Cing City. 
-Mandy: You can go there and over there, no one will ever find you. 
-Mandy: Think about it, Vivian. Take your time. 
+Mrs. Wong: ...My cousin lives in Tou San. 
+Mrs. Wong: You can go there, but you'll have to leave everything behind -
+Mrs. Wong: Including your boyfriend - and try to make a living there. 
+Mrs. Wong: I can't guarantee it's safe there, or that no one will find you.
+Mrs. Wong: But it's better than continuing to hide here.
+Mrs. Wong: Think about it, Miss Lee. Take your time. 
 -> Mandy_smoking_scene_3
 
 // =============================================================================
@@ -963,84 +1050,99 @@ Mandy: Think about it, Vivian. Take your time.
 // =============================================================================
 == Mandy_smoking_scene_3 ==
 - (final_choices_mandy)
-* [How is Toi Cing city like?]
-You: How is Toi Cing city like?
-Mandy: My cousin said it's a quiet town, not as bustling as here. 
-Mandy: People are closer to each another there, and I'm sure you'll get used to it.-> final_choices_mandy
+* [How is Tou San like?]
+You: How is Tou San like?
+Mrs. Wong: My cousin said it's a county town, not as bustling as here. 
+Mrs. Wong: If you put in some effort, you can still find a good way to make a living there. -> final_choices_mandy
 + [(Accept help and escape) (Ending)]-> Mandy_escape_ending
 + [(Take time to think about it)]
-You: I don’t know… I need to think.
-Mandy: Take your time. I'll be here smoking for a while. 
-Mandy: you can come back to me whenever you're ready.
+You: I don't know… I need to think.
+Mrs. Wong: Take your time. I'll be here smoking for a while. 
+Mrs. Wong: you can come back to me whenever you're ready.
 ~ game_progression = 28
 -> END
 
 = Mandy_escape_ending
-You: So, how can I go to Toi Cing?
-Mandy: There’s a ferry to go there every morning at 8:00. 
-Mandy: You need to head to the harbor now. 
-Mandy: So leave this man, start a new life.
-You: Thank you, Mandy...
-Mandy: I’ll send a message to my cousin Cindy to pick you up. 
-*[Ask her to come with you]
-You: What about you? Mr. Wong… is not treating you well. 
-You: You should come with me.
-Mandy: I can’t do such a thing anymore. 
-Mandy: I have my son to take care of, and we depend on my husband’s income… 
-Mandy: It’s too late for me to start over now. 
-Mandy: You’re young and you still have a chance.
-You: Mandy… Don’t say that. 
-You: If it’s not too late for me, it’s not too late for you. 
-Mandy: Maybe…
-You: If I make it there, please come to visit me. 
-You: Bring your son. We could find a job there, start a new life. 
-You: I will miss you…
-Mandy: I will visit you. Take care of yourself, Vivian.
+You: So, how can I go to Tou San?
+Mrs. Wong: There's a ferry to go there every morning at 8:00. 
+Mrs. Wong: You need to head to the harbor now. 
+Mrs. Wong: So leave this man, start a new life.
+*[(Thank her)]
+You: Thank you, Mrs. Wong...
+Mrs. Wong: You can just call me Mandy. 
+Mandy: I'll send a message to my cousin Cindy to pick you up. 
+Mandy: Also, Vivian… be independent. 
+Mandy: That's the most precious thing a woman can have. 
+Mandy: Don't rely on any men for your life and happiness.
+ **[(Promise)]
+You: I promise you, Mandy
+Mandy: Goodbye, Vivian.
+  ***[Goodbye.(leave)]
+You: Goodbye, Mandy. 
+  ***[(Ask her to come with you)]
+You: You should come with me, Mandy.
+Mandy: It's too late for me to start over now. I have my son to take care of, and we depend on my husband's income…
+   ****[(Try to convince her)]
+You: Mandy… Don't say that. If it's not too late for me, it's not too late for you.
+You: If I make it there, please bring your son and come to me. 
+Mandy: I will visit you. Take care of yourself, Vivian...
+     *****[(See you.)]
+You: See you in Tou San, Mandy.
+-
 ~ game_progression = 28
 ~ PlayEndingCutscene(1)
 -> END
-
 
 // =============================================================================
 //  PHASE 29 After you talk to mandy, you will recieve a message from your boyfriend.
 // =============================================================================
 == Boyfriend_pager_ending ==
 ~ game_progression = 29
-J: I just arrive home. Tell me you done it.
- -> END
+J: Just arrived home. 
+J: Write me as soon as you're done.
+-> END
 
 
 // =============================================================================
 //  PHASE 30 After mandy talks to you, if player goes to Lau and press E.
 // =============================================================================
 == Lau_confess_ending ==
-What's that face for, sweet heart? You look like you just saw a ghost.
+Drunk Cop: What's that face for, sweet heart? You look like you just saw a ghost.
 + [Nothing.]
 You: I'm just tired.
 -> END
 *[(Report boyfriend's murder)]
 You: I want to report a murder.
-Cop: Say that again, miss. What happened?
+Police Officer: Say that again, miss. What happened?
 You: Someone broke in and threatened us. 
 You: And my boyfriend… My boyfriend took a {kitchen_knife: kitchen knife}{gun_chosen: gun.}
 You: It all happened so fast…
-Cop: Were you a part of this?
+Police Officer: Were you a part of this?
   ** [I gave it to him.]
   You: He asked me to get a {kitchen_knife: knife}{gun_chosen: gun} for him when the intruder broke in. 
   You: And then asked me to wash these clothes.
   ** [No, I'm not part of this.]
   You: I didn't touch the {kitchen_knife: knife}{gun_chosen: gun}. He asked me to wash those clothes, 
-  You: I didn’t know what to do so I came here.
+  You: I didn't know what to do so I came here.
   -
-  Cop: Where is the suspect right now?
-  You: He's at our apartment. 4th Floor, Block 3, 32 Lianhua Street.
-  Cop: What's your name?
+  Police Officer: Where is the suspect right now?
+  -(answer_suspect)
+  ***[(Say address)]
+  You: He's at our apartment. 4th Floor, Block 3, 32 Lin Faa Street.
+  ***[(...)]
+  Police Officer: Miss, please cooperate.-> answer_suspect
+  ---
+  Police Officer: What's your name?
+  ****[(Say your name)]
   You: Vivian Lee.
-  Cop: And his name?
+  Police Officer: And his name?
+  *****[(Say his name)]
   You: Jason Ho.
-  Cop: ...Miss, you did a right thing. 
-  It took courage to confess and report a crime of your lover.
-  Now, please come with me.
+  Police Officer: ...Miss, you did a right thing. 
+  Police Officer: It took courage to confess and report a crime of your lover.
+  Police Officer: You chose justice and relief.
+  Police Officer: I see that some color has finally returned to your face.
+  Police Officer: Now, please come with me.
   ~ game_progression = 30
   ~ PlayEndingCutscene(2)
   -> END
@@ -1050,29 +1152,16 @@ Cop: Were you a part of this?
 // =============================================================================
 == Boyfriend_ending_dialogue_final ==
 ~ game_progression = 31
-You: I’m done. The wash cycles should be finished in a few minutes.
+You: I'm done.
 J: I know that I can trust you, sweetheart.
-Come back home when it's done. I can't wait to cuddle you.
-It's been a long night.
- *[Yeah]
- You: Yeah. I don't know if I can fall asleep so easily.
- J: Things will get better. You’ve got me by your side. We’ll get through this.
-   **[We can try.]
-   You: Yeah. We can try.
-   J: I’m sorry things turned out this way. 
-   I was protecting us. But now the bad guy is gone.
-   Forget about it now. We should go on a trip to another city. 
-   There are far too many criminals here.
-   Where do you want to go, bb?
-   ***[Toi Cing City.]
-   You: Toi Cing City seems to be a good choice.
-   ***[Don't know.]
-   You: I don't know. Anywhere should work.
-   - J: Sure. Pick clothes up and come home. 
-   We’re setting off tomorrow.
-   Road trip for two, haha.
-      ****[Sure] You: Sure. I need this.
-      J: I promise you: this night and these memories will pass. 
-      We still have tomorrow.
+J: Come back home. Can't wait to cuddle.
+J: Sorry this happened.
+J: Things will get better. 
+J: You've got me.
+J: We should go on a trip. 
+J: Setting off tomorrow.
+J: Road trip for two, hh.
+J: The night will pass.
+J: We still have tomorrow.
 ~ PlayEndingCutscene(3)
 -> END

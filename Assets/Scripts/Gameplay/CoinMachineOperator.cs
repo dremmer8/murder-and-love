@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class CoinMachineOperator : MonoBehaviour
 {
@@ -21,7 +22,10 @@ public class CoinMachineOperator : MonoBehaviour
     [SerializeField] float endExitDelay = 4f;
 
     [SerializeField] MinigameActivator minigameActivator;
-    public DialogueTrigger afterSecondFailDialogue;
+
+    [Tooltip("Phase 16 Interaction_with_coin_machine — fired after each fail and after success.")]
+    [FormerlySerializedAs("afterSecondFailDialogue")]
+    [SerializeField] DialogueTrigger attemptDialogue;
 
     Step step = Step.KickOff;
     bool busy;
@@ -39,6 +43,8 @@ public class CoinMachineOperator : MonoBehaviour
         WatchMinigameEnter();
         if (busy || step == Step.Done || step == Step.KickOff || !animator) return;
         if (minigameActivator != null && !minigameActivator.IsActivated) return;
+        if (IsDialogueBlocking())
+            return;
         if (!Input.GetMouseButtonDown(0)) return;
         TryBillSlitClick();
     }
@@ -90,11 +96,11 @@ public class CoinMachineOperator : MonoBehaviour
         animator.SetTrigger("fail");
         yield return new WaitForSeconds(failAnimDuration);
         step = next;
-        busy = false;
 
-        // Second fail completes when we advance to Success.
-        if (next == Step.Success && afterSecondFailDialogue != null)
-            afterSecondFailDialogue.TryStartDialogue();
+        // Visit 1 after first fail, visit 2 after second fail.
+        yield return FireAttemptDialogueAndWait();
+
+        busy = false;
     }
 
     IEnumerator PlaySuccessAndEnd()
@@ -104,6 +110,10 @@ public class CoinMachineOperator : MonoBehaviour
         yield return new WaitForSeconds(successAnimDuration);
         animator.SetTrigger("end");
         yield return new WaitForSeconds(endExitDelay);
+
+        // Visit 3 (else branch): "Finally..."
+        yield return FireAttemptDialogueAndWait();
+
         step = Step.Done;
 
         if (minigameActivator != null)
@@ -114,5 +124,32 @@ public class CoinMachineOperator : MonoBehaviour
         }
 
         busy = false;
+    }
+
+    IEnumerator FireAttemptDialogueAndWait()
+    {
+        if (attemptDialogue == null)
+            yield break;
+
+        if (!attemptDialogue.TryStartDialogue())
+            yield break;
+
+        // Internal monologue stays in Gameplay — wait on DialogueManager, not GameState.
+        yield return null;
+
+        DialogueManager dialogue = DialogueManager.GetInstance();
+        while (dialogue != null && (dialogue.dialogueIsPlaying || dialogue.IsBusy))
+            yield return null;
+    }
+
+    static bool IsDialogueBlocking()
+    {
+        if (GameStateManager.CurrentState == GameState.Dialogue
+            || GameStateManager.CurrentState == GameState.Pager
+            || GameStateManager.CurrentState == GameState.Paused)
+            return true;
+
+        DialogueManager dialogue = DialogueManager.GetInstance();
+        return dialogue != null && (dialogue.dialogueIsPlaying || dialogue.IsBusy);
     }
 }
