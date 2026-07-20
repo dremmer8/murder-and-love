@@ -251,14 +251,15 @@ public class BakedLightingController : MonoBehaviour
 
         float scenarioEnergy = AverageProbeEnergy(scenario.bakedProbes);
 
-        // Detach → write → reattach so Unity does not keep a stale probe cache.
+        // Coefficient-only swap: same probe positions/count, different SH.
+        // Do NOT call Tetrahedralize() here — on 2023/Unity 6-era builds it can
+        // prevent dynamic objects from picking up the new coefficients
+        // (Unity bug report workaround: assign bakedProbes and skip Tetrahedralize).
         var copy = (SphericalHarmonicsL2[])scenario.bakedProbes.Clone();
-        LightmapSettings.lightProbes = null;
         probes.bakedProbes = copy;
-        LightmapSettings.lightProbes = probes;
 
-        // Sync tetrahedralize so SH is available this frame (Async can lag a frame).
-        LightProbes.Tetrahedralize();
+        // Skinned meshes sometimes keep stale interpolated SH; nudge them to rebind.
+        RefreshSkinnedMeshProbes();
 
         float liveEnergy = 0f;
         LightProbes live = LightmapSettings.lightProbes;
@@ -269,7 +270,8 @@ public class BakedLightingController : MonoBehaviour
         {
             Debug.Log(
                 $"BakedLightingController: applied '{scenario.name}' light probes " +
-                $"({scenario.bakedProbes.Length}). scenario energy={scenarioEnergy:F4}, live energy={liveEnergy:F4}");
+                $"({scenario.bakedProbes.Length}, no Tetrahedralize). " +
+                $"scenario energy={scenarioEnergy:F4}, live energy={liveEnergy:F4}");
         }
 
 #if UNITY_EDITOR
@@ -279,6 +281,39 @@ public class BakedLightingController : MonoBehaviour
             UnityEditor.SceneView.RepaintAll();
         }
 #endif
+    }
+
+    // SkinnedMeshRenderers keep the interpolated SH they sampled when they were last
+    // enabled/moved. Toggling enabled re-registers them with the probe system so they
+    // pull the freshly-applied bakedProbes, while still resuming normal per-frame
+    // sampling afterwards (so moving characters keep updating).
+    static void RefreshSkinnedMeshProbes()
+    {
+        if (LightmapSettings.lightProbes == null)
+            return;
+
+#if UNITY_2022_2_OR_NEWER
+        SkinnedMeshRenderer[] renderers = UnityEngine.Object.FindObjectsByType<SkinnedMeshRenderer>(
+            FindObjectsInactive.Include, FindObjectsSortMode.None);
+#else
+        SkinnedMeshRenderer[] renderers = UnityEngine.Object.FindObjectsOfType<SkinnedMeshRenderer>(true);
+#endif
+
+        for (int i = 0; i < renderers.Length; i++)
+        {
+            SkinnedMeshRenderer r = renderers[i];
+            if (r == null || r.lightProbeUsage != LightProbeUsage.BlendProbes)
+                continue;
+
+            bool wasEnabled = r.enabled;
+            r.enabled = false;
+            r.enabled = wasEnabled;
+
+#if UNITY_EDITOR
+            if (!Application.isPlaying)
+                UnityEditor.EditorUtility.SetDirty(r);
+#endif
+        }
     }
 
     static float AverageProbeEnergy(SphericalHarmonicsL2[] probes)
