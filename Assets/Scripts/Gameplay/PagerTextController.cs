@@ -181,6 +181,8 @@ public class PagerTextController : MonoBehaviour
             _hasUnreadMessage = _messages.Count > 0;
             RefreshDisplay();
             RefreshPropDisplay();
+            if (_hasUnreadMessage)
+                SoundManager.PlayOneShot("pagerNewMessage");
             PokePager();
             return true;
         }
@@ -188,6 +190,8 @@ public class PagerTextController : MonoBehaviour
         _hasUnreadMessage = _messages.Count > 0 || _waitingForChoice;
         RefreshDisplay();
         RefreshPropDisplay();
+        if (_hasUnreadMessage)
+            SoundManager.PlayOneShot("pagerNewMessage");
         PokePager();
 
         // Story progression / knot completion happens when the thread arrives.
@@ -544,6 +548,7 @@ public class PagerTextController : MonoBehaviour
         // Terminal view until the pager is closed / reopened for review.
         _messageIndex = _messages.Count;
         MarkConversationRead();
+        SoundManager.PlayOneShot("pagerNoMessages");
         RefreshDisplay();
     }
 

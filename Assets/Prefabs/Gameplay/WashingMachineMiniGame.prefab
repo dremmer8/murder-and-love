@@ -1105,7 +1105,7 @@ MonoBehaviour:
   machineId: 0
   minigameActivator: {fileID: 3625660002362473942}
   exitDelayAfterStart: 1.5
-  exitDelayAfterLastCloth: 0.5
+  exitDelayAfterLastCloth: 2
   doWorkTrigger: {fileID: 0}
   cleanupClothesOnBlackout: 1
   additionalTransferableClothes: []
@@ -1386,6 +1386,7 @@ GameObject:
   - component: {fileID: 2557791490427163036}
   - component: {fileID: 2083580016155404002}
   - component: {fileID: 2297256706006117852}
+  - component: {fileID: 4010055989251009073}
   m_Layer: 0
   m_Name: visual
   m_TagString: Untagged
@@ -1460,6 +1461,19 @@ MonoBehaviour:
   animator: {fileID: 2083580016155404002}
   doWorkTrigger: {fileID: 0}
   isWorkingParam: isWorking
+--- !u!114 &4010055989251009073
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5173206291631265987}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: facfb6603ef0eac4dbd1595c64cb7020, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_AttachToThis: 1
 --- !u!1 &5265339612358849529
 GameObject:
   m_ObjectHideFlags: 0

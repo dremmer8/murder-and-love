@@ -193,6 +193,8 @@ public class BasketCollector : MonoBehaviour
             onInterrupted: () => slot.CancelReserve(),
             flightArch,
             lateral);
+
+        SoundManager.PlayOneShot("getItem", target.position);
         return true;
     }
 

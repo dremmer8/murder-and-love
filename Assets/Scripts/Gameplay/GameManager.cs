@@ -1,4 +1,5 @@
 using System.Collections;
+using FMOD.Studio;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -20,8 +21,13 @@ public class GameManager : MonoBehaviour
     [Tooltip("Seconds to keep a cutscene active (intro after exit, and ending cutscenes from Ink).")]
     [SerializeField] private float cinematicDuration = 60f;
 
+    [Header("Audio")]
+    [Tooltip("SoundLibrary key for the looping ambience started when this scene begins.")]
+    [SerializeField] private string soundscapeKey = "soundscape";
+
     bool _waitingForIntroExit;
     Coroutine _cutsceneRoutine;
+    EventInstance _soundscapeInstance;
 
     void Awake()
     {
@@ -37,6 +43,8 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
+        TryStartSoundscape();
+
         if (delayOneFrame)
             StartCoroutine(StartIntroNextFrame());
         else
@@ -46,6 +54,7 @@ public class GameManager : MonoBehaviour
     private void OnDestroy()
     {
         UnsubscribeIntroExit();
+        StopSoundscape();
         if (Instance == this)
             Instance = null;
     }
@@ -124,10 +133,48 @@ public class GameManager : MonoBehaviour
                 DeactivateCinematic(i);
         }
 
+        if (cinematicIndex != IntroCinematicIndex)
+            TryPlayMusicOutro();
+
         ActivateCinematic(cinematicIndex);
         yield return new WaitForSeconds(cinematicDuration);
         DeactivateCinematic(cinematicIndex);
         _cutsceneRoutine = null;
+    }
+
+    void TryStartSoundscape()
+    {
+        if (_soundscapeInstance.isValid())
+            return;
+
+        if (string.IsNullOrWhiteSpace(soundscapeKey) || SoundManager.Instance == null)
+            return;
+
+        if (!SoundManager.Instance.TryStartInstance(soundscapeKey.Trim(), out _soundscapeInstance))
+            return;
+    }
+
+    void StopSoundscape()
+    {
+        if (!_soundscapeInstance.isValid())
+            return;
+
+        _soundscapeInstance.stop(STOP_MODE.ALLOWFADEOUT);
+        _soundscapeInstance.release();
+        _soundscapeInstance.clearHandle();
+    }
+
+    void TryPlayMusicOutro()
+    {
+        StopSoundscape();
+
+        if (SoundManager.Instance == null)
+            return;
+
+        if (SoundManager.Instance.TryStartInstance("musicOutro", out _))
+            return;
+
+        SoundManager.PlayOneShot("musicOutro");
     }
 
     void SubscribeIntroExit()

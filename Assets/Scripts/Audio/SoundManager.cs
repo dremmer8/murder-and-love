@@ -38,6 +38,18 @@ public class SoundManager : MonoBehaviour
             Instance = null;
     }
 
+    /// <summary> Convenience for call sites that don't want to null-check <see cref="Instance"/>. </summary>
+    public static bool PlayOneShot(string key, Vector3 worldPosition = default)
+    {
+        return Instance != null && Instance.TryPlayOneShot(key, worldPosition);
+    }
+
+    /// <summary> Convenience attached one-shot via <see cref="Instance"/>. </summary>
+    public static bool PlayOneShotAttached(string key, GameObject target)
+    {
+        return Instance != null && Instance.TryPlayOneShotAttached(key, target);
+    }
+
     /// <summary> True if the library resolved <paramref name="key"/> to a non-null event. </summary>
     public bool TryPlayOneShot(string key, Vector3 worldPosition = default)
     {

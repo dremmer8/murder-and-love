@@ -27,8 +27,8 @@ public class WashingMachineClothOperator : MonoBehaviour
     [SerializeField] MinigameActivator minigameActivator;
     [SerializeField] float exitDelayAfterStart = 1.5f;
 
-    [Tooltip("Washer B only: seconds to wait after the last-cloth event before exiting the minigame.")]
-    [SerializeField] float exitDelayAfterLastCloth = 0.5f;
+    [Tooltip("Washer B only: seconds after last-cloth (and blackout SFX) before exit + blackout routine.")]
+    [SerializeField] float exitDelayAfterLastCloth = 2f;
 
     [Tooltip("Fired when this washing machine minigame exits.")]
     public DoWorkTrigger doWorkTrigger;
@@ -311,6 +311,7 @@ public class WashingMachineClothOperator : MonoBehaviour
         if (clothSet && count > 0)
             targetScaleY = Mathf.Lerp(fullScaleY, emptyScaleY, (done + 1) / (float)count);
 
+        SoundManager.PlayOneShot("getCloth", c.position);
         OnClothGrabbed(clothIndex, count);
     }
 
@@ -337,7 +338,8 @@ public class WashingMachineClothOperator : MonoBehaviour
                 if (count > 0 && clothIndex == count - 1 && !lastClothDialogueFired)
                 {
                     lastClothDialogueFired = true;
-                    FireDialogue(lastClothDialogue);
+                    // Blackout SFX starts the 2s lead-in; exit + lighting happen after the delay.
+                    SoundManager.PlayOneShot("blackout", transform.position);
                     StartCoroutine(ExitAfterLastCloth());
                 }
                 break;
@@ -360,6 +362,17 @@ public class WashingMachineClothOperator : MonoBehaviour
 
         if (doWorkTrigger != null)
             doWorkTrigger.DoWork();
+
+        // Usual blackout: swap baked lighting (dialogue may also call SetBlackout).
+        BakedLightingController lighting = _lighting != null
+            ? _lighting
+            : BakedLightingController.Instance;
+        if (lighting == null)
+            lighting = FindFirstObjectByType<BakedLightingController>();
+        if (lighting != null)
+            lighting.ApplyBlackout();
+
+        FireDialogue(lastClothDialogue);
     }
 
     void FireDialogue(DialogueTrigger trigger)

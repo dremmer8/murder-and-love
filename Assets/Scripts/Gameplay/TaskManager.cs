@@ -184,6 +184,9 @@ public class TaskManager : MonoBehaviour
                 EnsureLabelVisible();
         });
 
+        if (willBeVisible)
+            SoundManager.PlayOneShot("newTask");
+
         if (willBeVisible && fadeInDuration > 0f)
         {
             sequence.Append(

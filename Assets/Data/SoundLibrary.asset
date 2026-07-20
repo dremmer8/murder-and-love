@@ -13,35 +13,243 @@ MonoBehaviour:
   m_Name: SoundLibrary
   m_EditorClassIdentifier: 
   m_Entries:
-  - Key: music
+  - Key: accident
     Event:
       Guid:
-        Data1: 1877995794
-        Data2: 1134038702
-        Data3: -67551068
-        Data4: -772531158
-      Path: event:/musicTest
-  - Key: sound
+        Data1: -1260824268
+        Data2: 1327819666
+        Data3: -427793779
+        Data4: 1561101214
+      Path: event:/accident
+  - Key: addCoin
+    Event:
+      Guid:
+        Data1: 296263938
+        Data2: 1179397302
+        Data3: -2013110887
+        Data4: 1316254275
+      Path: event:/addCoin
+  - Key: addDetergent
+    Event:
+      Guid:
+        Data1: 1463219893
+        Data2: 1330941318
+        Data3: -41561697
+        Data4: 946949269
+      Path: event:/addDetergent
+  - Key: blackout
+    Event:
+      Guid:
+        Data1: 1805129486
+        Data2: 1317253021
+        Data3: -329831020
+        Data4: 91463600
+      Path: event:/blackout
+  - Key: click
+    Event:
+      Guid:
+        Data1: 1902173975
+        Data2: 1164882965
+        Data3: -1434893641
+        Data4: 593490051
+      Path: event:/click
+  - Key: closeDoor
+    Event:
+      Guid:
+        Data1: -749746592
+        Data2: 1279608278
+        Data3: -1339111540
+        Data4: -2117568583
+      Path: event:/closeDoor
+  - Key: CloseDoorWashingMachine
+    Event:
+      Guid:
+        Data1: -1505703144
+        Data2: 1334044861
+        Data3: 521610150
+        Data4: 599330561
+      Path: event:/CloseDoorWashingMachine
+  - Key: clothLands
+    Event:
+      Guid:
+        Data1: 451623122
+        Data2: 1227334004
+        Data3: 2058847917
+        Data4: 1111555970
+      Path: event:/clothLands
+  - Key: coinDrop
+    Event:
+      Guid:
+        Data1: 1051354247
+        Data2: 1253527280
+        Data3: -729012573
+        Data4: 1562902150
+      Path: event:/coinDrop
+  - Key: detergentFailSound
+    Event:
+      Guid:
+        Data1: -1136475185
+        Data2: 1265627341
+        Data3: -1395102542
+        Data4: -180806475
+      Path: event:/detergentFailSound
+  - Key: getCloth
+    Event:
+      Guid:
+        Data1: 1793653614
+        Data2: 1084423402
+        Data3: -1673898833
+        Data4: 513028799
+      Path: event:/getCloth
+  - Key: getItem
+    Event:
+      Guid:
+        Data1: 248641835
+        Data2: 1200719964
+        Data3: 764478601
+        Data4: 690469971
+      Path: event:/getItem
+  - Key: giveItem
+    Event:
+      Guid:
+        Data1: 142734181
+        Data2: 1242430826
+        Data3: -1533412943
+        Data4: 1869498969
+      Path: event:/giveItem
+  - Key: musicOutro
+    Event:
+      Guid:
+        Data1: 5447101
+        Data2: 1318572974
+        Data3: -353172314
+        Data4: -303827446
+      Path: event:/musicOutro
+  - Key: newTask
+    Event:
+      Guid:
+        Data1: -2127425888
+        Data2: 1227998090
+        Data3: -1808629843
+        Data4: 1572593547
+      Path: event:/newTask
+  - Key: openBackDoor
+    Event:
+      Guid:
+        Data1: -200184095
+        Data2: 1145329694
+        Data3: -1596032351
+        Data4: 679046643
+      Path: event:/openBackDoor
+  - Key: openDoorWashingMachine
+    Event:
+      Guid:
+        Data1: 2026735553
+        Data2: 1164103467
+        Data3: -1653636480
+        Data4: -561400063
+      Path: event:/openDoorWashingMachine
+  - Key: openLid
+    Event:
+      Guid:
+        Data1: 197114604
+        Data2: 1147826068
+        Data3: 341307265
+        Data4: -974995107
+      Path: event:/openLid
+  - Key: openMainDoor
+    Event:
+      Guid:
+        Data1: 821820683
+        Data2: 1181731964
+        Data3: -1748768833
+        Data4: -442808177
+      Path: event:/openMainDoor
+  - Key: pagerNewMessage
+    Event:
+      Guid:
+        Data1: 32276755
+        Data2: 1220464854
+        Data3: 1402385069
+        Data4: 1864721217
+      Path: event:/pagerNewMessage
+  - Key: pagerNextMessage
+    Event:
+      Guid:
+        Data1: -2068349001
+        Data2: 1225783485
+        Data3: -735316037
+        Data4: 858278257
+      Path: event:/pagerNextMessage
+  - Key: pagerNoMessages
+    Event:
+      Guid:
+        Data1: 368943300
+        Data2: 1223994318
+        Data3: -1306818427
+        Data4: -621506300
+      Path: event:/pagerNoMessages
+  - Key: putBasket
+    Event:
+      Guid:
+        Data1: 1142266945
+        Data2: 1185962104
+        Data3: 1022418610
+        Data4: -732410513
+      Path: event:/putBasket
+  - Key: putCloth
+    Event:
+      Guid:
+        Data1: -710212117
+        Data2: 1260829742
+        Data3: 562306214
+        Data4: -1812900750
+      Path: event:/putCloth
+  - Key: putMoneyFail
+    Event:
+      Guid:
+        Data1: -1619386612
+        Data2: 1088020841
+        Data3: -146882638
+        Data4: -925762875
+      Path: event:/putMoneyFail
+  - Key: putMoneyWin
+    Event:
+      Guid:
+        Data1: -564456657
+        Data2: 1158260544
+        Data3: 1930352061
+        Data4: 825024363
+      Path: event:/putMoneyWin
+  - Key: soundscape
+    Event:
+      Guid:
+        Data1: 1212798823
+        Data2: 1238721484
+        Data3: 144794299
+        Data4: -1197688617
+      Path: event:/soundscape
+  - Key: startMachine
+    Event:
+      Guid:
+        Data1: -48557278
+        Data2: 1111591442
+        Data3: 1682871955
+        Data4: -208940062
+      Path: event:/startMachine
+  - Key: stepSounds
     Event:
       Guid:
         Data1: 1171451956
         Data2: 1287428191
         Data3: 394763428
         Data4: 364190684
-      Path: event:/soundTest
-  - Key: sound2
+      Path: event:/stepSounds
+  - Key: swtichPressed
     Event:
       Guid:
-        Data1: -2076731273
-        Data2: 1316901275
-        Data3: -618647116
-        Data4: 1288422821
-      Path: event:/soundTest 2
-  - Key: music2
-    Event:
-      Guid:
-        Data1: -989459272
-        Data2: 1106508033
-        Data3: 539869847
-        Data4: -1247444773
-      Path: event:/musicTest 2
+        Data1: 521401676
+        Data2: 1337203952
+        Data3: -920393064
+        Data4: -142181622
+      Path: event:/swtichPressed

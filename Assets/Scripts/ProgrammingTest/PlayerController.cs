@@ -33,6 +33,18 @@ public class PlayerController : MonoBehaviour
     [Tooltip("Extra clearance checked above the head before standing.")]
     public float standUpCheckPadding = 0.08f;
 
+    [Header("Footsteps")]
+    [Tooltip("SoundLibrary key for footsteps.")]
+    [SerializeField] string stepSoundKey = "stepSounds";
+    [Tooltip("Seconds between steps while walking.")]
+    [SerializeField] float walkStepInterval = 0.45f;
+    [Tooltip("Seconds between steps while sprinting.")]
+    [SerializeField] float runStepInterval = 0.3f;
+    [Tooltip("Seconds between steps while crouched.")]
+    [SerializeField] float crouchStepInterval = 0.55f;
+    [Tooltip("Horizontal speed below this counts as standing still.")]
+    [SerializeField] float stepSpeedThreshold = 0.2f;
+
     private Vector3 moveDirection = Vector3.zero;
     private float rotationX = 0;
     private CharacterController characterController;
@@ -44,6 +56,7 @@ public class PlayerController : MonoBehaviour
     private float heightVelocity;
     private float cameraHeightVelocity;
     private float currentCrouchBlend;
+    private float stepTimer;
 
     private float defaultRadius;
     private Vector3 defaultCenter;
@@ -260,6 +273,37 @@ public class PlayerController : MonoBehaviour
         }
 
         MoveAndSyncFollowers(moveDirection * Time.deltaTime);
+        UpdateFootsteps(currentSpeed);
+    }
+
+    private void UpdateFootsteps(float currentSpeed)
+    {
+        if (string.IsNullOrWhiteSpace(stepSoundKey))
+            return;
+
+        Vector3 horizontalVelocity = new Vector3(characterController.velocity.x, 0f, characterController.velocity.z);
+        bool isMoving = characterController.isGrounded
+            && horizontalVelocity.sqrMagnitude >= stepSpeedThreshold * stepSpeedThreshold;
+
+        if (!isMoving)
+        {
+            stepTimer = 0f;
+            return;
+        }
+
+        float interval = walkStepInterval;
+        if (currentCrouchBlend > 0.5f)
+            interval = crouchStepInterval;
+        else if (currentSpeed >= runSpeed - 0.01f)
+            interval = runStepInterval;
+
+        interval = Mathf.Max(0.05f, interval);
+        stepTimer += Time.deltaTime;
+        if (stepTimer < interval)
+            return;
+
+        stepTimer = 0f;
+        SoundManager.PlayOneShot(stepSoundKey.Trim(), transform.position);
     }
 
     private void UpdateCrouch(ref float currentSpeed)

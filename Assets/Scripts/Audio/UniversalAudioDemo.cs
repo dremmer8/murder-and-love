@@ -23,7 +23,7 @@ public class UniversalAudioDemo : MonoBehaviour
     [Header("UI button sound")]
     [SerializeField]
     [Tooltip("SoundLibrary key for generic UI clicks — used by PlayUIButtonSound / UI_PlayUIButtonSound.")]
-    string m_UIButtonSoundKey = "UI_Click";
+    string m_UIButtonSoundKey = "click";
 
     void Start()
     {

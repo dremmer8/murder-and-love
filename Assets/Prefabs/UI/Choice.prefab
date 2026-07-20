@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 4250190590891432881}
   - component: {fileID: 8006081484347763620}
   - component: {fileID: 5128493761028473915}
+  - component: {fileID: 3830507985976369558}
   m_Layer: 5
   m_Name: Choice
   m_TagString: Untagged
@@ -40,7 +41,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 72.4845, y: 61.504}
+  m_SizeDelta: {x: 79.619995, y: 61.504}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &816861608635095027
 CanvasRenderer:
@@ -165,6 +166,20 @@ MonoBehaviour:
   m_HoverEase: 27
   m_PressEase: 6
   m_ReleaseEase: 9
+--- !u!114 &3830507985976369558
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 492118297638929547}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e41ac33477087041b2f9d65db90ef88, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SoundKey: click
+  m_HookButtonOnClick: 1
 --- !u!1 &4473916430554753872
 GameObject:
   m_ObjectHideFlags: 0
