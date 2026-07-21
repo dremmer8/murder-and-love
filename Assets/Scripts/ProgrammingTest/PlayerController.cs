@@ -11,6 +11,8 @@ public class PlayerController : MonoBehaviour
     public Camera playerCamera;
     [Tooltip("Objects that follow player movement, rotation, and crouch (same height/lean as the camera).")]
     public Transform[] followMovement;
+    [Tooltip("Object retracted along local Z when looking down. Horizontal look = 0; full look-down = maxRetraction.")]
+    public Transform lookDownRetract;
     
     [Header("Movement Settings")]
     public float walkSpeed = 6f;
@@ -21,6 +23,8 @@ public class PlayerController : MonoBehaviour
     [Header("Camera Settings")]
     public float lookSpeed = 0.2f; 
     public float lookXLimit = 85f;
+    [Tooltip("How far lookDownRetract moves back on local Z at full look-down.")]
+    public float maxLookDownRetraction = 0.25f;
 
     [Header("Crouch Settings")]
     public float defaultHeight = 2f;
@@ -62,6 +66,7 @@ public class PlayerController : MonoBehaviour
     private Vector3 defaultCenter;
     private float defaultBottom;
     private Vector3 defaultCameraPosition;
+    private Vector3 lookDownRetractDefaultLocalPosition;
     private Vector3[] followDefaultLocalPositions;
     private float[] followHeightVelocities;
 
@@ -133,7 +138,11 @@ public class PlayerController : MonoBehaviour
             defaultCameraPosition = playerCamera.transform.localPosition;
         }
 
+        if (lookDownRetract != null)
+            lookDownRetractDefaultLocalPosition = lookDownRetract.localPosition;
+
         CacheFollowDefaults();
+        UpdateLookDownRetraction();
     }
 
     private void CacheFollowDefaults()
@@ -197,7 +206,22 @@ public class PlayerController : MonoBehaviour
             characterController.enabled = true;
 
         moveDirection = Vector3.zero;
+        UpdateLookDownRetraction();
         SyncFollowTargets();
+    }
+
+    private void UpdateLookDownRetraction()
+    {
+        if (lookDownRetract == null)
+            return;
+
+        // rotationX > 0 is looking down; horizontal (0) = no retract, full look-down = max.
+        float lookDownAmount = Mathf.Clamp01(rotationX / lookXLimit);
+        float retractZ = -maxLookDownRetraction * lookDownAmount;
+
+        Vector3 local = lookDownRetractDefaultLocalPosition;
+        local.z += retractZ;
+        lookDownRetract.localPosition = local;
     }
 
     private void HandleStateChange(GameState newState)
@@ -224,6 +248,7 @@ public class PlayerController : MonoBehaviour
             playerCamera.transform.localRotation = Quaternion.Euler(rotationX, 0, 0);
 
             transform.Rotate(0, lookInput.x * lookSpeed, 0);
+            UpdateLookDownRetraction();
         }
 
         if (!canMove)
@@ -411,6 +436,9 @@ public class PlayerController : MonoBehaviour
                 continue;
 
             if (playerCamera != null && target == playerCamera.transform)
+                continue;
+
+            if (lookDownRetract != null && target == lookDownRetract)
                 continue;
 
             Vector3 currentLocal = transform.InverseTransformPoint(target.position);

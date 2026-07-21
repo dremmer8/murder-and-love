@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using FMOD.Studio;
 using TMPro;
 using UnityEngine;
 using Ink.Runtime;
@@ -68,6 +69,7 @@ public class PagerTextController : MonoBehaviour
     Story _story;
     string _knotName;
     Action<string> _onConversationComplete;
+    EventInstance _newMessageInstance;
 
     public bool IsOpen => _isOpen;
     public bool HasConversation => _hasConversation;
@@ -95,6 +97,8 @@ public class PagerTextController : MonoBehaviour
 
     void OnDestroy()
     {
+        StopNewMessageSound();
+
         if (Instance == this)
             Instance = null;
     }
@@ -182,7 +186,7 @@ public class PagerTextController : MonoBehaviour
             RefreshDisplay();
             RefreshPropDisplay();
             if (_hasUnreadMessage)
-                SoundManager.PlayOneShot("pagerNewMessage");
+                StartNewMessageSound();
             PokePager();
             return true;
         }
@@ -191,7 +195,7 @@ public class PagerTextController : MonoBehaviour
         RefreshDisplay();
         RefreshPropDisplay();
         if (_hasUnreadMessage)
-            SoundManager.PlayOneShot("pagerNewMessage");
+            StartNewMessageSound();
         PokePager();
 
         // Story progression / knot completion happens when the thread arrives.
@@ -238,6 +242,8 @@ public class PagerTextController : MonoBehaviour
         // Don't fight other locking dialogue UIs.
         if (GameStateManager.CurrentState == GameState.Dialogue)
             return;
+
+        StopNewMessageSound();
 
         _isOpen = true;
         ApplyPagerVisuals(true);
@@ -624,6 +630,26 @@ public class PagerTextController : MonoBehaviour
 
         _hasUnreadMessage = false;
         RefreshPropDisplay();
+    }
+
+    void StartNewMessageSound()
+    {
+        StopNewMessageSound();
+
+        if (SoundManager.Instance == null)
+            return;
+
+        SoundManager.Instance.TryStartInstance("pagerNewMessage", out _newMessageInstance);
+    }
+
+    void StopNewMessageSound()
+    {
+        if (!_newMessageInstance.isValid())
+            return;
+
+        _newMessageInstance.stop(STOP_MODE.ALLOWFADEOUT);
+        _newMessageInstance.release();
+        _newMessageInstance.clearHandle();
     }
 
     void RefreshPropDisplay()

@@ -943,7 +943,7 @@ J: It's done.
 J: Rocks in the body bag. Tossed the whole thing in the ocean.
 J: Hurry up!
 J: You don't want our lives ruined because you're slow, right?
--> How_to_turn_on_circuit_box
+ -> END
 
 // =============================================================================
 //  PHASE 24 after boyfriend pager ( now it's automatically switched in ink) (player can't leave the backroom without light switching back on)
