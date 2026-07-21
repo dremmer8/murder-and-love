@@ -11,6 +11,9 @@ EXTERNAL GiveAwayItem(itemId)
 // Swap baked lighting scenarios (BakedLightingController). 1 = blackout, 0 = lights on.
 EXTERNAL SetBlackout(blackout)
 
+// Mandy animator triggers: doRelax, doIdle, doTalk, doGiveItem (DialogueAnimationTargets).
+EXTERNAL TriggerAnimation(targetId, animationName)
+
 //story phase nubmer
 VAR story_phase = 1
 
@@ -240,6 +243,7 @@ Drunk Cop: All good?
 == Mandy_story_phase_1 ==
 ~ game_progression = 2
 { Mandy_story_phase_1 > 1: -> Mandy_phase_1_repeat }
+~ TriggerAnimation("Mandy", "doRelax")
 Mrs. Wong: Hey!
 Mrs. Wong: Isn't that Miss Lee! Doing laundry at this hour?
 
@@ -284,6 +288,7 @@ Mrs. Wong: Fair. I'm the opposite, I'd fall asleep as soon as my head hit the pi
 
 = MrsWong_boyfriend_clothes
 ~ mahjong_mentioned = true
+~ TriggerAnimation("Mandy", "doTalk")
 Mrs. Wong: And my husband is playing Mahjong somewhere again, leaving me to run this place overnight. It's a wonder what we women put up with. 
 -> Vivian_question_loop
 
@@ -306,6 +311,7 @@ Mrs. Wong: And my husband is playing Mahjong somewhere again, leaving me to run 
 
 = MrsWong_son_situation
 You: Phew. Couldn't your son help?
+~ TriggerAnimation("Mandy", "doTalk")
 Mrs. Wong: He's sick.
 Mrs. Wong: He had a fever this morning, but thank God it finally went down tonight.
 Mrs. Wong: I asked him to stay home and rest.
@@ -340,6 +346,7 @@ You: I'm short on cash, so I'll just wash one load.
 Mrs. Wong: Sure. That comes to 80 cents in total.
 * [(Give the money)]
 You: Here.
+~ TriggerAnimation("Mandy", "doGiveItem")
 ~ UnhideItem("first_laundry_coin")
 Mrs. Wong: Here you go. Machine Nr. 4. It's the one on your left.
  * *[Thank you.]
@@ -350,6 +357,7 @@ Mrs. Wong: Here you go. Machine Nr. 4. It's the one on your left.
     -> END
     
 = Mandy_phase_1_repeat
+~ TriggerAnimation("Mandy", "doRelax")
 + [(Ask which washer)]
 You: Which washer was it again?
 Mrs. Wong: Machine Nr. 4. It's the one on your left. -> END
@@ -392,6 +400,7 @@ Thoughts: I have to ask around to get some.
 == Mandy_story_phase_2 ==
 ~ game_progression = 6
 { Mandy_story_phase_2 > 1:-> ask_mandy_questions}
+~ TriggerAnimation("Mandy", "doRelax")
 
 *[(Ask about detergent)]
 You: Mrs. Wong, there's no heavy-duty laundry detergent left.
@@ -403,6 +412,7 @@ Mrs. Wong: Is that so? I remember I put a lot of regular detergent there, isn't 
   **[I got my period. (lie)]
   You: You know? I'm in the time of the month. I have to wash these sheets...
   You: Only heavy-duty detergent can get it out.
+  ~ TriggerAnimation("Mandy", "doTalk")
   Mrs. Wong: Oh, I understand. It's awful that we women have to go through this every month.
   Mrs. Wong: The heavy-duty detergents are in the backroom. Let me get them for you.
   -> Vi_insist_go_to_backroom
@@ -411,6 +421,7 @@ Mrs. Wong: Is that so? I remember I put a lot of regular detergent there, isn't 
 = cat_secondary_questions
 * [Convinced boyfriend. (Lie)] 
 You: I convinced him because the kitty is so cute. But he pees everywhere...
+~ TriggerAnimation("Mandy", "doTalk")
 Mrs. Wong: Alright then. I never expected someone like your boyfriend to actually compromise.
 You: He is actually very gentle to me. He just doesn't like cats that much.
 Mrs. Wong: If you say so. 
@@ -432,6 +443,7 @@ Mrs. Wong: I will rest here then.
 -> Ending_mandy_story_phase_2
 
 = Ending_mandy_story_phase_2
+~ TriggerAnimation("Mandy", "doGiveItem")
 ~ UnhideItem("backroom_key")
 Mrs. Wong: Here is the key to the backroom. It's near Washer Nr. X. 
 Mrs. Wong: The detergent you want is called Enzyme Laundry Detergent, the blue one on the shelf.
@@ -440,6 +452,7 @@ You: Thank you, Mrs. Wong.
 -> END
 
 = ask_mandy_questions
+~ TriggerAnimation("Mandy", "doRelax")
 + [(Ask where the backroom is)]
 You: Where is the backroom?
 Mrs. Wong: The backroom is at the corner, near the washer Nr. X. -> ask_mandy_questions
@@ -626,6 +639,7 @@ Thoughts: I need to buy another laundry coin from Mrs. Wong.
 { Mandy_story_phase_3:
     - 1: -> Ask_for_laundry_coin_Mandy
     - else:
+    ~ TriggerAnimation("Mandy", "doRelax")
     Mrs. Wong: You get your change now?
     + [Where is the coin change machine?]
     You: Not yet. Where is the coin change machine again?
@@ -635,6 +649,7 @@ Thoughts: I need to buy another laundry coin from Mrs. Wong.
 }
     
 = Ask_for_laundry_coin_Mandy
+~ TriggerAnimation("Mandy", "doRelax")
 *[(Ask for another laundry coin)]
 You: Mrs. Wong, can I buy another laundry coin?
 Mrs. Wong: Another one? Did all your clothes fall into a pit or something?
@@ -661,6 +676,7 @@ You: Well, someone needs to wash these clothes.
 You: He works very hard to earn money though.
 --
 You: He promised  me that we will go on a trip after.
+~ TriggerAnimation("Mandy", "doTalk")
 Mrs. Wong: They always start out romantic.
 Mrs. Wong: My husband used to buy me jewelry and take me to the docks for stargazing every other day.
 Mrs. Wong: Now, he won't even talk to me, unless he wants food or needs me to cover his shifts.
@@ -754,6 +770,7 @@ J: We got each other.
 // =============================================================================
 == Mandy_story_phase_4 ==
 ~ game_progression = 18
+~ TriggerAnimation("Mandy", "doRelax")
 Mrs. Wong: You get your change now?
 *[Yes. (pay)]
 ~ GiveAwayItem("change_coin_1")
@@ -761,6 +778,7 @@ Mrs. Wong: You get your change now?
 ~ GiveAwayItem("change_coin_3")
 ~ GiveAwayItem("change_coin_4")
 You: Yes, here.
+~ TriggerAnimation("Mandy", "doGiveItem")
 ~ UnhideItem("second_laundry_coin")
 Mrs. Wong: Here you are. Washer Nr. 9.
 -> END
@@ -970,6 +988,7 @@ J: You don't want our lives ruined because you're slow, right?
 // =============================================================================
 == Mandy_smoking_scene_1 ==
 ~ game_progression = 26
+~ TriggerAnimation("Mandy", "doRelax")
 Mrs. Wong: Is everything okay back there? You've been gone quite a while, Miss Lee.
 *[(Make a excuse)]
 You: Sorry, I couldn't find the correct switch for the lights.
@@ -995,6 +1014,7 @@ Mrs. Wong: No need to apologize. Want a cigarette?
          ***[(Deny)]
          You: No...
          - - -
+         ~ TriggerAnimation("Mandy", "doTalk")
          Mrs. Wong: You can be completely honest with me, Miss Lee.
          Mrs. Wong: Every time you come out from the backroom like a ghost, and...
          Mrs. Wong: There's more red in your clothes than on your face.
@@ -1006,6 +1026,7 @@ Mrs. Wong: No need to apologize. Want a cigarette?
 // =============================================================================
 == Mandy_smoking_scene_2 ==
 ~ game_progression = 27
+~ TriggerAnimation("Mandy", "doRelax")
 + [(Tell her about the murder)]
 You: Mrs. Wong, I've done something bad...
 -> Admit_to_Mandy
@@ -1037,6 +1058,7 @@ You: But he loves me! He was protecting me, Mrs. Wong...
 Mrs. Wong: Did he do that for you, or for his own safety? 
 *** [(Ask her what I should do)]
 You: Mrs. Wong… What should I do?
+~ TriggerAnimation("Mandy", "doTalk")
 Mrs. Wong: ...My cousin lives in Tou San. 
 Mrs. Wong: You can go there, but you'll have to leave everything behind -
 Mrs. Wong: Including your boyfriend - and try to make a living there. 
@@ -1049,6 +1071,7 @@ Mrs. Wong: Think about it, Miss Lee. Take your time.
 //  PHASE 28 If the player admitted, but not accept her help yet.
 // =============================================================================
 == Mandy_smoking_scene_3 ==
+~ TriggerAnimation("Mandy", "doRelax")
 - (final_choices_mandy)
 * [How is Tou San like?]
 You: How is Tou San like?
@@ -1069,6 +1092,7 @@ Mrs. Wong: You need to head to the harbor now.
 Mrs. Wong: So leave this man, start a new life.
 *[(Thank her)]
 You: Thank you, Mrs. Wong...
+~ TriggerAnimation("Mandy", "doTalk")
 Mrs. Wong: You can just call me Mandy. 
 Mandy: I'll send a message to my cousin Cindy to pick you up. 
 Mandy: Also, Vivian… be independent. 

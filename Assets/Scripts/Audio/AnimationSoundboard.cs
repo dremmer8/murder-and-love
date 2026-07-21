@@ -40,6 +40,7 @@ public class AnimationSoundboard : MonoBehaviour
     public void PlayClothLands() => Play("clothLands");
     public void PlayCoinDrop() => Play("coinDrop");
     public void PlayDetergentFailSound() => Play("detergentFailSound");
+    public void PlayGiveItem() => Play("giveItem");
     public void PlayOpenBackDoor() => Play("openBackDoor");
     public void PlayOpenDoorWashingMachine() => Play("openDoorWashingMachine");
     public void PlayOpenLid() => Play("openLid");

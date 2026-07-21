@@ -31,9 +31,14 @@ public class DialogueManager : MonoBehaviour
     private float nextInputTime;
     private string activeKnotName = "";
     private DialoguePresentationMode activeMode = DialoguePresentationMode.Standard;
+    private float advanceLockedUntil;
+    private bool exitPendingAfterUnlock;
 
     public bool dialogueIsPlaying { get; private set; }
     public DialoguePresentationMode ActiveMode => activeMode;
+
+    /// <summary>True while Space advance / dialogue exit is blocked (e.g. give-item anim).</summary>
+    public bool IsAdvanceLocked => Time.time < advanceLockedUntil;
 
     /// <summary>True while choice buttons are shown and awaiting a click.</summary>
     public bool IsChoosing => isChoosing;
@@ -96,6 +101,13 @@ public class DialogueManager : MonoBehaviour
         if (GameStateManager.CurrentState != GameState.Dialogue)
             return;
 
+        if (exitPendingAfterUnlock && !IsAdvanceLocked)
+        {
+            exitPendingAfterUnlock = false;
+            ExitStandardDialogue();
+            return;
+        }
+
         if (Time.time < nextInputTime)
             return;
 
@@ -105,8 +117,22 @@ public class DialogueManager : MonoBehaviour
             if (writer != null && writer.IsTyping && writer.Skip())
                 return;
 
+            if (IsAdvanceLocked)
+                return;
+
             ContinueStandardStory();
         }
+    }
+
+    /// <summary>
+    /// Blocks Space advance and dialogue exit until <paramref name="seconds"/> elapse.
+    /// Used while Mandy's doGiveItem animation plays.
+    /// </summary>
+    public void LockAdvanceFor(float seconds)
+    {
+        float until = Time.time + Mathf.Max(0f, seconds);
+        if (until > advanceLockedUntil)
+            advanceLockedUntil = until;
     }
 
     DialogueTypewriter ResolveTypewriter()
@@ -213,11 +239,38 @@ public class DialogueManager : MonoBehaviour
             lighting.BindInkExternals(story);
         else
             Debug.LogWarning($"{name}: No BakedLightingController found — SetBlackout will not be bound.", this);
+
+        DialogueAnimationTargets animTargets = DialogueAnimationTargets.Instance;
+        if (animTargets == null)
+            animTargets = FindFirstObjectByType<DialogueAnimationTargets>();
+
+        InkStoryCommands inkCommands = FindFirstObjectByType<InkStoryCommands>();
+
+        if (animTargets != null || inkCommands != null)
+        {
+            story.BindExternalFunction(
+                "TriggerAnimation",
+                (string targetId, string animationName) =>
+                {
+                    if (inkCommands != null)
+                        inkCommands.TriggerAnimation(targetId, animationName);
+                    else
+                        animTargets.Trigger(targetId, animationName);
+                });
+        }
+        else
+        {
+            Debug.LogWarning(
+                $"{name}: No DialogueAnimationTargets / InkStoryCommands found — TriggerAnimation will not be bound.",
+                this);
+        }
     }
 
     private void BeginStandard()
     {
         dialogueIsPlaying = true;
+        exitPendingAfterUnlock = false;
+        advanceLockedUntil = 0f;
         GameStateManager.ChangeState(GameState.Dialogue);
 
         if (dialoguePanel != null)
@@ -294,6 +347,8 @@ public class DialogueManager : MonoBehaviour
         currentStory = null;
         dialogueIsPlaying = false;
         isChoosing = false;
+        exitPendingAfterUnlock = false;
+        advanceLockedUntil = 0f;
         activeMode = DialoguePresentationMode.Standard;
 
         if (dialoguePanel != null)
@@ -411,6 +466,15 @@ public class DialogueManager : MonoBehaviour
 
     private void ExitStandardDialogue()
     {
+        if (IsAdvanceLocked)
+        {
+            exitPendingAfterUnlock = true;
+            return;
+        }
+
+        exitPendingAfterUnlock = false;
+        advanceLockedUntil = 0f;
+
         if (GlobalVariableOperator.Instance != null)
         {
             GlobalVariableOperator.Instance.SyncFromStory(currentStory);
@@ -444,6 +508,9 @@ public class DialogueManager : MonoBehaviour
     private void ContinueStandardStory()
     {
         if (currentStory == null)
+            return;
+
+        if (IsAdvanceLocked)
             return;
 
         DialogueTypewriter writer = ResolveTypewriter();

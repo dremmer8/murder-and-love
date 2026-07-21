@@ -128,7 +128,7 @@ public class DialogueItemGiveAway : MonoBehaviour
         else
         {
             entry.fired = true;
-            SoundManager.PlayOneShot("giveItem", destination.transform.position);
+            SoundManager.PlayOneShot("getItem", destination.transform.position);
         }
 
         _pending.Remove(entry.itemId);

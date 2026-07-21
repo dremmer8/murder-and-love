@@ -16,7 +16,19 @@ public class InkStoryCommands : MonoBehaviour
 
     public void TriggerAnimation(string targetId, string animationName)
     {
-        Debug.Log($"TriggerAnimation: {targetId} / {animationName}");
+        DialogueAnimationTargets targets = DialogueAnimationTargets.Instance;
+        if (targets == null)
+            targets = FindFirstObjectByType<DialogueAnimationTargets>();
+
+        if (targets == null)
+        {
+            Debug.LogWarning(
+                $"TriggerAnimation: No DialogueAnimationTargets in scene. Requested '{targetId}' / '{animationName}'.",
+                this);
+            return;
+        }
+
+        targets.Trigger(targetId, animationName);
     }
 
     public void PlayAudioClip(string soundKey)
