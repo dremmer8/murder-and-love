@@ -123,7 +123,10 @@ public class InternalMonologuePresenter : MonoBehaviour
         }
 
         if (monologueText != null)
+        {
             monologueText.text = trimmed;
+            ThoughtLineHover.ApplyForLine(monologueText, trimmed);
+        }
 
         BeginHoldAfterTyping(trimmed, lineStart);
     }
@@ -161,7 +164,10 @@ public class InternalMonologuePresenter : MonoBehaviour
 
         ResolveTypewriter()?.Clear(DialogueTextChannel.Internal);
         if (monologueText != null)
+        {
+            ThoughtLineHover.StopFor(monologueText);
             monologueText.text = "";
+        }
 
         if (panel != null)
             panel.SetActive(false);

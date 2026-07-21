@@ -356,7 +356,10 @@ public class DialogueManager : MonoBehaviour
 
         ResolveTypewriter()?.Stop(clearText: true);
         if (dialogueText != null)
+        {
+            ThoughtLineHover.StopFor(dialogueText);
             dialogueText.text = "";
+        }
 
         HideChoiceButtons();
 
@@ -445,7 +448,10 @@ public class DialogueManager : MonoBehaviour
 
         ResolveTypewriter()?.Stop(clearText: true);
         if (dialogueText != null)
+        {
+            ThoughtLineHover.StopFor(dialogueText);
             dialogueText.text = "";
+        }
 
         HideChoiceButtons();
 
@@ -494,7 +500,10 @@ public class DialogueManager : MonoBehaviour
 
         ResolveTypewriter()?.Stop(clearText: true);
         if (dialogueText != null)
+        {
+            ThoughtLineHover.StopFor(dialogueText);
             dialogueText.text = "";
+        }
 
         HideChoiceButtons();
 
@@ -550,7 +559,10 @@ public class DialogueManager : MonoBehaviour
             }
 
             if (dialogueText != null)
+            {
                 dialogueText.text = trimmed;
+                ThoughtLineHover.ApplyForLine(dialogueText, trimmed);
+            }
         }
 
         DisplayChoices();

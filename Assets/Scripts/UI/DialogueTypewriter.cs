@@ -132,6 +132,7 @@ public class DialogueTypewriter : MonoBehaviour
         m_OnComplete = onComplete;
         m_SkipRequested = false;
         m_ActiveTarget = target;
+        ThoughtLineHover.ApplyForLine(target, text);
         m_TypingRoutine = StartCoroutine(TypeRoutine(target, text ?? string.Empty));
     }
 
@@ -309,6 +310,7 @@ public class DialogueTypewriter : MonoBehaviour
         if (target == null)
             return;
 
+        ThoughtLineHover.StopFor(target);
         target.text = string.Empty;
         target.maxVisibleCharacters = int.MaxValue;
     }

@@ -53,7 +53,9 @@ public class InteractionSystem : MonoBehaviour
     void CheckForInteraction()
     {
         bool hasInteractable = TryGetAimedInteractable(out Interactable interactable, out float interactableDist);
-        bool hasDialogue = TryGetAimedDialogueTrigger(out DialogueTrigger dialogue, out float dialogueDist);
+        bool hasDialogue = TryGetAimedDialogueTrigger(out DialogueTrigger dialogue, out float dialogueDist)
+            && dialogue != null
+            && dialogue.CanStartFromLook();
 
         if (hasInteractable && hasDialogue)
         {
