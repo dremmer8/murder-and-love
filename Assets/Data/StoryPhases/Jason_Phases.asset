@@ -38,6 +38,6 @@ MonoBehaviour:
     playOnce: 1
   - storyPhase: 31
     knotName: Boyfriend_ending_dialogue_final
-    requiredProgression: 29
+    requiredProgression: 27
     maxProgression: 9999
     playOnce: 1

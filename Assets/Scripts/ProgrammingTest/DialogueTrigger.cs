@@ -166,6 +166,10 @@ public class DialogueTrigger : MonoBehaviour
     /// </summary>
     public bool TryStartDialogue()
     {
+        // Mandy smoking 26/27/28: dial progression back before min/max and unlock checks.
+        if (storyPhaseController != null)
+            storyPhaseController.ApplyMandySmokingGuardrailBeforeResolve();
+
         if (!IsStoryPhaseAllowed())
             return false;
 
@@ -184,6 +188,9 @@ public class DialogueTrigger : MonoBehaviour
 
     public bool TryStartDialogue(string knotName)
     {
+        if (storyPhaseController != null)
+            storyPhaseController.ApplyMandySmokingGuardrailBeforeResolve();
+
         if (!IsStoryPhaseAllowed())
             return false;
 
@@ -228,6 +235,9 @@ public class DialogueTrigger : MonoBehaviour
     {
         if (activationMode != DialogueActivationMode.KeyPress)
             return false;
+
+        if (storyPhaseController != null)
+            storyPhaseController.ApplyMandySmokingGuardrailBeforeResolve();
 
         if (!IsStoryPhaseAllowed())
             return false;

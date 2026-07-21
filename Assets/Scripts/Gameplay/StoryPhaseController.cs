@@ -7,6 +7,19 @@ using UnityEngine;
 /// </summary>
 public class StoryPhaseController : MonoBehaviour
 {
+    // Hardcoded Mandy smoking chain (story phases 26/27/28). Shared across every Mandy
+    // StoryPhaseController so auto-talk (26) and revisit (27) see the same checkpoint.
+    public const string MandySmokingScene1Knot = "Mandy_smoking_scene_1";
+    public const string MandySmokingScene2Knot = "Mandy_smoking_scene_2";
+    public const string MandySmokingScene3Knot = "Mandy_smoking_scene_3";
+
+    const int MandySmokingProgressionMin = 26;
+    const int MandySmokingProgressionMax = 28;
+
+    static bool s_hasMandySmokingResume;
+    static int s_mandySmokingResumeProgression;
+    static readonly HashSet<string> s_mandySmokingCompletedKnots = new();
+
     [SerializeField] private StoryCharacterPhasesSO characterPhases;
 
     readonly HashSet<string> _completedKnots = new();
@@ -16,6 +29,17 @@ public class StoryPhaseController : MonoBehaviour
 
     public IReadOnlyList<StoryPhaseEntry> Phases =>
         characterPhases != null ? characterPhases.Phases : System.Array.Empty<StoryPhaseEntry>();
+
+    public bool IsMandy =>
+        characterPhases != null && characterPhases.CharacterId == StoryCharacterId.Mandy;
+
+    /// <summary>
+    /// Last Mandy smoking checkpoint (26–28) snapped when a smoking knot ends.
+    /// Used to dial progression back if the pager jumps ahead.
+    /// </summary>
+    public static bool HasMandySmokingResume => s_hasMandySmokingResume;
+
+    public static int MandySmokingResumeProgression => s_mandySmokingResumeProgression;
 
     /// <summary>
     /// Returns the latest unlocked knot this entity can play, or empty if none.
@@ -34,6 +58,9 @@ public class StoryPhaseController : MonoBehaviour
         if (GlobalVariableOperator.Instance == null || characterPhases == null)
             return null;
 
+        // Mandy only: dial progression back to the smoking checkpoint before unlock checks.
+        ApplyMandySmokingGuardrailBeforeResolve();
+
         int progression = GlobalVariableOperator.Instance.GameProgression;
         StoryPhaseEntry best = null;
 
@@ -45,7 +72,7 @@ public class StoryPhaseController : MonoBehaviour
             if (!entry.IsAvailableAt(progression))
                 continue;
 
-            if (entry.playOnce && _completedKnots.Contains(entry.knotName))
+            if (entry.playOnce && IsKnotCompletedForResolve(entry.knotName))
                 continue;
 
             if (best == null || entry.requiredProgression > best.requiredProgression)
@@ -53,6 +80,107 @@ public class StoryPhaseController : MonoBehaviour
         }
 
         return best;
+    }
+
+    bool IsKnotCompletedForResolve(string knotName)
+    {
+        if (_completedKnots.Contains(knotName))
+            return true;
+
+        // Smoking play-once must survive across separate Mandy trigger objects (26 vs 27).
+        return IsMandySmokingKnot(knotName) && s_mandySmokingCompletedKnots.Contains(knotName);
+    }
+
+    static bool IsMandySmokingKnot(string knotName)
+    {
+        return knotName == MandySmokingScene1Knot
+            || knotName == MandySmokingScene2Knot
+            || knotName == MandySmokingScene3Knot;
+    }
+
+    /// <summary>
+    /// Snap a 26–28 resume checkpoint when a Mandy smoking knot ends, before chained
+    /// triggers (e.g. boyfriend pager ending) can bump <c>game_progression</c> past 28.
+    /// </summary>
+    public void NoteMandySmokingCheckpoint(string completedKnot)
+    {
+        if (!IsMandy || string.IsNullOrEmpty(completedKnot) || !IsMandySmokingKnot(completedKnot))
+            return;
+
+        s_mandySmokingCompletedKnots.Add(completedKnot);
+
+        if (GlobalVariableOperator.Instance == null)
+            return;
+
+        int progression = GlobalVariableOperator.Instance.GameProgression;
+        if (progression < MandySmokingProgressionMin || progression > MandySmokingProgressionMax)
+        {
+            Debug.Log(
+                $"[MandySmokingGuardrail] skip checkpoint knot={completedKnot} " +
+                $"progression={progression} (outside {MandySmokingProgressionMin}-{MandySmokingProgressionMax})",
+                this);
+            return;
+        }
+
+        s_mandySmokingResumeProgression = progression;
+        s_hasMandySmokingResume = true;
+        Debug.Log(
+            $"[MandySmokingGuardrail] checkpoint knot={completedKnot} resume={progression}",
+            this);
+    }
+
+    /// <summary>
+    /// If something (pager) jumped <c>game_progression</c> past the last Mandy smoking
+    /// checkpoint, dial it back so unlock ranges still hit the next unseen smoking knot.
+    /// </summary>
+    public void ApplyMandySmokingGuardrailBeforeResolve()
+    {
+        if (!IsMandy || !s_hasMandySmokingResume)
+            return;
+
+        if (GlobalVariableOperator.Instance == null)
+            return;
+
+        int current = GlobalVariableOperator.Instance.GameProgression;
+        int target = ResolveMandySmokingTargetProgression();
+        if (current <= target)
+            return;
+
+        Debug.LogWarning(
+            $"[MandySmokingGuardrail] dial-down game_progression {current} → {target} " +
+            $"(resume={s_mandySmokingResumeProgression}, " +
+            $"smokingCompleted=[{string.Join(", ", s_mandySmokingCompletedKnots)}])",
+            this);
+
+        GlobalVariableOperator.Instance.SetGameProgression(target, allowBelowMilestoneFloor: true);
+    }
+
+    /// <summary>
+    /// Hardcoded target for the next unseen smoking beat:
+    /// 26 intro → 27 admit/refuse revisit → 28 escape/stall.
+    /// </summary>
+    static int ResolveMandySmokingTargetProgression()
+    {
+        int target = s_mandySmokingResumeProgression;
+
+        // Never offer scene_3 while scene_1 is the only completed smoking beat and
+        // the checkpoint still says we left on the admit/refuse beat (27).
+        if (!s_mandySmokingCompletedKnots.Contains(MandySmokingScene1Knot))
+            return Mathf.Min(target, MandySmokingProgressionMin);
+
+        // Scene 1 always chains into scene 2; if we never reached 28 via Mandy, stay on 27.
+        if (target < MandySmokingProgressionMax)
+            return Mathf.Clamp(target, MandySmokingProgressionMin, 27);
+
+        return Mathf.Clamp(target, MandySmokingProgressionMin, MandySmokingProgressionMax);
+    }
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void ResetMandySmokingGuardrailStaticState()
+    {
+        s_hasMandySmokingResume = false;
+        s_mandySmokingResumeProgression = 0;
+        s_mandySmokingCompletedKnots.Clear();
     }
 
     /// <summary>
@@ -73,6 +201,8 @@ public class StoryPhaseController : MonoBehaviour
         if (characterPhases == null)
             return null;
 
+        ApplyMandySmokingGuardrailBeforeResolve();
+
         int progression = GlobalVariableOperator.Instance != null
             ? GlobalVariableOperator.Instance.GameProgression
             : 0;
@@ -88,7 +218,7 @@ public class StoryPhaseController : MonoBehaviour
             if (!entry.IsAvailableAt(progression))
                 return null;
 
-            if (entry.playOnce && _completedKnots.Contains(entry.knotName))
+            if (entry.playOnce && IsKnotCompletedForResolve(entry.knotName))
                 return null;
 
             return entry;
@@ -123,10 +253,14 @@ public class StoryPhaseController : MonoBehaviour
             return;
 
         _completedKnots.Add(knotName);
+        NoteMandySmokingCheckpoint(knotName);
     }
 
     public bool HasCompletedKnot(string knotName)
     {
-        return !string.IsNullOrEmpty(knotName) && _completedKnots.Contains(knotName);
+        if (string.IsNullOrEmpty(knotName))
+            return false;
+
+        return IsKnotCompletedForResolve(knotName);
     }
 }

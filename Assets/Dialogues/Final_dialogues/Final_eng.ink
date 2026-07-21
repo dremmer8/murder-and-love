@@ -1163,5 +1163,4 @@ J: Setting off tomorrow.
 J: Road trip for two, hh.
 J: The night will pass.
 J: We still have tomorrow.
-~ PlayEndingCutscene(3)
 -> END

@@ -29,6 +29,11 @@ public class GameManager : MonoBehaviour
     Coroutine _cutsceneRoutine;
     EventInstance _soundscapeInstance;
 
+    /// <summary>
+    /// True while intro cinematic (0) or any ending cutscene (1–3) is running.
+    /// </summary>
+    public bool IsCutscenePlaying => _cutsceneRoutine != null;
+
     void Awake()
     {
         if (Instance != null && Instance != this)

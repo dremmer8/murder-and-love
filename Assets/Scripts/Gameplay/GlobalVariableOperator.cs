@@ -105,7 +105,17 @@ public class GlobalVariableOperator : MonoBehaviour
 
     public void SetGameProgression(int value)
     {
-        value = ClampProgression(value);
+        SetGameProgression(value, allowBelowMilestoneFloor: false);
+    }
+
+    /// <summary>
+    /// Sets <see cref="GameProgression"/>. When <paramref name="allowBelowMilestoneFloor"/> is true,
+    /// skips the TaskManager milestone floor clamp (used by Mandy smoking guardrails to dial back
+    /// after the pager jumps ahead).
+    /// </summary>
+    public void SetGameProgression(int value, bool allowBelowMilestoneFloor)
+    {
+        value = allowBelowMilestoneFloor ? value : ClampProgression(value);
         gameProgression = value;
         _lastSeenProgression = value;
         _variables[GameProgressionVar] = value;
