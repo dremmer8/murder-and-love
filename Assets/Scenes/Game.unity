@@ -95,7 +95,7 @@ LightmapSettings:
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
   m_LightingDataAsset: {fileID: 112000000, guid: 69dce3b72d0baf74daf56b85bd716602, type: 2}
-  m_LightingSettings: {fileID: 4890085278179872738, guid: e76f75935cb1a0a44ab1cddbde7caced, type: 2}
+  m_LightingSettings: {fileID: 4890085278179872738, guid: e9798affc54477042b7a333161858864, type: 2}
 --- !u!196 &4
 NavMeshSettings:
   serializedVersion: 2
@@ -5615,7 +5615,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cfbe431e9a1665145a55b7f905d4bd8a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gameProgression: 25
+  gameProgression: 0
 --- !u!114 &339123857
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6034,7 +6034,7 @@ PrefabInstance:
     - target: {fileID: 4370951913967234905, guid: 27a65a958fe7a984dadf387f71af35c2, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 37a9ab9c4676ba9429f941ebe8f3d5b4, type: 2}
+      objectReference: {fileID: 2100000, guid: b33addc9889432e4c8c9ebee23e51915, type: 2}
     - target: {fileID: 6878276038103193739, guid: 27a65a958fe7a984dadf387f71af35c2, type: 3}
       propertyPath: m_LocalPosition.y
       value: -0.5
@@ -13963,7 +13963,7 @@ ReflectionProbe:
   m_CullingMask:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IntensityMultiplier: 1
+  m_IntensityMultiplier: 0.93
   m_BlendDistance: 1
   m_HDR: 1
   m_BoxProjection: 0
@@ -14389,7 +14389,7 @@ ReflectionProbe:
   m_CullingMask:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IntensityMultiplier: 1
+  m_IntensityMultiplier: 1.46
   m_BlendDistance: 1
   m_HDR: 1
   m_BoxProjection: 0
@@ -18298,7 +18298,7 @@ Light:
     m_Strength: 1
     m_Bias: 0.029
     m_NormalBias: 0.4
-    m_NearPlane: 0.2
+    m_NearPlane: 0.47
     m_CullingMatrixOverride:
       e00: 1
       e01: 0
@@ -18646,7 +18646,7 @@ Light:
     m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 1
-    m_Bias: 0.029
+    m_Bias: 0.038
     m_NormalBias: 0.4
     m_NearPlane: 0.2
     m_CullingMatrixOverride:
@@ -28999,7 +28999,7 @@ ReflectionProbe:
   m_CullingMask:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IntensityMultiplier: 1
+  m_IntensityMultiplier: 1.51
   m_BlendDistance: 1
   m_HDR: 1
   m_BoxProjection: 0
@@ -36824,9 +36824,9 @@ Light:
     m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 1
-    m_Bias: 0
+    m_Bias: 0.059
     m_NormalBias: 0.4
-    m_NearPlane: 0.2
+    m_NearPlane: 0.38
     m_CullingMatrixOverride:
       e00: 1
       e01: 0
@@ -37345,9 +37345,9 @@ Light:
     m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 1
-    m_Bias: 0.05
+    m_Bias: 0.059
     m_NormalBias: 0.4
-    m_NearPlane: 0.2
+    m_NearPlane: 0.38
     m_CullingMatrixOverride:
       e00: 1
       e01: 0
@@ -39552,6 +39552,10 @@ PrefabInstance:
       propertyPath: m_StaticEditorFlags
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1569341800229036279, guid: 440be01638b24c34786e3b838f0b3a34, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.008
+      objectReference: {fileID: 0}
     - target: {fileID: 1848786049288706786, guid: 440be01638b24c34786e3b838f0b3a34, type: 3}
       propertyPath: slotKey
       value: coin_act_2_1
@@ -39576,6 +39580,10 @@ PrefabInstance:
       propertyPath: m_StaticEditorFlags
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2060440752758232244, guid: 440be01638b24c34786e3b838f0b3a34, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 05761b5a8fd309846a0615f9ec9fdf85, type: 2}
     - target: {fileID: 2118067007625134336, guid: 440be01638b24c34786e3b838f0b3a34, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -39824,6 +39832,10 @@ PrefabInstance:
       propertyPath: m_StaticEditorFlags
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8223718437950357609, guid: 440be01638b24c34786e3b838f0b3a34, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: d587158a5f7b62642bc6322e0ff13b26, type: 2}
     - target: {fileID: 8297354688084147855, guid: 440be01638b24c34786e3b838f0b3a34, type: 3}
       propertyPath: m_Layer
       value: 7
@@ -42681,9 +42693,9 @@ Light:
     m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 1
-    m_Bias: 0
+    m_Bias: 0.059
     m_NormalBias: 0.4
-    m_NearPlane: 0.2
+    m_NearPlane: 0.38
     m_CullingMatrixOverride:
       e00: 1
       e01: 0
