@@ -125,8 +125,19 @@ public class PlayerController : MonoBehaviour
 
     void Start()
     {
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        // Intro / dialogue may already own the cursor if GameManager.Start ran first.
+        // Only lock for look when we are actually in free-look states.
+        if (GameStateManager.CurrentState == GameState.Gameplay
+            || GameStateManager.CurrentState == GameState.Pager)
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+        }
+        else
+        {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
         
         characterController = GetComponent<CharacterController>();
         

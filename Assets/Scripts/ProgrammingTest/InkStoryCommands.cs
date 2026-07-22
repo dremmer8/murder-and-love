@@ -39,7 +39,14 @@ public class InkStoryCommands : MonoBehaviour
 
     public void PlayAudioClip(string soundKey)
     {
-        Debug.Log($"PlayAudioClip: {soundKey}");
+        if (string.IsNullOrWhiteSpace(soundKey))
+        {
+            Debug.LogWarning("PlayAudioClip: Empty sound key.", this);
+            return;
+        }
+
+        if (!SoundManager.PlayOneShot(soundKey.Trim()))
+            Debug.LogWarning($"PlayAudioClip: Failed to play '{soundKey}'.", this);
     }
 
     public void SetMandyAffection(int value)

@@ -67,8 +67,23 @@ public class DialogueTypewriter : MonoBehaviour
     [Tooltip("If true, the first Space / Skip call finishes the current line immediately.")]
     bool m_AllowSkip = true;
 
+    [Header("Typing Sound")]
+    [SerializeField]
+    [Tooltip("SoundLibrary key played for each newly revealed character during intro typing.")]
+    string m_TypewriterSoundKey = "typewriter";
+
+    [SerializeField]
+    [Tooltip("Play typewriter SFX while revealing intro lines.")]
+    bool m_PlayTypewriterSoundOnIntro = true;
+
+    [SerializeField]
+    [Tooltip("Play one typewriter SFX every N newly revealed characters (1 = every letter).")]
+    [Min(1)]
+    int m_TypewriterSoundEveryNCharacters = 3;
+
     Coroutine m_TypingRoutine;
     TextMeshProUGUI m_ActiveTarget;
+    DialogueTextChannel m_ActiveChannel;
     Action m_OnComplete;
     bool m_SkipRequested;
 
@@ -132,6 +147,7 @@ public class DialogueTypewriter : MonoBehaviour
         m_OnComplete = onComplete;
         m_SkipRequested = false;
         m_ActiveTarget = target;
+        m_ActiveChannel = channel;
         ThoughtLineHover.ApplyForLine(target, text);
         m_TypingRoutine = StartCoroutine(TypeRoutine(target, text ?? string.Empty));
     }
@@ -259,13 +275,21 @@ public class DialogueTypewriter : MonoBehaviour
         }
 
         float visible = 0f;
+        int lastVisible = 0;
+        bool playTypeSound = ShouldPlayTypewriterSound();
+
         while (visible < total)
         {
             if (m_SkipRequested)
                 break;
 
             visible += m_CharactersPerSecond * Time.deltaTime;
-            target.maxVisibleCharacters = Mathf.Min(total, Mathf.FloorToInt(visible));
+            int nextVisible = Mathf.Min(total, Mathf.FloorToInt(visible));
+            if (playTypeSound && nextVisible > lastVisible)
+                PlayTypewriterTicks(lastVisible, nextVisible);
+
+            lastVisible = nextVisible;
+            target.maxVisibleCharacters = nextVisible;
             yield return null;
         }
 
@@ -273,11 +297,30 @@ public class DialogueTypewriter : MonoBehaviour
         FinishTyping();
     }
 
+    bool ShouldPlayTypewriterSound()
+    {
+        return m_PlayTypewriterSoundOnIntro
+            && m_ActiveChannel == DialogueTextChannel.Intro
+            && !string.IsNullOrWhiteSpace(m_TypewriterSoundKey);
+    }
+
+    void PlayTypewriterTicks(int fromExclusive, int toInclusive)
+    {
+        int step = Mathf.Max(1, m_TypewriterSoundEveryNCharacters);
+        string key = m_TypewriterSoundKey.Trim();
+
+        // Fire on characters 3, 6, 9… (1-based), i.e. when visible count hits a multiple of step.
+        int firstTick = ((fromExclusive / step) + 1) * step;
+        for (int i = firstTick; i <= toInclusive; i += step)
+            SoundManager.PlayOneShot(key);
+    }
+
     void FinishTyping()
     {
         m_TypingRoutine = null;
         m_ActiveTarget = null;
         m_SkipRequested = false;
+        m_ActiveChannel = DialogueTextChannel.Standard;
 
         Action callback = m_OnComplete;
         m_OnComplete = null;
@@ -297,6 +340,7 @@ public class DialogueTypewriter : MonoBehaviour
 
         m_ActiveTarget = null;
         m_SkipRequested = false;
+        m_ActiveChannel = DialogueTextChannel.Standard;
 
         Action callback = m_OnComplete;
         m_OnComplete = null;

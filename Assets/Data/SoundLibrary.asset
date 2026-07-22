@@ -117,6 +117,30 @@ MonoBehaviour:
         Data3: -1533412943
         Data4: 1869498969
       Path: event:/giveItem
+  - Key: musicAccent_1
+    Event:
+      Guid:
+        Data1: 1869391130
+        Data2: 1311722003
+        Data3: 422117045
+        Data4: 964459736
+      Path: event:/musicAccent_1
+  - Key: musicAccent_2
+    Event:
+      Guid:
+        Data1: 350798502
+        Data2: 1280177085
+        Data3: -2047802239
+        Data4: -219377635
+      Path: event:/musicAccent_2
+  - Key: musicAccent_4
+    Event:
+      Guid:
+        Data1: 1337339461
+        Data2: 1292744820
+        Data3: -324842850
+        Data4: -799169148
+      Path: event:/musicAccent_4
   - Key: musicOutro
     Event:
       Guid:
@@ -253,3 +277,11 @@ MonoBehaviour:
         Data3: -920393064
         Data4: -142181622
       Path: event:/swtichPressed
+  - Key: typewriter
+    Event:
+      Guid:
+        Data1: 2104216483
+        Data2: 1244081205
+        Data3: 1716210607
+        Data4: -1208607017
+      Path: event:/typewriter

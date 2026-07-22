@@ -12,7 +12,8 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance { get; private set; }
 
     [SerializeField] private DialogueTrigger introTrigger;
-    [SerializeField] private bool delayOneFrame = true;
+    [Tooltip("If true, waits one frame before starting the intro (can flash the gameplay view). Leave off to show the intro immediately.")]
+    [SerializeField] private bool delayOneFrame = false;
 
     [Header("Cinematics")]
     [Tooltip("0 = intro, 1 = escapeEnding, 2 = confessionEnding, 3 = CompletionEnding")]

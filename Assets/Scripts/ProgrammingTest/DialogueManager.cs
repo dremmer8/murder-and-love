@@ -275,6 +275,11 @@ public class DialogueManager : MonoBehaviour
                 $"{name}: No DialogueAnimationTargets / InkStoryCommands found — TriggerAnimation will not be bound.",
                 this);
         }
+
+        if (inkCommands != null)
+            story.BindExternalFunction("PlayAudioClip", (string soundKey) => inkCommands.PlayAudioClip(soundKey));
+        else
+            story.BindExternalFunction("PlayAudioClip", (string soundKey) => SoundManager.PlayOneShot(soundKey));
     }
 
     private void BeginStandard()
@@ -319,6 +324,9 @@ public class DialogueManager : MonoBehaviour
         dialogueIsPlaying = true;
         if (GameStateManager.CurrentState != GameState.Dialogue)
             GameStateManager.ChangeState(GameState.Dialogue);
+
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
     }
 
     private void BeginInternal()

@@ -17,6 +17,9 @@ EXTERNAL TriggerAnimation(targetId, animationName)
 // Dialogue cutscene camera (CutsceneDialogueCameraManager). Holds 10–25s then returns to player.
 EXTERNAL ChangeCamera(cameraId)
 
+// Play a SoundLibrary / FMOD one-shot by key (InkStoryCommands → SoundManager).
+EXTERNAL PlayAudioClip(soundKey)
+
 //story phase nubmer
 VAR story_phase = 1
 
@@ -699,6 +702,7 @@ Drunk Cop: What does a beauty like you want with me?
     -> Inner_voice_phase_2 
 }
 ~ game_progression = 8
+~ PlayAudioClip("musicAccent_2")
 { Inner_voice_backroom_phase_1:
     - 1: 
     ~ ChangeCamera("b1")
@@ -764,6 +768,7 @@ Thoughts: Mrs. Wong said that the heavy-duty detergent is blue and should be som
 // =============================================================================
 == Thought_about_got_right_detergent ==
 ~ game_progression = 12
+~ PlayAudioClip("musicAccent_1")
 ~ has_detergent = true
 ~ ChangeCamera("b2")
 Thoughts: That's the correct detergent. I need to put these into washer Nr. 4 as soon as possible.
@@ -1013,6 +1018,7 @@ Mrs. Wong: Here you are. Washer Nr. 9.
 // =============================================================================
 == LAU_story_phase_3 ==
 ~ game_progression = 19
+~ PlayAudioClip("musicAccent_4")
 Drunk Cop: There's an awfully red stain on your clothes.
 -> LAU_story_phase_3_continue_1
 
