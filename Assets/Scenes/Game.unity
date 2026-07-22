@@ -8515,9 +8515,9 @@ MonoBehaviour:
   - {fileID: 1479134035}
   blinkAxis: {x: 1, y: 0, z: 0}
   blinkClosedAngle: 60
-  blinkCloseTime: 0.06
-  blinkHoldTime: 0.02
-  blinkOpenTime: 0.11
+  blinkCloseTime: 0.1
+  blinkHoldTime: 0.1
+  blinkOpenTime: 0.2
   blinkInterval: {x: 2.5, y: 6}
   doubleBlinkChance: 0.15
   blinkOnHeadMovement: 1
