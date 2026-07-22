@@ -20798,6 +20798,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: BRoll
       objectReference: {fileID: 0}
+    - target: {fileID: 8104069169420796674, guid: 36314284065ee19479c824329267c17f, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8844554771250625138, guid: 36314284065ee19479c824329267c17f, type: 3}
       propertyPath: m_IsActive
       value: 0
@@ -26848,6 +26852,10 @@ PrefabInstance:
     - target: {fileID: 1650268381668449870, guid: 5336aa232df02db4ba6b480ac77990cb, type: 3}
       propertyPath: m_Name
       value: Mandy
+      objectReference: {fileID: 0}
+    - target: {fileID: 1650268381668449870, guid: 5336aa232df02db4ba6b480ac77990cb, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1831477139073793480, guid: 5336aa232df02db4ba6b480ac77990cb, type: 3}
       propertyPath: m_IsActive
@@ -34234,6 +34242,10 @@ PrefabInstance:
     - target: {fileID: 2840301630661951745, guid: 7b1325dd836e6cd4f8a5f631526f92c2, type: 3}
       propertyPath: m_Name
       value: Lau
+      objectReference: {fileID: 0}
+    - target: {fileID: 2840301630661951745, guid: 7b1325dd836e6cd4f8a5f631526f92c2, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2977256730784846490, guid: 7b1325dd836e6cd4f8a5f631526f92c2, type: 3}
       propertyPath: m_IsActive

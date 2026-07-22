@@ -1,3 +1,6 @@
+// Dialogue cutscene camera (CutsceneDialogueCameraManager). Holds 10-25s then returns to player.
+EXTERNAL ChangeCamera(cameraId)
+
 VAR suspicion = 0       // =Sus level
 VAR Mandy_affection = 0 // Affection value
 VAR Fear = 0            // Fear value
@@ -12,6 +15,7 @@ VAR Fear = 0            // Fear value
 Mandy: Hey, isn't that Miss Lei! Doing laundry at this hour?
 
 - (You_intro_choice)
+~ ChangeCamera("Player")
 * [1. Cant't sleep] 
     You: Uh, yeah. I just couldn't sleep.
     -> chose_sleepless
@@ -38,6 +42,7 @@ Mandy: I see... Clothes can get dirty pretty fast. *Sigh*, I want to go home and
 
 == Mandy_choice_1_1 ==
 - (You_choice_1_1)
+~ ChangeCamera("Player")
 * [1. Nothing.] 
     You: It's nothing.
     -> continue1
@@ -53,11 +58,13 @@ Mandy: I see... *Sigh*, I want to go home and sleep too, but my man is playing m
 == Mandy_choice_1 ==
 // Camera zooms in: You notice a bruise on her arm.
 - (mandy_loop_1)
+~ ChangeCamera("Player")
 + {not chose_mahjong} [1. Ask about his husband] You: Mr. Wong is playing mahjong again? -> chose_mahjong
 * [2. Sounds rough] You: I'm sorry, that sounds rough. -> chose_rough
 
 == chose_mahjong ==
 Mandy: Yeah. He had a few drinks tonight. Whenever he drinks, he goes to play mahjong.
+    ~ ChangeCamera("Player")
     * [1. (Return to previous topic)] -> Mandy_choice_1
 
 == chose_rough ==
@@ -70,6 +77,7 @@ You: I want to wash these clothes.
 Mandy: Just give the clothes to me, I'll wash them for you.
 
 - (laundry_delivery_choice)
+~ ChangeCamera("Player")
 * [1. Being polite.] You: I'll do it myself—no need to trouble you. You must be tired.  -> refuse_help
 * [2. Continue.] You: I want to wash them myself today.
     ~ suspicion = suspicion + 1
@@ -78,6 +86,7 @@ Mandy: Just give the clothes to me, I'll wash them for you.
 == refuse_help ==
 Mandy: Really? That works, too. Let's separate the colored and white clothes like usual?
 
+~ ChangeCamera("Player")
 * [(Hurriedly pull it back)]
     You: No, thanks—I’ll just tuck everything in together.
     ~ suspicion = suspicion + 1
@@ -90,6 +99,7 @@ You: Okay.
 // Player pays the money, Mandy gives the laundry token.
 Mandy: You can use Machine 4. The laundry detergent is on the table.
 //(You take the laundry token from Mandy's hand.)
+~ ChangeCamera("Player")
 -> END
 
 // =============================================================================
@@ -106,6 +116,7 @@ Mandy: Is that so? Is the regular detergent not enough?
 You: Not really.
 
 - (Mandy_choice_2)
+~ ChangeCamera("Player")
 * [1. Cat peed your bed (Lie)] You: Our cat peed on my boyfriend's clothes. Only heavy-duty detergent can get it out. 
     // If asked about cat
     Mandy: Your cat? I thought your boyfriend didn't allow you to keep a cat?
@@ -115,6 +126,7 @@ You: Not really.
     -> continue_detergent_4 
     
 == cat_secondary_questions ==
+~ ChangeCamera("Player")
 * [1. Convinced boyfriend. (Lie)] You: I convinced him because the kitty is so cute. It's currently in heat. (Lie)
     -> continue_detergent_2
 * [2. Neighbor's cat.] You: Ah, I misspoke. It's the neighbor's cat. (Lie)
@@ -135,6 +147,7 @@ Mandy: I see.
 
 Mandy: The heavy-duty enzyme detergent is in the backroom. (Mandy picks up a ring of keys) —
 
+~ ChangeCamera("Player")
 * [Get it for her]
     You: Let me get it for you! Just sit down and rest.
     Mandy: Alright, that works.
@@ -143,4 +156,5 @@ Mandy: The heavy-duty enzyme detergent is in the backroom. (Mandy picks up a rin
 
 - Mandy: It's on the shelf, the blue one. It should be labeled "Heavy Duty Enzyme Detergent".
 You: Got it.
+~ ChangeCamera("Player")
 -> END

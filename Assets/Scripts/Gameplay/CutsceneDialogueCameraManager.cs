@@ -5,8 +5,10 @@ using UnityEngine;
 
 /// <summary>
 /// Temporary dialogue cutscene cameras driven by Ink EXTERNAL ChangeCamera(cameraId).
-/// Activating a camera disables the player, holds for a random duration, then jumps back
-/// to the player camera. Calling ChangeCamera again cancels the current hold and restarts.
+/// Only active during <see cref="DialoguePresentationMode.Standard"/> — ignored for
+/// Internal Monologue and Pager. Activating a camera disables the player, holds for a
+/// random duration, then jumps back to the player camera. Calling ChangeCamera again
+/// cancels the current hold and restarts.
 /// </summary>
 public class CutsceneDialogueCameraManager : MonoBehaviour
 {
@@ -74,7 +76,7 @@ public class CutsceneDialogueCameraManager : MonoBehaviour
         story.BindExternalFunction("ChangeCamera", (string cameraId) => ChangeCamera(cameraId));
     }
 
-    /// <summary>Ink EXTERNAL entry point.</summary>
+    /// <summary>Ink EXTERNAL entry point. Cutscene cams only run during Standard dialogue.</summary>
     public void ChangeCamera(string cameraId)
     {
         if (string.IsNullOrWhiteSpace(cameraId))
@@ -84,7 +86,19 @@ public class CutsceneDialogueCameraManager : MonoBehaviour
         }
 
         string trimmed = cameraId.Trim();
-        if (string.Equals(trimmed, playerCameraName, StringComparison.OrdinalIgnoreCase))
+        bool returnToPlayer = string.Equals(trimmed, playerCameraName, StringComparison.OrdinalIgnoreCase);
+
+        // Always allow cleanup back to the player if a cutscene cam is already up.
+        // Otherwise ignore all ChangeCamera calls outside Standard dialogue
+        // (Internal Monologue / Pager / Intro must not steal the camera).
+        if (!IsStandardDialogueActive())
+        {
+            if (returnToPlayer && IsCutsceneCameraActive)
+                ReturnToPlayerCamera();
+            return;
+        }
+
+        if (returnToPlayer)
         {
             ReturnToPlayerCamera();
             return;
@@ -97,6 +111,14 @@ public class CutsceneDialogueCameraManager : MonoBehaviour
         }
 
         ActivateCutsceneCamera(target);
+    }
+
+    static bool IsStandardDialogueActive()
+    {
+        DialogueManager dialogue = DialogueManager.GetInstance();
+        return dialogue != null
+            && dialogue.dialogueIsPlaying
+            && dialogue.ActiveMode == DialoguePresentationMode.Standard;
     }
 
     /// <summary>Cancel any hold timer, disable cutscene cams, and restore the player.</summary>

@@ -21,6 +21,7 @@ Mandy: "Uff. I'm super tired on the contrary. But my man is at his friends' plac
 
 // FIRST CHOICE
 - (vivian_choice_1)
+~ ChangeCamera("Player")
 * [1. "Your husband is playing mahjong?"] -> chose_mahjong
 * [2. "Little Tien is sick?"] -> chose_sick
 * [3. "I'm sorry, that sounds rough."] -> chose_rough
@@ -41,6 +42,7 @@ Mandy: "It's fine. It's just my life."
 
 == second_conversation_beat ==
 // SECOND CHOICE BEAT (Investigation vs. Hiding the Evidence)
+~ ChangeCamera("Player")
 * [1. "What happened to your arm?"] -> ask_about_arm
 * [2. "These clothes..."] -> hand_over_clothes
 
@@ -52,4 +54,5 @@ Mandy: "(Coldly) Hit it on the edge of an industrial dryer earlier. I'm clumsy. 
 ~ SetActProgression(1)
 ~ PlayAudioClip("fabric_rustle")
 Mandy: "Put them up the scale then."
+~ ChangeCamera("Player")
 -> END
