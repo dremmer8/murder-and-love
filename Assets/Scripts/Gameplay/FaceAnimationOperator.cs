@@ -11,8 +11,9 @@ using UnityEngine;
 ///
 /// 2. Neck + head look — when the player camera is near, the character naturally turns
 ///    to look at the player. It occasionally loses interest and lets the animation play
-///    through, then re-engages. During dialogue the head + neck are hard-locked to the
-///    player camera and never lose interest.
+///    through, then re-engages. During Standard dialogue only the character currently
+///    being spoken to (from CutsceneDialogueCameraManager phase look targets) hard-locks
+///    onto the player camera.
 ///
 /// 3. Eyes — when the player is close the eyes track the camera, with a small amount of
 ///    gaze wander around the camera so the stare feels alive rather than robotic.
@@ -181,7 +182,7 @@ public class FaceAnimationOperator : MonoBehaviour
 
         ResolveTarget();
 
-        bool dialogue = IsDialogueActive();
+        bool dialogue = IsDialogueLookLocked();
 
         UpdateHeadMovementReaction(dt);
         UpdateBlink(dt);
@@ -316,7 +317,7 @@ public class FaceAnimationOperator : MonoBehaviour
     {
         if (dialogue)
         {
-            // Locked on during dialogue — always engaged, reset the interest cycle.
+            // Locked on only when this character is the current dialogue addressee.
             _interested = true;
             _interestTimer = RandomIn(interestDuration);
             return;
@@ -501,10 +502,20 @@ public class FaceAnimationOperator : MonoBehaviour
             lookTarget = Camera.main.transform;
     }
 
-    static bool IsDialogueActive()
+    /// <summary>
+    /// Hard-lock look during Standard dialogue only when this operator is the current
+    /// addressee (CutsceneDialogueCameraManager phase → Mandy1/2 or Lau1/2 face).
+    /// </summary>
+    bool IsDialogueLookLocked()
     {
         DialogueManager dialogue = DialogueManager.GetInstance();
-        return dialogue != null && dialogue.dialogueIsPlaying;
+        if (dialogue == null
+            || !dialogue.dialogueIsPlaying
+            || dialogue.ActiveMode != DialoguePresentationMode.Standard)
+            return false;
+
+        CutsceneDialogueCameraManager cams = CutsceneDialogueCameraManager.Instance;
+        return cams != null && cams.IsDialogueFaceFocus(this);
     }
 
     static Quaternion[] CaptureLocalRotations(Transform[] bones)

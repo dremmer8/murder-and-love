@@ -66,6 +66,19 @@ public class CutsceneDialogueCameraManager : MonoBehaviour
     [Tooltip("Map story_phase values to one of the four look targets.")]
     [SerializeField] List<CutsceneLookPhaseBinding> phaseLookTargets = new();
 
+    [Header("Face Animators")]
+    [Tooltip("FaceAnimationOperator for Mandy slot 1 (phase targets using Mandy1).")]
+    [SerializeField] FaceAnimationOperator mandyFace1;
+
+    [Tooltip("FaceAnimationOperator for Mandy slot 2 (phase targets using Mandy2).")]
+    [SerializeField] FaceAnimationOperator mandyFace2;
+
+    [Tooltip("FaceAnimationOperator for Lau slot 1 (phase targets using Lau1).")]
+    [SerializeField] FaceAnimationOperator lauFace1;
+
+    [Tooltip("FaceAnimationOperator for Lau slot 2 (phase targets using Lau2).")]
+    [SerializeField] FaceAnimationOperator lauFace2;
+
     [Tooltip("Seconds to rotate Face Player toward the look target. 0 = snap.")]
     [SerializeField] float faceTurnDuration = 0.75f;
 
@@ -75,6 +88,8 @@ public class CutsceneDialogueCameraManager : MonoBehaviour
     Camera _activeCutsceneCamera;
     bool _subscribedToDialogue;
     Tween _faceTween;
+    bool _hasDialogueFaceFocus;
+    CutsceneLookTarget _dialogueFaceTarget;
 
     public bool IsCutsceneCameraActive => _activeCutsceneCamera != null;
 
@@ -101,6 +116,7 @@ public class CutsceneDialogueCameraManager : MonoBehaviour
         UnsubscribeDialogue();
         StopHoldRoutine();
         KillFaceTween(releasePoseDriven: true);
+        ClearDialogueFaceFocus();
 
         if (_activeCutsceneCamera != null)
             ReturnToPlayerCamera();
@@ -118,6 +134,40 @@ public class CutsceneDialogueCameraManager : MonoBehaviour
     }
 
     /// <summary>
+    /// Standard dialogue start: focuses the matching FaceAnimationOperator from the phase list,
+    /// and optionally rotates <see cref="facePlayer"/> toward that look target.
+    /// </summary>
+    public void NotifyStandardDialogueStarted(int storyPhase, bool rotatePlayerTowardTarget)
+    {
+        ApplyDialogueFaceFocus(storyPhase);
+
+        if (rotatePlayerTowardTarget)
+            TryFaceTargetForStoryPhase(storyPhase);
+    }
+
+    /// <summary>
+    /// True when <paramref name="face"/> belongs to the character currently being spoken to.
+    /// Mandy1/Mandy2 share Mandy; Lau1/Lau2 share Lau.
+    /// </summary>
+    public bool IsDialogueFaceFocus(FaceAnimationOperator face)
+    {
+        if (!_hasDialogueFaceFocus || face == null)
+            return false;
+
+        switch (_dialogueFaceTarget)
+        {
+            case CutsceneLookTarget.Mandy1:
+            case CutsceneLookTarget.Mandy2:
+                return face == mandyFace1 || face == mandyFace2;
+            case CutsceneLookTarget.Lau1:
+            case CutsceneLookTarget.Lau2:
+                return face == lauFace1 || face == lauFace2;
+            default:
+                return false;
+        }
+    }
+
+    /// <summary>
     /// Called by <see cref="DialogueTrigger"/> when Standard dialogue starts and no pose mark is used.
     /// Rotates the player toward the look target bound to <paramref name="storyPhase"/>.
     /// </summary>
@@ -130,6 +180,36 @@ public class CutsceneDialogueCameraManager : MonoBehaviour
             return false;
 
         return FaceTarget(target, faceTurnDuration);
+    }
+
+    void ApplyDialogueFaceFocus(int storyPhase)
+    {
+        _hasDialogueFaceFocus = storyPhase >= 0
+            && TryResolveLookTargetId(storyPhase, out _dialogueFaceTarget);
+    }
+
+    void ClearDialogueFaceFocus()
+    {
+        _hasDialogueFaceFocus = false;
+    }
+
+    bool TryResolveLookTargetId(int storyPhase, out CutsceneLookTarget id)
+    {
+        id = default;
+        if (phaseLookTargets == null)
+            return false;
+
+        for (int i = 0; i < phaseLookTargets.Count; i++)
+        {
+            CutsceneLookPhaseBinding binding = phaseLookTargets[i];
+            if (binding == null || binding.storyPhase != storyPhase)
+                continue;
+
+            id = binding.target;
+            return true;
+        }
+
+        return false;
     }
 
     /// <summary>Ink EXTERNAL entry point. Cutscene cams only run during Standard dialogue.</summary>
@@ -225,20 +305,11 @@ public class CutsceneDialogueCameraManager : MonoBehaviour
     bool TryResolveLookTarget(int storyPhase, out Transform target)
     {
         target = null;
-        if (phaseLookTargets == null)
+        if (!TryResolveLookTargetId(storyPhase, out CutsceneLookTarget id))
             return false;
 
-        for (int i = 0; i < phaseLookTargets.Count; i++)
-        {
-            CutsceneLookPhaseBinding binding = phaseLookTargets[i];
-            if (binding == null || binding.storyPhase != storyPhase)
-                continue;
-
-            target = GetLookTarget(binding.target);
-            return target != null;
-        }
-
-        return false;
+        target = GetLookTarget(id);
+        return target != null;
     }
 
     Transform GetLookTarget(CutsceneLookTarget id)
@@ -444,6 +515,7 @@ public class CutsceneDialogueCameraManager : MonoBehaviour
 
     void HandleDialogueEnded(string _)
     {
+        ClearDialogueFaceFocus();
         KillFaceTween(releasePoseDriven: true);
 
         if (_activeCutsceneCamera != null || _holdRoutine != null)

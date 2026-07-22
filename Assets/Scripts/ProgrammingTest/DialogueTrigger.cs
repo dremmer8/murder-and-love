@@ -371,10 +371,6 @@ public class DialogueTrigger : MonoBehaviour
 
     void TryFaceLookTarget(int storyPhaseToSet)
     {
-        // Pose mark wins — do not override DialogueTrigger mark logic.
-        if (HasPlayerPoseMark)
-            return;
-
         if (presentationMode == DialoguePresentationMode.InternalMonologue
             || presentationMode == DialoguePresentationMode.Pager
             || isRespondSupportPager
@@ -388,7 +384,11 @@ public class DialogueTrigger : MonoBehaviour
         if (phase < 0)
             return;
 
-        CutsceneDialogueCameraManager.Instance.TryFaceTargetForStoryPhase(phase);
+        // Always resolve who we are speaking to for face focus.
+        // Player body turn still skips when a pose mark owns that logic.
+        CutsceneDialogueCameraManager.Instance.NotifyStandardDialogueStarted(
+            phase,
+            rotatePlayerTowardTarget: !HasPlayerPoseMark);
     }
 
     /// <summary>
