@@ -155,6 +155,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: fd68f7e90bedb974cafe52108857ab8b, type: 3}
       insertIndex: -1
       addedObject: {fileID: 5154533448843567966}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: fd68f7e90bedb974cafe52108857ab8b, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5288431704457355480}
   m_SourcePrefab: {fileID: 100100000, guid: fd68f7e90bedb974cafe52108857ab8b, type: 3}
 --- !u!1 &389991799747811885 stripped
 GameObject:
@@ -183,8 +186,86 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &5288431704457355480
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 389991799747811885}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 913b10a0c94e40d39142d84b63e688c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  lookTarget: {fileID: 0}
+  neckBone: {fileID: 3729606787494789408}
+  headBone: {fileID: 9181880359093748612}
+  eyeBones:
+  - {fileID: 8418184655324648998}
+  - {fileID: 1320804268541327612}
+  boneForwardAxis: {x: 0, y: 0, z: 1}
+  eyelidBones:
+  - {fileID: 6184491061427765788}
+  - {fileID: 6244217618053431259}
+  blinkAxis: {x: 1, y: 0, z: 0}
+  blinkClosedAngle: 60
+  blinkCloseTime: 0.06
+  blinkHoldTime: 0.02
+  blinkOpenTime: 0.11
+  blinkInterval: {x: 2.5, y: 6}
+  doubleBlinkChance: 0.15
+  blinkOnHeadMovement: 1
+  headMoveStartSpeed: 45
+  headMoveStillSpeed: 12
+  lookRange: 1.5
+  headWeight: 0.65
+  neckWeight: 0.35
+  headYawPitchLimit: {x: 70, y: 45}
+  neckYawPitchLimit: {x: 35, y: 20}
+  lookWeightSmooth: 0.4
+  gazeFollowSmooth: 0.18
+  interestDuration: {x: 3.5, y: 8}
+  disinterestDuration: {x: 10, y: 20}
+  loseInterestChance: 0.876
+  eyeRange: 1.5
+  eyeWeight: 0.85
+  eyeYawPitchLimit: {x: 28, y: 18}
+  eyeWeightSmooth: 0.15
+  eyeWanderRadius: 0.045
+  eyeWanderSpeed: 0.6
 --- !u!4 &1018473039621832855 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: fd68f7e90bedb974cafe52108857ab8b, type: 3}
+  m_PrefabInstance: {fileID: 696068548375979900}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &1320804268541327612 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -7206710670975557760, guid: fd68f7e90bedb974cafe52108857ab8b, type: 3}
+  m_PrefabInstance: {fileID: 696068548375979900}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &3729606787494789408 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -5013958613332990372, guid: fd68f7e90bedb974cafe52108857ab8b, type: 3}
+  m_PrefabInstance: {fileID: 696068548375979900}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &6184491061427765788 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -2559355813311371936, guid: fd68f7e90bedb974cafe52108857ab8b, type: 3}
+  m_PrefabInstance: {fileID: 696068548375979900}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &6244217618053431259 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -2373673535009007449, guid: fd68f7e90bedb974cafe52108857ab8b, type: 3}
+  m_PrefabInstance: {fileID: 696068548375979900}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &8418184655324648998 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 9041971308207845722, guid: fd68f7e90bedb974cafe52108857ab8b, type: 3}
+  m_PrefabInstance: {fileID: 696068548375979900}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &9181880359093748612 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -665273658801986312, guid: fd68f7e90bedb974cafe52108857ab8b, type: 3}
   m_PrefabInstance: {fileID: 696068548375979900}
   m_PrefabAsset: {fileID: 0}
