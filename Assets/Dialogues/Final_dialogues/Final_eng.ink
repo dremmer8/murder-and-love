@@ -446,6 +446,7 @@ Mrs. Wong: Sure. That comes to 80 cents in total.
 ~ ChangeCamera("Player")
 * [(Give the money)]
 You: Here.
+  ~ ChangeCamera("m6")
 ~ TriggerAnimation("Mandy", "doGiveItem")
 ~ UnhideItem("first_laundry_coin")
 Mrs. Wong: Here you go. Machine Nr. 4. It's the one on your left.
@@ -571,6 +572,7 @@ Mrs. Wong: Thank you. I will rest here then.
 -> Ending_mandy_story_phase_2
 
 = Ending_mandy_story_phase_2
+  ~ ChangeCamera("m6")
 ~ TriggerAnimation("Mandy", "doGiveItem")
 ~ UnhideItem("backroom_key")
 Mrs. Wong: Here is the key to the backroom. It's near Washer Nr. 9. 
@@ -999,6 +1001,7 @@ Mrs. Wong: You get your change now?
 ~ GiveAwayItem("change_coin_3")
 ~ GiveAwayItem("change_coin_4")
 You: Yes, here.
+  ~ ChangeCamera("m6")
 ~ TriggerAnimation("Mandy", "doGiveItem")
 ~ UnhideItem("second_laundry_coin")
 Mrs. Wong: Here you are. Washer Nr. 9.

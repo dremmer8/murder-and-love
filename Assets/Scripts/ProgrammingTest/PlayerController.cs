@@ -13,6 +13,9 @@ public class PlayerController : MonoBehaviour
     public Transform[] followMovement;
     [Tooltip("Object retracted along local Z when looking down. Horizontal look = 0; full look-down = maxRetraction.")]
     public Transform lookDownRetract;
+
+    [Tooltip("Optional eye/origin used when CutsceneDialogueCameraManager turns this player to face dialogue targets. Falls back to playerCamera, then this transform.")]
+    public Transform dialogueFaceOrigin;
     
     [Header("Movement Settings")]
     public float walkSpeed = 6f;

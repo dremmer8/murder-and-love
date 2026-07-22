@@ -339,8 +339,12 @@ public class DialogueTrigger : MonoBehaviour
 
         manager.EnterDialogue(inkFile, knotToPlay, mode, isRespondSupportPager);
         TryTweenPlayerToMark();
+        TryFaceLookTarget(storyPhaseToSet);
         return true;
     }
+
+    /// <summary>True when this trigger has a pose mark assigned (mark logic owns player facing).</summary>
+    public bool HasPlayerPoseMark => playerPoseMark != null;
 
     void TryTweenPlayerToMark()
     {
@@ -363,6 +367,28 @@ public class DialogueTrigger : MonoBehaviour
             CameraManager.Instance.TweenPlayerTo(playerPoseMark);
         else
             CameraManager.Instance.TweenPlayerTo(playerPoseMark, playerTweenDuration);
+    }
+
+    void TryFaceLookTarget(int storyPhaseToSet)
+    {
+        // Pose mark wins — do not override DialogueTrigger mark logic.
+        if (HasPlayerPoseMark)
+            return;
+
+        if (presentationMode == DialoguePresentationMode.InternalMonologue
+            || presentationMode == DialoguePresentationMode.Pager
+            || isRespondSupportPager
+            || presentationMode == DialoguePresentationMode.IntroSequence)
+            return;
+
+        if (CutsceneDialogueCameraManager.Instance == null)
+            return;
+
+        int phase = useForcedStoryPhase ? forcedStoryPhase : storyPhaseToSet;
+        if (phase < 0)
+            return;
+
+        CutsceneDialogueCameraManager.Instance.TryFaceTargetForStoryPhase(phase);
     }
 
     /// <summary>
