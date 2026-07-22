@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using FMOD.Studio;
 using TMPro;
@@ -71,6 +72,15 @@ public class PagerTextController : MonoBehaviour
     Action<string> _onConversationComplete;
     EventInstance _newMessageInstance;
 
+    const string ActParam = "act";
+    const string CloseStateName = "close";
+    const string LayDownStateName = "Lay down";
+    const int Act1Progression = 14;
+    const int Act2Progression = 21;
+    int _lastSeenActProgression = int.MinValue;
+    float _desiredAct;
+    Coroutine _putDownVisibilityRoutine;
+
     public bool IsOpen => _isOpen;
     public bool HasConversation => _hasConversation;
     public bool HasUnreadMessage => _hasUnreadMessage;
@@ -111,6 +121,7 @@ public class PagerTextController : MonoBehaviour
         _hasUnreadMessage = false;
         RefreshDisplay();
         RefreshPropDisplay();
+        SyncActFromProgression(force: true);
     }
 
     void OnValidate()
@@ -123,6 +134,8 @@ public class PagerTextController : MonoBehaviour
 
     void Update()
     {
+        SyncActFromProgression();
+
         // During respond-support, Tab is the only way out of the open pager.
         // Scroll swapped from arrows to A/D (see scrollLeftKey / scrollRightKey).
         if (Input.GetKeyDown(toggleKey))
@@ -244,9 +257,12 @@ public class PagerTextController : MonoBehaviour
             return;
 
         StopNewMessageSound();
+        CancelPutDownVisibilitySwap();
 
         _isOpen = true;
         ApplyPagerVisuals(true);
+        // Animator lives on the true pager, which is inactive while closed — re-push act now.
+        SyncActFromProgression(force: true);
         GameStateManager.ChangeState(GameState.Pager);
 
         if (animator != null)
@@ -270,10 +286,19 @@ public class PagerTextController : MonoBehaviour
             return;
 
         _isOpen = false;
-        ApplyPagerVisuals(false);
 
         if (animator != null)
+        {
             animator.SetTrigger("toggle");
+            // Keep the true pager visible through the reverse put-down clip;
+            // swap to prop pagers once "close" finishes into "Lay down".
+            CancelPutDownVisibilitySwap();
+            _putDownVisibilityRoutine = StartCoroutine(WaitForPutDownThenSwapVisuals());
+        }
+        else
+        {
+            ApplyPagerVisuals(false);
+        }
 
         if (GameStateManager.CurrentState == GameState.Pager)
             GameStateManager.ChangeState(GameState.Gameplay);
@@ -283,6 +308,39 @@ public class PagerTextController : MonoBehaviour
     {
         if (animator != null)
             animator.SetTrigger("poke");
+    }
+
+    /// <summary>
+    /// Drives the pager blend-tree <c>act</c> float from <see cref="GlobalVariableOperator.GameProgression"/>:
+    /// 1 at progression &gt;= 14, 2 at &gt;= 21, otherwise 0.
+    /// Caches the desired value even while the animator GO is inactive (true pager is off when closed),
+    /// and only calls SetFloat when the animator is active so the parameter actually sticks.
+    /// </summary>
+    void SyncActFromProgression(bool force = false)
+    {
+        int progression = GlobalVariableOperator.Instance != null
+            ? GlobalVariableOperator.Instance.GameProgression
+            : 0;
+
+        if (force || progression != _lastSeenActProgression)
+        {
+            _lastSeenActProgression = progression;
+            _desiredAct = 0f;
+            if (progression >= Act2Progression)
+                _desiredAct = 2f;
+            else if (progression >= Act1Progression)
+                _desiredAct = 1f;
+        }
+
+        ApplyDesiredAct();
+    }
+
+    void ApplyDesiredAct()
+    {
+        if (animator == null || !animator.isActiveAndEnabled)
+            return;
+
+        animator.SetFloat(ActParam, _desiredAct);
     }
 
     [ContextMenu("Scroll Left")]
@@ -667,11 +725,66 @@ public class PagerTextController : MonoBehaviour
 
     void ForceCloseWithoutUnlock()
     {
-        if (!_isOpen)
+        if (!_isOpen && _putDownVisibilityRoutine == null)
             return;
 
         _isOpen = false;
+        CancelPutDownVisibilitySwap();
         ApplyPagerVisuals(false);
+    }
+
+    void CancelPutDownVisibilitySwap()
+    {
+        if (_putDownVisibilityRoutine == null)
+            return;
+
+        StopCoroutine(_putDownVisibilityRoutine);
+        _putDownVisibilityRoutine = null;
+    }
+
+    IEnumerator WaitForPutDownThenSwapVisuals()
+    {
+        // Let the toggle trigger take effect.
+        yield return null;
+
+        if (animator == null)
+        {
+            ApplyPagerVisuals(false);
+            _putDownVisibilityRoutine = null;
+            yield break;
+        }
+
+        // Wait until the reverse put-down state starts (or we already reached lay-down).
+        float timeout = 1.5f;
+        float elapsed = 0f;
+        bool enteredClose = false;
+        while (elapsed < timeout)
+        {
+            AnimatorStateInfo info = animator.GetCurrentAnimatorStateInfo(0);
+            if (info.IsName(CloseStateName))
+            {
+                enteredClose = true;
+                break;
+            }
+
+            if (info.IsName(LayDownStateName))
+                break;
+
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        // Hold true-pager visibility until put-down leaves the close state.
+        if (enteredClose)
+        {
+            while (animator != null && animator.GetCurrentAnimatorStateInfo(0).IsName(CloseStateName))
+                yield return null;
+        }
+
+        _putDownVisibilityRoutine = null;
+
+        if (!_isOpen)
+            ApplyPagerVisuals(false);
     }
 
     void ApplyPagerVisuals(bool open)

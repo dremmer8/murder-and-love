@@ -110,8 +110,8 @@ public class GlobalVariableOperator : MonoBehaviour
 
     /// <summary>
     /// Sets <see cref="GameProgression"/>. When <paramref name="allowBelowMilestoneFloor"/> is true,
-    /// skips the TaskManager milestone floor clamp (used by Mandy smoking guardrails to dial back
-    /// after the pager jumps ahead).
+    /// skips the monotonic clamp (used by Mandy smoking guardrails to dial back after the pager
+    /// jumps ahead).
     /// </summary>
     public void SetGameProgression(int value, bool allowBelowMilestoneFloor)
     {
@@ -256,16 +256,14 @@ public class GlobalVariableOperator : MonoBehaviour
     }
 
     /// <summary>
-    /// Once progression has hit a <see cref="TaskManager"/> milestone, never allow it
-    /// below that milestone. Each new reached task raises the floor.
+    /// Progression is monotonic: Ink (including pager knots that rewrite an older
+    /// absolute value) must not pull <see cref="GameProgression"/> backward.
+    /// Use <see cref="SetGameProgression(int, bool)"/> with allowBelowMilestoneFloor
+    /// for intentional dial-backs (e.g. Mandy smoking guardrail).
     /// </summary>
     int ClampProgression(int value)
     {
-        int floor = TaskManager.Instance != null
-            ? TaskManager.Instance.GetReachedMilestoneFloor(gameProgression)
-            : 0;
-
-        if (floor > 0 && value < floor)
+        if (value < gameProgression)
             return gameProgression;
 
         return value;

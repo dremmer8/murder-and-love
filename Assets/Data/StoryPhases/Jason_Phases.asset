@@ -19,7 +19,7 @@ MonoBehaviour:
   - storyPhase: 9
     knotName: Boyfriend_pager_phase_1
     requiredProgression: 8
-    maxProgression: 9999
+    maxProgression: 11
     playOnce: 1
   - storyPhase: 17
     knotName: Boyfriend_pager_phase_2
