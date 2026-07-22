@@ -108,8 +108,10 @@ public class PlayerController : MonoBehaviour
         jumpAction.Enable();
         sprintAction.Enable();
         crouchAction.Enable();
-        
+
         GameStateManager.OnGameStateChanged += HandleStateChange;
+        // Resync if we were disabled while Dialogue/cutscene started (missed the event).
+        SyncMovementFromState(GameStateManager.CurrentState);
     }
 
     private void OnDisable()
@@ -119,25 +121,14 @@ public class PlayerController : MonoBehaviour
         jumpAction.Disable();
         sprintAction.Disable();
         crouchAction.Disable();
-        
+
         GameStateManager.OnGameStateChanged -= HandleStateChange;
     }
 
     void Start()
     {
-        // Intro / dialogue may already own the cursor if GameManager.Start ran first.
-        // Only lock for look when we are actually in free-look states.
-        if (GameStateManager.CurrentState == GameState.Gameplay
-            || GameStateManager.CurrentState == GameState.Pager)
-        {
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
-        }
-        else
-        {
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
-        }
+        SyncMovementFromState(GameStateManager.CurrentState);
+        ApplyCursorForState(GameStateManager.CurrentState);
         
         characterController = GetComponent<CharacterController>();
         
@@ -240,18 +231,93 @@ public class PlayerController : MonoBehaviour
 
     private void HandleStateChange(GameState newState)
     {
+        SyncMovementFromState(newState);
+    }
+
+    void SyncMovementFromState(GameState state)
+    {
         // Pager locks movement but keeps look free so the player can aim at the screen.
-        canMove = newState == GameState.Gameplay;
+        canMove = state == GameState.Gameplay;
+    }
+
+    static void ApplyCursorForState(GameState state)
+    {
+        // Intro / dialogue may own the cursor; only lock for free-look states.
+        if (state == GameState.Gameplay || state == GameState.Pager)
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+        }
+        else
+        {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
+    }
+
+    /// <summary>
+    /// Live permissions — do not rely only on cached <see cref="canMove"/>, which goes stale
+    /// if this object was disabled when GameState changed (e.g. cutscene / dialogue cam).
+    /// </summary>
+    bool IsLookAllowed()
+    {
+        if (IsCinematicLockActive())
+            return false;
+
+        GameState state = GameStateManager.CurrentState;
+        if (state == GameState.Pager)
+            return true;
+
+        if (state != GameState.Gameplay)
+            return false;
+
+        // Belt-and-suspenders: Standard / Intro dialogue should never leave look free
+        // even if state somehow lagged behind presentation.
+        DialogueManager dialogue = DialogueManager.GetInstance();
+        if (dialogue != null && dialogue.dialogueIsPlaying)
+        {
+            DialoguePresentationMode mode = dialogue.ActiveMode;
+            if (mode == DialoguePresentationMode.Standard
+                || mode == DialoguePresentationMode.IntroSequence)
+                return false;
+        }
+
+        return true;
+    }
+
+    bool IsMovementAllowed()
+    {
+        if (IsCinematicLockActive())
+            return false;
+
+        return GameStateManager.CurrentState == GameState.Gameplay
+            && !IsLookLockedDialoguePlaying();
+    }
+
+    static bool IsLookLockedDialoguePlaying()
+    {
+        DialogueManager dialogue = DialogueManager.GetInstance();
+        if (dialogue == null || !dialogue.dialogueIsPlaying)
+            return false;
+
+        DialoguePresentationMode mode = dialogue.ActiveMode;
+        return mode == DialoguePresentationMode.Standard
+            || mode == DialoguePresentationMode.IntroSequence;
+    }
+
+    static bool IsCinematicLockActive()
+    {
+        return GameManager.Instance != null && GameManager.Instance.IsCutscenePlaying;
     }
 
     void Update()
     {
-        Debug.Log(GameStateManager.CurrentState);
-
         if (poseDriven)
             return;
 
-        bool canLook = canMove || GameStateManager.CurrentState == GameState.Pager;
+        bool canLook = IsLookAllowed();
+        bool allowMove = IsMovementAllowed();
+        canMove = allowMove;
 
         if (canLook && playerCamera != null)
         {
@@ -265,7 +331,7 @@ public class PlayerController : MonoBehaviour
             UpdateLookDownRetraction();
         }
 
-        if (!canMove)
+        if (!allowMove)
         {
             ApplyGravityOnly();
             return;

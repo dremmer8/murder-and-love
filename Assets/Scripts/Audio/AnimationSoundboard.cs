@@ -41,6 +41,7 @@ public class AnimationSoundboard : MonoBehaviour
     public void PlayCoinDrop() => Play("coinDrop");
     public void PlayDetergentFailSound() => Play("detergentFailSound");
     public void PlayGiveItem() => Play("giveItem");
+    public void PlayMusicAccent3() => Play("musicAccent_3");
     public void PlayOpenBackDoor() => Play("openBackDoor");
     public void PlayOpenDoorWashingMachine() => Play("openDoorWashingMachine");
     public void PlayOpenLid() => Play("openLid");
@@ -51,5 +52,6 @@ public class AnimationSoundboard : MonoBehaviour
     public void PlayPutMoneyFail() => Play("putMoneyFail");
     public void PlayPutMoneyWin() => Play("putMoneyWin");
     public void PlayStartMachine() => Play("startMachine");
+    public void PlayStepSounds() => Play("stepSounds");
     public void PlaySwtichPressed() => Play("swtichPressed");
 }

@@ -1,6 +1,7 @@
 using System.Collections;
 using FMOD.Studio;
 using UnityEngine;
+using UnityEngine.Playables;
 
 public class GameManager : MonoBehaviour
 {
@@ -19,7 +20,7 @@ public class GameManager : MonoBehaviour
     [Tooltip("0 = intro, 1 = escapeEnding, 2 = confessionEnding, 3 = CompletionEnding")]
     [SerializeField] private GameObject[] cinematics;
 
-    [Tooltip("Seconds to keep a cutscene active (intro after exit, and ending cutscenes from Ink).")]
+    [Tooltip("Fallback seconds if a cinematic has no PlayableDirector / Timeline. Cutscene length otherwise follows the Timeline.")]
     [SerializeField] private float cinematicDuration = 60f;
 
     [Tooltip("Shown after any ending cutscene (1–3) finishes.")]
@@ -91,13 +92,14 @@ public class GameManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Ink EXTERNAL: show ending cutscene by cinematic index for <see cref="cinematicDuration"/> seconds.
+    /// Ink EXTERNAL: show ending cutscene by cinematic index for the Timeline duration
+    /// (falls back to <see cref="cinematicDuration"/> if no director/asset).
     /// 1 = escapeEnding, 2 = confessionEnding, 3 = CompletionEnding.
     /// </summary>
     public void PlayEndingCutscene(int cinematicIndex) => PlayCutscene(cinematicIndex);
 
     /// <summary>
-    /// Show a cinematic for <see cref="cinematicDuration"/> seconds, then disable it.
+    /// Show a cinematic for its Timeline duration, then disable it.
     /// </summary>
     public void PlayCutscene(int cinematicIndex)
     {
@@ -148,12 +150,48 @@ public class GameManager : MonoBehaviour
             TryPlayMusicOutro();
 
         ActivateCinematic(cinematicIndex);
-        yield return new WaitForSeconds(cinematicDuration);
+
+        PlayableDirector director = GetCinematicDirector(cinematicIndex);
+        if (director != null)
+        {
+            director.time = 0;
+            director.Evaluate();
+            director.Play();
+        }
+
+        yield return new WaitForSeconds(ResolveCinematicDuration(director));
         DeactivateCinematic(cinematicIndex);
         _cutsceneRoutine = null;
 
         if (cinematicIndex != IntroCinematicIndex)
             ShowCredits();
+    }
+
+    PlayableDirector GetCinematicDirector(int index)
+    {
+        if (cinematics == null || index < 0 || index >= cinematics.Length)
+            return null;
+
+        GameObject cinematic = cinematics[index];
+        return cinematic != null ? cinematic.GetComponent<PlayableDirector>() : null;
+    }
+
+    /// <summary>
+    /// Uses the Timeline / playable asset length when available; otherwise <see cref="cinematicDuration"/>.
+    /// </summary>
+    float ResolveCinematicDuration(PlayableDirector director)
+    {
+        if (director == null)
+            return Mathf.Max(0f, cinematicDuration);
+
+        double duration = director.duration;
+        if (duration <= 0d && director.playableAsset != null)
+            duration = director.playableAsset.duration;
+
+        if (duration > 0d && !double.IsInfinity(duration) && !double.IsNaN(duration))
+            return (float)duration;
+
+        return Mathf.Max(0f, cinematicDuration);
     }
 
     void ShowCredits()

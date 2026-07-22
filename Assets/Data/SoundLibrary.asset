@@ -133,6 +133,14 @@ MonoBehaviour:
         Data3: -2047802239
         Data4: -219377635
       Path: event:/musicAccent_2
+  - Key: musicAccent_3
+    Event:
+      Guid:
+        Data1: -2036741762
+        Data2: 1181584098
+        Data3: -2079573605
+        Data4: -1051069218
+      Path: event:/musicAccent_3
   - Key: musicAccent_4
     Event:
       Guid:
