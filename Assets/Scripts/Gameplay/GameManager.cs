@@ -21,6 +21,9 @@ public class GameManager : MonoBehaviour
     [Tooltip("Seconds to keep a cutscene active (intro after exit, and ending cutscenes from Ink).")]
     [SerializeField] private float cinematicDuration = 60f;
 
+    [Tooltip("Shown after any ending cutscene (1–3) finishes.")]
+    [SerializeField] private GameObject creditsObject;
+
     [Header("Audio")]
     [Tooltip("SoundLibrary key for the looping ambience started when this scene begins.")]
     [SerializeField] private string soundscapeKey = "soundscape";
@@ -147,6 +150,17 @@ public class GameManager : MonoBehaviour
         yield return new WaitForSeconds(cinematicDuration);
         DeactivateCinematic(cinematicIndex);
         _cutsceneRoutine = null;
+
+        if (cinematicIndex != IntroCinematicIndex)
+            ShowCredits();
+    }
+
+    void ShowCredits()
+    {
+        if (creditsObject == null)
+            return;
+
+        creditsObject.SetActive(true);
     }
 
     /// <summary>Start the looping soundscape if it is not already playing.</summary>
