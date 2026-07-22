@@ -4,9 +4,15 @@ public class InkStoryCommands : MonoBehaviour
 {
     public void ChangeCamera(string cameraId)
     {
+        if (CutsceneDialogueCameraManager.Instance != null)
+        {
+            CutsceneDialogueCameraManager.Instance.ChangeCamera(cameraId);
+            return;
+        }
+
         if (CameraManager.Instance == null)
         {
-            Debug.LogWarning($"ChangeCamera: No CameraManager in scene. Requested '{cameraId}'.");
+            Debug.LogWarning($"ChangeCamera: No CutsceneDialogueCameraManager / CameraManager in scene. Requested '{cameraId}'.");
             return;
         }
 

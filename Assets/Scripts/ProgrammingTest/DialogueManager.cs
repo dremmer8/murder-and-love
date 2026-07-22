@@ -240,11 +240,22 @@ public class DialogueManager : MonoBehaviour
         else
             Debug.LogWarning($"{name}: No BakedLightingController found — SetBlackout will not be bound.", this);
 
+        CutsceneDialogueCameraManager dialogueCameras = CutsceneDialogueCameraManager.Instance;
+        if (dialogueCameras == null)
+            dialogueCameras = FindFirstObjectByType<CutsceneDialogueCameraManager>();
+
+        InkStoryCommands inkCommands = FindFirstObjectByType<InkStoryCommands>();
+
+        if (dialogueCameras != null)
+            dialogueCameras.BindInkExternals(story);
+        else if (inkCommands != null)
+            story.BindExternalFunction("ChangeCamera", (string cameraId) => inkCommands.ChangeCamera(cameraId));
+        else
+            Debug.LogWarning($"{name}: No CutsceneDialogueCameraManager found — ChangeCamera will not be bound.", this);
+
         DialogueAnimationTargets animTargets = DialogueAnimationTargets.Instance;
         if (animTargets == null)
             animTargets = FindFirstObjectByType<DialogueAnimationTargets>();
-
-        InkStoryCommands inkCommands = FindFirstObjectByType<InkStoryCommands>();
 
         if (animTargets != null || inkCommands != null)
         {

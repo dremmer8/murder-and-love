@@ -14,6 +14,9 @@ EXTERNAL SetBlackout(blackout)
 // Mandy animator triggers: doRelax, doIdle, doTalk, doGiveItem (DialogueAnimationTargets).
 EXTERNAL TriggerAnimation(targetId, animationName)
 
+// Dialogue cutscene camera (CutsceneDialogueCameraManager). Holds 10–25s then returns to player.
+EXTERNAL ChangeCamera(cameraId)
+
 //story phase nubmer
 VAR story_phase = 1
 
