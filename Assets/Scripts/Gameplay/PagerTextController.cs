@@ -242,7 +242,7 @@ public class PagerTextController : MonoBehaviour
             _hasUnreadMessage = _messages.Count > 0;
             RefreshDisplay();
             RefreshPropDisplay();
-            if (_hasUnreadMessage)
+            if (_hasUnreadMessage && !IsEndingCutscenePlaying())
                 StartNewMessageSound();
             PokePager();
             return true;
@@ -251,7 +251,7 @@ public class PagerTextController : MonoBehaviour
         _hasUnreadMessage = _messages.Count > 0 || _waitingForChoice;
         RefreshDisplay();
         RefreshPropDisplay();
-        if (_hasUnreadMessage)
+        if (_hasUnreadMessage && !IsEndingCutscenePlaying())
             StartNewMessageSound();
         PokePager();
 
@@ -279,6 +279,23 @@ public class PagerTextController : MonoBehaviour
             _messages.Add(text);
 
         BeginFirstOpenTutorialIfNeeded();
+        RefreshDisplay();
+        RefreshPropDisplay();
+    }
+
+    /// <summary>
+    /// Ending cutscenes: stop the new-message loop and clear any inbox that chained in
+    /// from Mandy smoking (Jason pager) so audio/UI do not play over the finale.
+    /// </summary>
+    public void SuppressForEndingCutscene()
+    {
+        StopNewMessageSound();
+
+        if (_isOpen)
+            ForceCloseWithoutUnlock();
+
+        ClearConversationState();
+        _hasUnreadMessage = false;
         RefreshDisplay();
         RefreshPropDisplay();
     }
@@ -821,6 +838,11 @@ public class PagerTextController : MonoBehaviour
         _newMessageInstance.stop(STOP_MODE.ALLOWFADEOUT);
         _newMessageInstance.release();
         _newMessageInstance.clearHandle();
+    }
+
+    static bool IsEndingCutscenePlaying()
+    {
+        return GameManager.Instance != null && GameManager.Instance.IsCutscenePlaying;
     }
 
     void RefreshPropDisplay()

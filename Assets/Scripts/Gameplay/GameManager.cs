@@ -33,6 +33,9 @@ public class GameManager : MonoBehaviour
     [Tooltip("Shown after any ending cutscene (1–3) finishes.")]
     [SerializeField] private GameObject creditsObject;
 
+    [Tooltip("If the player finishes ending dialogue before the Timeline ends, wait this many seconds then cut to credits.")]
+    [SerializeField] private float endingEarlyCreditsDelay = 2f;
+
     [Header("Audio")]
     [Tooltip("SoundLibrary key for the looping ambience started when this scene begins.")]
     [SerializeField] private string soundscapeKey = "soundscape";
@@ -224,6 +227,9 @@ public class GameManager : MonoBehaviour
             // Hide the player for ending cutscenes (escape / confession / completion).
             if (playerObject != null)
                 playerObject.SetActive(false);
+
+            // Mandy escape can still chain into Jason's pager on dialogue end — kill it.
+            SuppressPagerDuringEnding();
         }
 
         // Jason completion ending: freeze every washer so the laundromat reads as still.
@@ -240,15 +246,21 @@ public class GameManager : MonoBehaviour
             director.Play();
         }
 
-        yield return new WaitForSeconds(ResolveCinematicDuration(director));
+        float duration = ResolveCinematicDuration(director);
 
-        // Ending cutscenes can start mid-dialogue (Ink PlayEndingCutscene). Hold the last
-        // frame under the dialogue UI until the player finishes clicking through.
-        if (cinematicIndex != IntroCinematicIndex)
+        if (cinematicIndex == IntroCinematicIndex)
         {
-            while (IsStandardDialoguePlaying())
-                yield return null;
+            yield return new WaitForSeconds(duration);
         }
+        else
+        {
+            // Endings: play Timeline, but if dialogue finishes early, wait a short beat
+            // then cut to credits instead of holding the remaining Timeline.
+            yield return WaitForEndingCutscene(duration);
+        }
+
+        if (director != null && director.state == PlayState.Playing)
+            director.Stop();
 
         DeactivateCinematic(cinematicIndex);
         _cutsceneRoutine = null;
@@ -264,6 +276,44 @@ public class GameManager : MonoBehaviour
         {
             ShowCredits();
         }
+    }
+
+    /// <summary>
+    /// Waits for the ending Timeline duration, or ends early once Standard dialogue has
+    /// finished and <see cref="endingEarlyCreditsDelay"/> has elapsed.
+    /// If dialogue outlasts the Timeline, holds until dialogue ends.
+    /// </summary>
+    IEnumerator WaitForEndingCutscene(float duration)
+    {
+        float elapsed = 0f;
+        bool dialogueWasActive = IsStandardDialoguePlaying();
+        float postDialogueElapsed = -1f;
+        float earlyDelay = Mathf.Max(0f, endingEarlyCreditsDelay);
+
+        while (elapsed < duration)
+        {
+            if (IsStandardDialoguePlaying())
+            {
+                dialogueWasActive = true;
+                postDialogueElapsed = -1f;
+            }
+            else if (dialogueWasActive)
+            {
+                if (postDialogueElapsed < 0f)
+                    postDialogueElapsed = 0f;
+
+                postDialogueElapsed += Time.deltaTime;
+                if (postDialogueElapsed >= earlyDelay)
+                    yield break;
+            }
+
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        // Timeline finished — hold last frame until any remaining dialogue is done.
+        while (IsStandardDialoguePlaying())
+            yield return null;
     }
 
     static bool IsStandardDialoguePlaying()
@@ -303,6 +353,13 @@ public class GameManager : MonoBehaviour
             return (float)duration;
 
         return Mathf.Max(0f, cinematicDuration);
+    }
+
+    void SuppressPagerDuringEnding()
+    {
+        PagerTextController pager = PagerTextController.Instance;
+        if (pager != null)
+            pager.SuppressForEndingCutscene();
     }
 
     void ShowCredits()
