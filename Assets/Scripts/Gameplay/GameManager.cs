@@ -65,6 +65,10 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
+        // Keep the menu in blackout even if BakedLightingController startState was left on LightsOn.
+        if (!_gameStarted)
+            ApplyMainMenuLighting();
+
         // BakedLightingController owns pause/resume during blackout; skip if already dark.
         if (BakedLightingController.Instance == null || !BakedLightingController.Instance.IsBlackout)
             StartSoundscape();
@@ -88,6 +92,8 @@ public class GameManager : MonoBehaviour
         if (playerObject != null)
             playerObject.SetActive(true);
 
+        ApplyGameplayLighting();
+
         if (delayOneFrame)
             StartCoroutine(StartIntroNextFrame());
         else
@@ -104,6 +110,26 @@ public class GameManager : MonoBehaviour
 
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
+    }
+
+    /// <summary>Blackout baked lighting while the main menu is up.</summary>
+    void ApplyMainMenuLighting()
+    {
+        BakedLightingController lighting = BakedLightingController.Instance;
+        if (lighting == null)
+            return;
+
+        lighting.ApplyState(BakedLightingController.LightingState.Blackout, immediate: true);
+    }
+
+    /// <summary>Restore lights-on when the player leaves the main menu.</summary>
+    void ApplyGameplayLighting()
+    {
+        BakedLightingController lighting = BakedLightingController.Instance;
+        if (lighting == null)
+            return;
+
+        lighting.ApplyLightsOn();
     }
 
     private void OnDestroy()
