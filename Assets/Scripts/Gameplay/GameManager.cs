@@ -41,6 +41,7 @@ public class GameManager : MonoBehaviour
     bool _gameStarted;
     Coroutine _cutsceneRoutine;
     EventInstance _soundscapeInstance;
+    EventInstance _musicOutroInstance;
 
     /// <summary>
     /// True while intro cinematic (0) or any ending cutscene (1–3) is running.
@@ -136,6 +137,7 @@ public class GameManager : MonoBehaviour
     {
         UnsubscribeIntroExit();
         StopSoundscape();
+        StopMusicOutro();
         if (Instance == this)
             Instance = null;
     }
@@ -216,7 +218,17 @@ public class GameManager : MonoBehaviour
         }
 
         if (cinematicIndex != IntroCinematicIndex)
+        {
             TryPlayMusicOutro();
+
+            // Hide the player for ending cutscenes (escape / confession / completion).
+            if (playerObject != null)
+                playerObject.SetActive(false);
+        }
+
+        // Jason completion ending: freeze every washer so the laundromat reads as still.
+        if (cinematicIndex == CompletionEndingCinematicIndex)
+            DoWorkTrigger.StopAllWork();
 
         ActivateCinematic(cinematicIndex);
 
@@ -273,15 +285,19 @@ public class GameManager : MonoBehaviour
 
     /// <summary>
     /// Uses the Timeline / playable asset length when available; otherwise <see cref="cinematicDuration"/>.
+    /// Prefers <see cref="PlayableAsset.duration"/> so infinite clip extrapolation cannot stall credits forever.
     /// </summary>
     float ResolveCinematicDuration(PlayableDirector director)
     {
         if (director == null)
             return Mathf.Max(0f, cinematicDuration);
 
-        double duration = director.duration;
-        if (duration <= 0d && director.playableAsset != null)
+        double duration = 0d;
+        if (director.playableAsset != null)
             duration = director.playableAsset.duration;
+
+        if (duration <= 0d || double.IsInfinity(duration) || double.IsNaN(duration))
+            duration = director.duration;
 
         if (duration > 0d && !double.IsInfinity(duration) && !double.IsNaN(duration))
             return (float)duration;
@@ -324,14 +340,25 @@ public class GameManager : MonoBehaviour
     void TryPlayMusicOutro()
     {
         StopSoundscape();
+        StopMusicOutro();
 
         if (SoundManager.Instance == null)
             return;
 
-        if (SoundManager.Instance.TryStartInstance("musicOutro", out _))
+        if (SoundManager.Instance.TryStartInstance("musicOutro", out _musicOutroInstance))
             return;
 
         SoundManager.PlayOneShot("musicOutro");
+    }
+
+    void StopMusicOutro()
+    {
+        if (!_musicOutroInstance.isValid())
+            return;
+
+        _musicOutroInstance.stop(STOP_MODE.ALLOWFADEOUT);
+        _musicOutroInstance.release();
+        _musicOutroInstance.clearHandle();
     }
 
     void SubscribeIntroExit()

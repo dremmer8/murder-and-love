@@ -1,7 +1,7 @@
 // Ending cutscenes (GameManager): 1 = escapeEnding, 2 = confessionEnding, 3 = CompletionEnding
 EXTERNAL PlayEndingCutscene(cinematicIndex)
 
-// Unhide a scene item mid-dialogue (DialogueItemUnhide). Ids: first_laundry_coin, backroom_key, second_laundry_coin
+// Unhide a scene item mid-dialogue (DialogueItemUnhide). Ids: first_laundry_coin, backroom_key, second_laundry_coin, police_lights
 EXTERNAL UnhideItem(itemId)
 
 // Give away a basket item mid-dialogue (DialogueItemGiveAway → BasketCollector.GiveBack).
@@ -1472,6 +1472,7 @@ Police Officer: Were you a part of this?
   ***** [Say his name]
   You: Jason Ho.
   
+  ~ UnhideItem("police_lights")
   Police Officer: ...Miss, you did the right thing. 
   Police Officer: I knew something was fishy, but I’m glad you were the first to tell me.
   Police Officer: Otherwise, the crime of harboring a murderer is very serious.

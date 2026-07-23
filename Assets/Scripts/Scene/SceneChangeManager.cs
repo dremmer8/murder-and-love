@@ -117,6 +117,9 @@ public class SceneChangeManager : MonoBehaviour
         if (GameStateManager.CurrentState == GameState.Paused)
             GameStateManager.ChangeState(GameState.Gameplay);
 
+        // FMOD RuntimeManager survives scene loads — kill outro / loops before bootstrap.
+        SoundManager.StopAllEvents();
+
         if (!TryLoadScene(m_BootstrapSceneName))
             Debug.LogError($"[SceneChangeManager] Restart failed — bootstrap scene '{m_BootstrapSceneName}' missing from Build Settings.", this);
     }

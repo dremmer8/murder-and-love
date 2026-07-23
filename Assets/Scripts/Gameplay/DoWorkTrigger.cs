@@ -98,4 +98,17 @@ public class DoWorkTrigger : MonoBehaviour
                 s_Instances[i].ApplyAnimatorState();
         }
     }
+
+    /// <summary>
+    /// Global: permanently stop every machine (idle / still). Unlike blackout pause,
+    /// desired state is cleared so power restore will not spin them again.
+    /// </summary>
+    public static void StopAllWork()
+    {
+        for (int i = 0; i < s_Instances.Count; i++)
+        {
+            if (s_Instances[i] != null)
+                s_Instances[i].SetWorking(false);
+        }
+    }
 }

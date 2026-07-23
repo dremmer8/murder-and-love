@@ -55,6 +55,23 @@ public class UniversalAudioDemo : MonoBehaviour
         ReleaseGlobalMusicIfNeeded();
     }
 
+    /// <summary>
+    /// Clears the session music handle after a bus-wide stop (e.g. game restart)
+    /// so a later scene can start music again.
+    /// </summary>
+    public static void ResetGlobalMusicTracking()
+    {
+        if (s_GlobalMusicInstance.isValid())
+        {
+            s_GlobalMusicInstance.stop(STOP_MODE.ALLOWFADEOUT);
+            s_GlobalMusicInstance.release();
+            s_GlobalMusicInstance.clearHandle();
+        }
+
+        s_MusicWasStartedGlobally = false;
+        s_QuitCleanupDone = false;
+    }
+
     static void ReleaseGlobalMusicIfNeeded()
     {
         if (s_QuitCleanupDone)

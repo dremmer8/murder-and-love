@@ -50,6 +50,27 @@ public class SoundManager : MonoBehaviour
         return Instance != null && Instance.TryPlayOneShotAttached(key, target);
     }
 
+    /// <summary>
+    /// Stops every active FMOD event on the master bus (looped music, soundscape, etc.).
+    /// Call on game restart so audio does not carry into the next playthrough.
+    /// </summary>
+    public static void StopAllEvents(FMOD.Studio.STOP_MODE mode = FMOD.Studio.STOP_MODE.ALLOWFADEOUT)
+    {
+        if (!RuntimeManager.IsInitialized)
+            return;
+
+        try
+        {
+            RuntimeManager.GetBus("bus:/").stopAllEvents(mode);
+        }
+        catch (BusNotFoundException)
+        {
+            RuntimeUtils.DebugLogWarning("[SoundManager] Master bus 'bus:/' not found — cannot stop all events.");
+        }
+
+        UniversalAudioDemo.ResetGlobalMusicTracking();
+    }
+
     /// <summary> True if the library resolved <paramref name="key"/> to a non-null event. </summary>
     public bool TryPlayOneShot(string key, Vector3 worldPosition = default)
     {
