@@ -38,6 +38,10 @@ public class PauseMenu : MonoBehaviour
             if (MinigameActivator.IsAnyActive)
                 return;
 
+            // Main menu owns the screen until Start — don't open pause over it.
+            if (GameManager.Instance != null && !GameManager.Instance.HasStartedFromMainMenu)
+                return;
+
             HandleEscape();
         }
     }

@@ -16,6 +16,13 @@ public class GameManager : MonoBehaviour
     [Tooltip("If true, waits one frame before starting the intro (can flash the gameplay view). Leave off to show the intro immediately.")]
     [SerializeField] private bool delayOneFrame = false;
 
+    [Header("Main Menu")]
+    [Tooltip("Shown on load; deactivated when Start is pressed.")]
+    [SerializeField] private GameObject mainMenuCanvas;
+
+    [Tooltip("Kept inactive until Start; then enabled before the intro sequence.")]
+    [SerializeField] private GameObject playerObject;
+
     [Header("Cinematics")]
     [Tooltip("0 = intro, 1 = escapeEnding, 2 = confessionEnding, 3 = CompletionEnding")]
     [SerializeField] private GameObject[] cinematics;
@@ -31,6 +38,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private string soundscapeKey = "soundscape";
 
     bool _waitingForIntroExit;
+    bool _gameStarted;
     Coroutine _cutsceneRoutine;
     EventInstance _soundscapeInstance;
 
@@ -38,6 +46,9 @@ public class GameManager : MonoBehaviour
     /// True while intro cinematic (0) or any ending cutscene (1–3) is running.
     /// </summary>
     public bool IsCutscenePlaying => _cutsceneRoutine != null;
+
+    /// <summary>True after the main-menu Start button has begun the game.</summary>
+    public bool HasStartedFromMainMenu => _gameStarted;
 
     void Awake()
     {
@@ -49,6 +60,7 @@ public class GameManager : MonoBehaviour
         }
 
         Instance = this;
+        PrepareMainMenu();
     }
 
     private void Start()
@@ -57,10 +69,41 @@ public class GameManager : MonoBehaviour
         if (BakedLightingController.Instance == null || !BakedLightingController.Instance.IsBlackout)
             StartSoundscape();
 
+        // Intro waits for the main-menu Start button (see UI_StartGame).
+    }
+
+    /// <summary>
+    /// Hook for Main Menu Start button: hide menu, enable player, run intro as usual.
+    /// </summary>
+    public void UI_StartGame()
+    {
+        if (_gameStarted)
+            return;
+
+        _gameStarted = true;
+
+        if (mainMenuCanvas != null)
+            mainMenuCanvas.SetActive(false);
+
+        if (playerObject != null)
+            playerObject.SetActive(true);
+
         if (delayOneFrame)
             StartCoroutine(StartIntroNextFrame());
         else
             StartIntroSequence();
+    }
+
+    void PrepareMainMenu()
+    {
+        if (playerObject != null)
+            playerObject.SetActive(false);
+
+        if (mainMenuCanvas != null)
+            mainMenuCanvas.SetActive(true);
+
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
     }
 
     private void OnDestroy()
