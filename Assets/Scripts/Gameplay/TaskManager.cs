@@ -13,11 +13,16 @@ public class TaskPhaseEntry
     [Tooltip("Objective text shown while this phase is the latest matched entry.")]
     [TextArea(1, 3)]
     public string taskText;
+
+    [Tooltip("If any keys are set, this task finishes once every listed BasketSlot.key is occupied. Earlier same-phase entries are preferred until finished.")]
+    public List<string> completeWhenSlotsOccupied = new();
 }
 
 /// <summary>
-/// HUD task text driven by <see cref="GlobalVariableOperator.GameProgression"/>.
-/// Picks the highest entry whose <see cref="TaskPhaseEntry.storyPhase"/> is &lt;= current progression.
+/// HUD task text driven by <see cref="GlobalVariableOperator.GameProgression"/>
+/// and optional basket-slot completion.
+/// Picks the highest incomplete entry whose <see cref="TaskPhaseEntry.storyPhase"/>
+/// is &lt;= current progression (list order breaks same-phase ties).
 /// </summary>
 public class TaskManager : MonoBehaviour
 {
@@ -54,6 +59,7 @@ public class TaskManager : MonoBehaviour
     [SerializeField] private List<TaskPhaseEntry> tasks = new();
 
     int _lastSeenProgression = int.MinValue;
+    int _lastBasketOccupancySig = int.MinValue;
     string _currentText = "";
     Tween _textTween;
     Color _labelBaseColor = Color.white;
@@ -93,32 +99,45 @@ public class TaskManager : MonoBehaviour
     void Update()
     {
         int progression = CurrentProgression();
-        if (progression == _lastSeenProgression)
+        int occupancySig = ComputeBasketOccupancySignature();
+        if (progression == _lastSeenProgression && occupancySig == _lastBasketOccupancySig)
             return;
 
         Refresh(force: false);
     }
 
     /// <summary>
-    /// Re-reads progression and updates the label if needed.
+    /// Called when basket slot occupancy may have changed (collect / give-away).
+    /// </summary>
+    public void NotifyBasketChanged()
+    {
+        Refresh(force: false);
+    }
+
+    /// <summary>
+    /// Re-reads progression / basket slots and updates the label if needed.
     /// </summary>
     public void Refresh(bool force = false)
     {
         int progression = CurrentProgression();
-        if (!force && progression == _lastSeenProgression)
+        int occupancySig = ComputeBasketOccupancySignature();
+        if (!force
+            && progression == _lastSeenProgression
+            && occupancySig == _lastBasketOccupancySig)
             return;
 
         _lastSeenProgression = progression;
+        _lastBasketOccupancySig = occupancySig;
         ApplyText(ResolveTaskText(progression), animate: !force);
     }
 
     /// <summary>
-    /// Highest entry with <see cref="TaskPhaseEntry.storyPhase"/> &lt;= <paramref name="progression"/>,
+    /// Highest incomplete entry with <see cref="TaskPhaseEntry.storyPhase"/> &lt;= <paramref name="progression"/>,
     /// or <see cref="fallbackText"/> when none match.
     /// </summary>
     public string ResolveTaskText(int progression)
     {
-        TaskPhaseEntry best = FindReachedMilestone(progression);
+        TaskPhaseEntry best = FindActiveTask(progression);
         if (best == null)
             return fallbackText ?? "";
 
@@ -128,11 +147,38 @@ public class TaskManager : MonoBehaviour
     /// <summary>
     /// Highest task milestone (<see cref="TaskPhaseEntry.storyPhase"/>) reached at
     /// <paramref name="progression"/>, or 0 if none. Used as a progression floor lock.
+    /// Ignores basket completion so floors stay stable after collect tasks finish.
     /// </summary>
     public int GetReachedMilestoneFloor(int progression)
     {
         TaskPhaseEntry best = FindReachedMilestone(progression);
         return best != null ? best.storyPhase : 0;
+    }
+
+    TaskPhaseEntry FindActiveTask(int progression)
+    {
+        if (tasks == null || tasks.Count == 0)
+            return null;
+
+        TaskPhaseEntry best = null;
+        for (int i = 0; i < tasks.Count; i++)
+        {
+            TaskPhaseEntry entry = tasks[i];
+            if (entry == null)
+                continue;
+
+            if (progression < entry.storyPhase)
+                continue;
+
+            if (IsCompletedByBasket(entry))
+                continue;
+
+            // Same phase: keep the earlier list entry (collect before go-to).
+            if (best == null || entry.storyPhase > best.storyPhase)
+                best = entry;
+        }
+
+        return best;
     }
 
     TaskPhaseEntry FindReachedMilestone(int progression)
@@ -155,6 +201,56 @@ public class TaskManager : MonoBehaviour
         }
 
         return best;
+    }
+
+    static bool IsCompletedByBasket(TaskPhaseEntry entry)
+    {
+        if (entry.completeWhenSlotsOccupied == null || entry.completeWhenSlotsOccupied.Count == 0)
+            return false;
+
+        if (BasketCollector.Instance == null)
+            return false;
+
+        bool anyKey = false;
+        for (int i = 0; i < entry.completeWhenSlotsOccupied.Count; i++)
+        {
+            string key = entry.completeWhenSlotsOccupied[i];
+            if (string.IsNullOrEmpty(key))
+                continue;
+
+            anyKey = true;
+            if (!BasketCollector.Instance.IsSlotOccupied(key))
+                return false;
+        }
+
+        return anyKey;
+    }
+
+    int ComputeBasketOccupancySignature()
+    {
+        if (tasks == null || tasks.Count == 0 || BasketCollector.Instance == null)
+            return 0;
+
+        int sig = 0;
+        for (int i = 0; i < tasks.Count; i++)
+        {
+            TaskPhaseEntry entry = tasks[i];
+            if (entry?.completeWhenSlotsOccupied == null)
+                continue;
+
+            for (int j = 0; j < entry.completeWhenSlotsOccupied.Count; j++)
+            {
+                string key = entry.completeWhenSlotsOccupied[j];
+                if (string.IsNullOrEmpty(key))
+                    continue;
+
+                sig = unchecked(sig * 31 + key.GetHashCode());
+                if (BasketCollector.Instance.IsSlotOccupied(key))
+                    sig = unchecked(sig * 31 + 1);
+            }
+        }
+
+        return sig;
     }
 
     void ApplyText(string text, bool animate)

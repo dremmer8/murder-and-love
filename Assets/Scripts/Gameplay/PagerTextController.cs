@@ -13,6 +13,8 @@ using Ink.Runtime;
 /// Prop screen shows "new message" until the player finishes reading the thread.
 /// Respond-support mode: after the inbound message, Space shows "start typing"; any key
 /// types a canned reply; finishing plays the completion ending and completes the knot.
+/// First inbound thread runs a one-shot tutorial: long messages require A then D before
+/// Space works, and Tab cannot put the pager down until that step is done.
 /// </summary>
 public class PagerTextController : MonoBehaviour
 {
@@ -25,6 +27,14 @@ public class PagerTextController : MonoBehaviour
         StartTypingPrompt,
         TypingReply,
         Finished
+    }
+
+    /// <summary>First-open tutorial step used by control hints.</summary>
+    public enum TutorialHintStep
+    {
+        None,
+        Scroll,
+        Advance
     }
 
     [Header("Hardware")]
@@ -67,6 +77,12 @@ public class PagerTextController : MonoBehaviour
     RespondPhase _respondPhase = RespondPhase.None;
     int _typedCharCount;
 
+    // One-shot tutorial for the first pager conversation only.
+    bool _hasCompletedFirstPagerTutorial;
+    bool _tutorialActive;
+    bool _tutorialScrolledLeft;
+    bool _tutorialScrolledRight;
+
     Story _story;
     string _knotName;
     Action<string> _onConversationComplete;
@@ -93,6 +109,28 @@ public class PagerTextController : MonoBehaviour
     /// <summary>Respond-support: the "start typing" / typing phase (any key types the reply).</summary>
     public bool IsRespondTyping => _respondSupportMode
         && (_respondPhase == RespondPhase.StartTypingPrompt || _respondPhase == RespondPhase.TypingReply);
+
+    /// <summary>True while the first-message tutorial is still gating input.</summary>
+    public bool IsFirstOpenTutorialActive => _tutorialActive;
+
+    /// <summary>Space must wait until A and D have both been used on a long first message.</summary>
+    public bool TutorialBlocksAdvance => _tutorialActive && RequiresTutorialScroll();
+
+    /// <summary>Tab cannot put the pager down until the first-open scroll tutorial is finished.</summary>
+    public bool TutorialBlocksLeave => _tutorialActive;
+
+    /// <summary>Hint step for the first-open tutorial (None once completed / not active).</summary>
+    public TutorialHintStep CurrentTutorialHintStep
+    {
+        get
+        {
+            if (!_tutorialActive)
+                return TutorialHintStep.None;
+            if (RequiresTutorialScroll())
+                return TutorialHintStep.Scroll;
+            return TutorialHintStep.Advance;
+        }
+    }
 
     void Awake()
     {
@@ -139,7 +177,12 @@ public class PagerTextController : MonoBehaviour
         // During respond-support, Tab is the only way out of the open pager.
         // Scroll swapped from arrows to A/D (see scrollLeftKey / scrollRightKey).
         if (Input.GetKeyDown(toggleKey))
+        {
+            if (_isOpen && TutorialBlocksLeave)
+                return;
+
             TogglePager();
+        }
 
         if (!_isOpen)
             return;
@@ -156,7 +199,7 @@ public class PagerTextController : MonoBehaviour
         if (_waitingForChoice)
             return;
 
-        if (Input.GetKeyDown(advanceKey))
+        if (Input.GetKeyDown(advanceKey) && !TutorialBlocksAdvance)
             AdvanceMessage();
     }
 
@@ -189,6 +232,7 @@ public class PagerTextController : MonoBehaviour
         _typedCharCount = 0;
 
         CollectLinesUntilPause();
+        BeginFirstOpenTutorialIfNeeded();
 
         if (_respondSupportMode)
         {
@@ -234,6 +278,7 @@ public class PagerTextController : MonoBehaviour
         if (_hasConversation)
             _messages.Add(text);
 
+        BeginFirstOpenTutorialIfNeeded();
         RefreshDisplay();
         RefreshPropDisplay();
     }
@@ -242,7 +287,12 @@ public class PagerTextController : MonoBehaviour
     public void TogglePager()
     {
         if (_isOpen)
+        {
+            if (TutorialBlocksLeave)
+                return;
+
             ClosePager();
+        }
         else
             OpenPager();
     }
@@ -283,6 +333,10 @@ public class PagerTextController : MonoBehaviour
     public void ClosePager()
     {
         if (!_isOpen)
+            return;
+
+        // First-open tutorial keeps the player in the pager until scroll (and Space unlock) are done.
+        if (TutorialBlocksLeave)
             return;
 
         _isOpen = false;
@@ -348,7 +402,10 @@ public class PagerTextController : MonoBehaviour
     {
         PokePager();
         _scrollIndex = Mathf.Max(0, _scrollIndex - visibleCharacterCount);
+        if (_tutorialActive)
+            _tutorialScrolledLeft = true;
         RefreshDisplay();
+        TryFinishTutorialAfterScrollPractice();
     }
 
     [ContextMenu("Scroll Right")]
@@ -356,7 +413,10 @@ public class PagerTextController : MonoBehaviour
     {
         PokePager();
         _scrollIndex = Mathf.Min(GetMaxScrollIndex(), _scrollIndex + visibleCharacterCount);
+        if (_tutorialActive)
+            _tutorialScrolledRight = true;
         RefreshDisplay();
+        TryFinishTutorialAfterScrollPractice();
     }
 
     /// <summary>Called by DialogueManager when the player picks a pager choice.</summary>
@@ -420,7 +480,7 @@ public class PagerTextController : MonoBehaviour
                     return true;
                 }
 
-                if (Input.GetKeyDown(advanceKey))
+                if (Input.GetKeyDown(advanceKey) && !TutorialBlocksAdvance)
                 {
                     if (_messageIndex < _messages.Count - 1)
                     {
@@ -433,6 +493,7 @@ public class PagerTextController : MonoBehaviour
                         EnterStartTypingPrompt();
                     }
 
+                    CompleteFirstOpenTutorial();
                     return true;
                 }
 
@@ -557,6 +618,7 @@ public class PagerTextController : MonoBehaviour
         RefreshDisplay();
 
         // Leave the pager UI so the next dialogue / cutscene are not fighting Pager state.
+        CompleteFirstOpenTutorial();
         ClosePager();
 
         if (GameManager.Instance != null)
@@ -585,6 +647,7 @@ public class PagerTextController : MonoBehaviour
             _messageIndex++;
             _scrollIndex = 0;
             RefreshDisplay();
+            CompleteFirstOpenTutorial();
             return;
         }
 
@@ -602,6 +665,7 @@ public class PagerTextController : MonoBehaviour
                 _messageIndex++;
                 _scrollIndex = 0;
                 RefreshDisplay();
+                CompleteFirstOpenTutorial();
                 return;
             }
         }
@@ -614,6 +678,55 @@ public class PagerTextController : MonoBehaviour
         MarkConversationRead();
         SoundManager.PlayOneShot("pagerNoMessages");
         RefreshDisplay();
+        CompleteFirstOpenTutorial();
+    }
+
+    void BeginFirstOpenTutorialIfNeeded()
+    {
+        if (_hasCompletedFirstPagerTutorial || _messages.Count == 0)
+        {
+            _tutorialActive = false;
+            return;
+        }
+
+        _tutorialActive = true;
+        _tutorialScrolledLeft = false;
+        _tutorialScrolledRight = false;
+    }
+
+    bool CurrentMessageNeedsScroll()
+    {
+        return GetMaxScrollIndex() > 0;
+    }
+
+    bool RequiresTutorialScroll()
+    {
+        if (!_tutorialActive || !CurrentMessageNeedsScroll())
+            return false;
+
+        return !_tutorialScrolledLeft || !_tutorialScrolledRight;
+    }
+
+    /// <summary>
+    /// Long first message: once A and D have both been used, unlock Space and Tab.
+    /// Short first message: keep Tab locked until the player presses Space once.
+    /// </summary>
+    void TryFinishTutorialAfterScrollPractice()
+    {
+        if (!_tutorialActive || !CurrentMessageNeedsScroll())
+            return;
+
+        if (_tutorialScrolledLeft && _tutorialScrolledRight)
+            CompleteFirstOpenTutorial();
+    }
+
+    void CompleteFirstOpenTutorial()
+    {
+        if (!_tutorialActive)
+            return;
+
+        _tutorialActive = false;
+        _hasCompletedFirstPagerTutorial = true;
     }
 
     void CollectLinesUntilPause()

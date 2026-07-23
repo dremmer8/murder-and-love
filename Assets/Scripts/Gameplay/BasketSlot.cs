@@ -31,12 +31,17 @@ public class BasketSlot : MonoBehaviour
             return false;
 
         _reserved = true;
+        TaskManager.Instance?.NotifyBasketChanged();
         return true;
     }
 
     public void CancelReserve()
     {
+        if (!_reserved)
+            return;
+
         _reserved = false;
+        TaskManager.Instance?.NotifyBasketChanged();
     }
 
     void Awake()
@@ -88,6 +93,8 @@ public class BasketSlot : MonoBehaviour
         item.localPosition = Vector3.zero;
         item.localRotation = Quaternion.identity;
 
+        TaskManager.Instance?.NotifyBasketChanged();
+
         if (!_occupiedDialogueFired && onOccupiedDialogue != null
             && onOccupiedDialogue.TryStartDialogue())
         {
@@ -103,6 +110,8 @@ public class BasketSlot : MonoBehaviour
         _tilt = Vector3.zero;
         if (item != null)
             item.SetParent(null, true);
+
+        TaskManager.Instance?.NotifyBasketChanged();
         return item;
     }
 

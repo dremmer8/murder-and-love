@@ -11,6 +11,7 @@ using UnityEngine;
 ///        • normal gameplay .......... "[TAB] Check pager"
 ///        • minigame active .......... per-minigame ControlHints (fallback below)
 ///        • pager open ............... A/D scroll, Space next, Tab put down
+///        • pager first-open tutorial  scroll A/D, then Space (Tab locked until done)
 ///        • pager respond (reading) .. A/D scroll, Space continue, Tab put down
 ///        • pager respond (typing) ... any key types the reply, Tab put down
 ///        • dialogue / intro ......... Space continue, or mouse to choose options
@@ -45,11 +46,23 @@ public class ControlHintsPresenter : MonoBehaviour
     [TextArea] [SerializeField] private string pagerOpenHint =
         "A / D — scroll\n[SPACE] Next message\n[TAB] Put down pager";
 
+    [TextArea] [SerializeField] private string pagerTutorialScrollHint =
+        "[A] / [D] Scroll left & right";
+
+    [TextArea] [SerializeField] private string pagerTutorialAdvanceHint =
+        "[SPACE] Next message";
+
     [TextArea] [SerializeField] private string pagerRespondReadingHint =
         "A / D — scroll\n[SPACE] Continue / reply\n[TAB] Put down pager";
 
     [TextArea] [SerializeField] private string pagerRespondTypingHint =
         "Type on any key to reply\n[TAB] Put down pager";
+
+    [TextArea] [SerializeField] private string pagerRespondTutorialScrollHint =
+        "[A] / [D] Scroll left & right";
+
+    [TextArea] [SerializeField] private string pagerRespondTutorialAdvanceHint =
+        "[SPACE] Continue / reply";
 
     [TextArea] [SerializeField] private string dialogueProgressHint =
         "[SPACE] Continue\nMouse — choose options";
@@ -133,8 +146,29 @@ public class ControlHintsPresenter : MonoBehaviour
         if (pager != null && pager.IsOpen)
         {
             if (pager.IsRespondTyping)
+            {
                 SetTopRightHint(true, pagerRespondTypingHint);
-            else if (pager.IsRespondReadingInbound)
+                return;
+            }
+
+            switch (pager.CurrentTutorialHintStep)
+            {
+                case PagerTextController.TutorialHintStep.Scroll:
+                    SetTopRightHint(true,
+                        pager.IsRespondReadingInbound
+                            ? pagerRespondTutorialScrollHint
+                            : pagerTutorialScrollHint);
+                    return;
+
+                case PagerTextController.TutorialHintStep.Advance:
+                    SetTopRightHint(true,
+                        pager.IsRespondReadingInbound
+                            ? pagerRespondTutorialAdvanceHint
+                            : pagerTutorialAdvanceHint);
+                    return;
+            }
+
+            if (pager.IsRespondReadingInbound)
                 SetTopRightHint(true, pagerRespondReadingHint);
             else
                 SetTopRightHint(true, pagerOpenHint);

@@ -487,6 +487,10 @@ public class WashingMachineClothOperator : MonoBehaviour, IMinigameStepHintSourc
     {
         stepId = null;
 
+        // Washer B is the second wash — player already learned the loop on A.
+        if (machineId == WashingMachineId.B)
+            return false;
+
         if (completing || step == Step.Done || snapping || idx >= 0)
             return false;
 

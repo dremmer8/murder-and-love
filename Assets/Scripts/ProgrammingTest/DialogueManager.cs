@@ -37,7 +37,7 @@ public class DialogueManager : MonoBehaviour
     public bool dialogueIsPlaying { get; private set; }
     public DialoguePresentationMode ActiveMode => activeMode;
 
-    /// <summary>True while Space advance / dialogue exit is blocked (e.g. give-item anim).</summary>
+    /// <summary>True while Space/click advance / dialogue exit is blocked (e.g. give-item anim).</summary>
     public bool IsAdvanceLocked => Time.time < advanceLockedUntil;
 
     /// <summary>True while choice buttons are shown and awaiting a click.</summary>
@@ -111,7 +111,7 @@ public class DialogueManager : MonoBehaviour
         if (Time.time < nextInputTime)
             return;
 
-        if (!isChoosing && Input.GetKeyDown(KeyCode.Space))
+        if (!isChoosing && (Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0)))
         {
             DialogueTypewriter writer = ResolveTypewriter();
             if (writer != null && writer.IsTyping && writer.Skip())
@@ -125,7 +125,7 @@ public class DialogueManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Blocks Space advance and dialogue exit until <paramref name="seconds"/> elapse.
+    /// Blocks Space/click advance and dialogue exit until <paramref name="seconds"/> elapse.
     /// Used while Mandy's doGiveItem animation plays.
     /// </summary>
     public void LockAdvanceFor(float seconds)

@@ -36,7 +36,7 @@ public class IntroSequencePresenter : MonoBehaviour
     [Header("Input")]
     [SerializeField] private float inputDelay = 0.2f;
 
-    [Tooltip("If true, Space advances when a revealed bit has no pending choices.")]
+    [Tooltip("If true, Space or left click advances when a revealed bit has no pending choices.")]
     [SerializeField] private bool advanceTextWithSpace = true;
 
     [Header("Typewriter")]
@@ -120,7 +120,7 @@ public class IntroSequencePresenter : MonoBehaviour
         if (Time.time < _nextInputTime)
             return;
 
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0))
         {
             DialogueTypewriter writer = ResolveTypewriter();
             if (writer != null && writer.IsTyping && writer.Skip())

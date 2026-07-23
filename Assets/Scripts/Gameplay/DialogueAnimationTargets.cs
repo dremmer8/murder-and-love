@@ -14,7 +14,8 @@ public class NamedAnimator
 
 /// <summary>
 /// Named animator registry for Ink EXTERNAL TriggerAnimation(targetId, animationName).
-/// Also drives Mandy's outside-dialogue doIdle while game_progression &lt; idleUntilProgression.
+/// Also drives outside-dialogue character loops: Mandy doIdle while game_progression &lt;
+/// idleUntilProgression, and Lau doStandLoop once game_progression reaches standLoopFromProgression.
 /// </summary>
 public class DialogueAnimationTargets : MonoBehaviour
 {
@@ -22,7 +23,9 @@ public class DialogueAnimationTargets : MonoBehaviour
 
     public const string GiveItemTrigger = "doGiveItem";
     public const string IdleTrigger = "doIdle";
+    public const string StandLoopTrigger = "doStandLoop";
     public const string DefaultIdleTargetId = "Mandy";
+    public const string DefaultStandLoopTargetId = "Lau";
 
     [Header("Targets")]
     [SerializeField] List<NamedAnimator> animators = new();
@@ -33,6 +36,13 @@ public class DialogueAnimationTargets : MonoBehaviour
 
     [Tooltip("Stop auto-idle once game_progression reaches this value.")]
     [SerializeField] int idleUntilProgression = 22;
+
+    [Header("Stand loop (outside dialogue)")]
+    [Tooltip("Fire doStandLoop on this target when not in dialogue and progression has reached the threshold.")]
+    [SerializeField] string standLoopTargetId = DefaultStandLoopTargetId;
+
+    [Tooltip("Start auto stand-loop once game_progression reaches this value.")]
+    [SerializeField] int standLoopFromProgression = 26;
 
     [Header("Give item lock")]
     [Tooltip("Fallback lock duration if the give clip length cannot be read.")]
@@ -65,7 +75,7 @@ public class DialogueAnimationTargets : MonoBehaviour
     void Start()
     {
         SubscribeDialogue();
-        TryApplyIdle();
+        TryApplyOutsideDialoguePoses();
     }
 
     void Update()
@@ -78,7 +88,7 @@ public class DialogueAnimationTargets : MonoBehaviour
             : 0;
 
         if (progression != _lastIdleProgression)
-            TryApplyIdle();
+            TryApplyOutsideDialoguePoses();
     }
 
     void SubscribeDialogue()
@@ -102,7 +112,23 @@ public class DialogueAnimationTargets : MonoBehaviour
 
     void HandleDialogueEnded(string _)
     {
-        TryApplyIdle();
+        TryApplyOutsideDialoguePoses();
+    }
+
+    void TryApplyOutsideDialoguePoses()
+    {
+        int progression = GlobalVariableOperator.Instance != null
+            ? GlobalVariableOperator.Instance.GameProgression
+            : 0;
+
+        _lastIdleProgression = progression;
+
+        DialogueManager dialogue = DialogueManager.GetInstance();
+        if (dialogue != null && dialogue.dialogueIsPlaying)
+            return;
+
+        TryApplyIdle(progression);
+        TryApplyStandLoop(progression);
     }
 
     /// <summary>Ink EXTERNAL entry point.</summary>
@@ -209,19 +235,9 @@ public class DialogueAnimationTargets : MonoBehaviour
         return null;
     }
 
-    void TryApplyIdle()
+    void TryApplyIdle(int progression)
     {
-        int progression = GlobalVariableOperator.Instance != null
-            ? GlobalVariableOperator.Instance.GameProgression
-            : 0;
-
-        _lastIdleProgression = progression;
-
         if (progression >= idleUntilProgression)
-            return;
-
-        DialogueManager dialogue = DialogueManager.GetInstance();
-        if (dialogue != null && dialogue.dialogueIsPlaying)
             return;
 
         if (string.IsNullOrEmpty(idleTargetId))
@@ -231,5 +247,19 @@ public class DialogueAnimationTargets : MonoBehaviour
             return;
 
         animator.SetTrigger(IdleTrigger);
+    }
+
+    void TryApplyStandLoop(int progression)
+    {
+        if (progression < standLoopFromProgression)
+            return;
+
+        if (string.IsNullOrEmpty(standLoopTargetId))
+            return;
+
+        if (!TryGetAnimator(standLoopTargetId, out Animator animator) || animator == null)
+            return;
+
+        animator.SetTrigger(StandLoopTrigger);
     }
 }

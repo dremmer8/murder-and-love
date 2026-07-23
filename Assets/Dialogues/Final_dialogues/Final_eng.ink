@@ -973,6 +973,8 @@ Thoughts: I just need to put it in...
     Thoughts: Again? It needs to work...
     ~ ChangeCamera("Player")
     - else:
+    // Win: unlock Collect 5 coins (TaskManager storyPhase 17).
+    ~ game_progression = 17
     ~ ChangeCamera("b3")
     Thoughts: Finally... I should go back to Mrs Wong to buy the laundry coin.
     ~ ChangeCamera("Player")
@@ -981,10 +983,9 @@ Thoughts: I just need to put it in...
 -> END
 
 // =============================================================================
-//  PHASE 17 Will be triggered after the coin machine mini game
+//  PHASE 17 Pager interruption (progression 17 is set on coin-machine win above).
 // =============================================================================    
 == Boyfriend_pager_phase_2 ==
-~ game_progression = 17
 //pager beeps and vibrates
 J: A cop stopped me.
 J: I lied about the trunk.
