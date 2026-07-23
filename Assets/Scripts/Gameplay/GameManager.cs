@@ -232,8 +232,17 @@ public class GameManager : MonoBehaviour
         DeactivateCinematic(cinematicIndex);
         _cutsceneRoutine = null;
 
-        if (cinematicIndex != IntroCinematicIndex)
+        // Intro Timeline may leave the player inactive (1-frame Activation clip + LeaveAsIs).
+        // Always restore control after the intro cinematic; endings go to credits instead.
+        if (cinematicIndex == IntroCinematicIndex)
+        {
+            if (playerObject != null)
+                playerObject.SetActive(true);
+        }
+        else
+        {
             ShowCredits();
+        }
     }
 
     PlayableDirector GetCinematicDirector(int index)
