@@ -89,7 +89,7 @@ public class ControlHintsPresenter : MonoBehaviour
 
     private void Update()
     {
-        // Intro cinematic + all 3 ending cutscenes — hide both hint roots entirely.
+        // Intro cinematic + ending cutscenes (including dialogue-over-cutscene endings).
         if (GameManager.Instance != null && GameManager.Instance.IsCutscenePlaying)
         {
             SetInteractHint(false, null);

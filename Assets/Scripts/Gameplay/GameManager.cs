@@ -229,6 +229,15 @@ public class GameManager : MonoBehaviour
         }
 
         yield return new WaitForSeconds(ResolveCinematicDuration(director));
+
+        // Ending cutscenes can start mid-dialogue (Ink PlayEndingCutscene). Hold the last
+        // frame under the dialogue UI until the player finishes clicking through.
+        if (cinematicIndex != IntroCinematicIndex)
+        {
+            while (IsStandardDialoguePlaying())
+                yield return null;
+        }
+
         DeactivateCinematic(cinematicIndex);
         _cutsceneRoutine = null;
 
@@ -243,6 +252,14 @@ public class GameManager : MonoBehaviour
         {
             ShowCredits();
         }
+    }
+
+    static bool IsStandardDialoguePlaying()
+    {
+        DialogueManager dialogue = DialogueManager.GetInstance();
+        return dialogue != null
+            && dialogue.dialogueIsPlaying
+            && dialogue.ActiveMode == DialoguePresentationMode.Standard;
     }
 
     PlayableDirector GetCinematicDirector(int index)

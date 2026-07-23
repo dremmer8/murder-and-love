@@ -1396,6 +1396,7 @@ Mrs Wong: you can come back to me whenever you’re ready.
 -> END
 
 = Mandy_escape_ending
+~ PlayEndingCutscene(1)
 Thoughts: It’s time to live on my own.
 Thoughts: I don’t need to listen to Jason anymore,
 Thoughts: and I don’t need to obey him all the time.
@@ -1419,7 +1420,6 @@ Mandy: Goodbye, Vivian.
 You: Goodbye, Mandy. 
 -
 ~ game_progression = 28
-~ PlayEndingCutscene(1)
 -> END
 
 // =============================================================================
@@ -1444,6 +1444,7 @@ You: I’m just tired.
 * [Report boyfriend’s murder]
 You: I want to report a murder.
 Police Officer: Say that again, miss. What happened? 
+~ PlayEndingCutscene(2)
 -> murder_confess
 = murder_confess
 You: Someone broke in and threatened us. 
@@ -1477,7 +1478,6 @@ Police Officer: Were you a part of this?
   Police Officer: It took courage to confess and report a crime of your lover.
   Police Officer: Now, please come with me.
   ~ game_progression = 30
-  ~ PlayEndingCutscene(2)
   -> END
 
 // =============================================================================

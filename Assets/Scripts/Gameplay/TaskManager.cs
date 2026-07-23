@@ -64,6 +64,7 @@ public class TaskManager : MonoBehaviour
     Tween _textTween;
     Color _labelBaseColor = Color.white;
     readonly StringBuilder _decodeBuilder = new StringBuilder(64);
+    bool _hiddenByCutscene;
 
     public string CurrentTaskText => _currentText;
     public IReadOnlyList<TaskPhaseEntry> Tasks => tasks;
@@ -94,16 +95,49 @@ public class TaskManager : MonoBehaviour
     void Start()
     {
         Refresh(force: true);
+        SyncCutsceneVisibility();
     }
 
     void Update()
     {
+        SyncCutsceneVisibility();
+
         int progression = CurrentProgression();
         int occupancySig = ComputeBasketOccupancySignature();
         if (progression == _lastSeenProgression && occupancySig == _lastBasketOccupancySig)
             return;
 
         Refresh(force: false);
+    }
+
+    /// <summary>
+    /// Intro cinematic + ending cutscenes — hide the task label until the cinematic ends.
+    /// </summary>
+    void SyncCutsceneVisibility()
+    {
+        bool cutscenePlaying = GameManager.Instance != null && GameManager.Instance.IsCutscenePlaying;
+        if (cutscenePlaying == _hiddenByCutscene)
+            return;
+
+        _hiddenByCutscene = cutscenePlaying;
+        ApplyCutsceneVisibility();
+    }
+
+    void ApplyCutsceneVisibility()
+    {
+        if (taskLabel == null)
+            return;
+
+        if (_hiddenByCutscene)
+        {
+            KillTextTween();
+            taskLabel.gameObject.SetActive(false);
+            return;
+        }
+
+        ApplyVisibilityForEmpty();
+        if (taskLabel.gameObject.activeSelf)
+            SetLabelAlpha(_labelBaseColor.a);
     }
 
     /// <summary>
@@ -384,7 +418,17 @@ public class TaskManager : MonoBehaviour
 
     void ApplyVisibilityForEmpty()
     {
-        if (!hideWhenEmpty || taskLabel == null)
+        if (taskLabel == null)
+            return;
+
+        if (_hiddenByCutscene)
+        {
+            if (taskLabel.gameObject.activeSelf)
+                taskLabel.gameObject.SetActive(false);
+            return;
+        }
+
+        if (!hideWhenEmpty)
             return;
 
         bool visible = !string.IsNullOrWhiteSpace(_currentText);
@@ -394,7 +438,10 @@ public class TaskManager : MonoBehaviour
 
     void EnsureLabelVisible()
     {
-        if (taskLabel != null && !taskLabel.gameObject.activeSelf)
+        if (_hiddenByCutscene || taskLabel == null)
+            return;
+
+        if (!taskLabel.gameObject.activeSelf)
             taskLabel.gameObject.SetActive(true);
     }
 
