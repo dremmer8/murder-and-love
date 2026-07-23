@@ -9321,6 +9321,8 @@ MonoBehaviour:
     target: 2
   - storyPhase: 7
     target: 2
+  - storyPhase: 19
+    target: 2
   mandyFace1: {fileID: 4172702389323318473}
   mandyFace2: {fileID: 774865784}
   lauFace1: {fileID: 497567072004551281}

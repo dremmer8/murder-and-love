@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.Rendering.PostProcessing;
 
 [Serializable]
 public class NamedCamera
@@ -20,12 +22,22 @@ public class CameraManager : MonoBehaviour
 {
     public static CameraManager Instance { get; private set; }
 
+    static readonly FieldInfo PostProcessResourcesField = typeof(PostProcessLayer)
+        .GetField("m_Resources", BindingFlags.Instance | BindingFlags.NonPublic);
+
     [Header("Cameras")]
     [Tooltip("Named cameras available for swap / transition.")]
     public List<NamedCamera> Cameras = new();
 
     [Tooltip("Temporary camera used during transitions. Created automatically if empty.")]
     [SerializeField] Camera proxyCamera;
+
+    [Header("Proxy Post Processing")]
+    [Tooltip("Volume Layer for the proxy PostProcessLayer. Match other cameras (e.g. Post) so blends keep the same look.")]
+    [SerializeField] LayerMask proxyPostEffectLayer = 1 << 9; // TagManager: "Post"
+
+    [Tooltip("Optional volume trigger for the proxy. If empty, copies from the camera being blended from.")]
+    [SerializeField] Transform proxyVolumeTrigger;
 
     [Header("Transition")]
     [SerializeField] float defaultTransitionDuration = 1f;
@@ -119,12 +131,14 @@ public class CameraManager : MonoBehaviour
         if (!continueFromProxy)
         {
             CopyCameraPose(_activeCamera, proxyCamera);
+            SyncProxyPostProcessing(_activeCamera);
             SetCameraEnabled(_activeCamera, false);
             SetCameraEnabled(proxyCamera, true);
             DisableAllListedCameras();
         }
         else
         {
+            ApplyProxyPostEffectLayer(proxyCamera.GetComponent<PostProcessLayer>(), null);
             DisableAllListedCameras();
             SetCameraEnabled(proxyCamera, true);
         }
@@ -388,16 +402,93 @@ public class CameraManager : MonoBehaviour
 
     void EnsureProxyCamera()
     {
-        if (proxyCamera != null)
+        if (proxyCamera == null)
+        {
+            var go = new GameObject("ProxyCamera");
+            go.transform.SetParent(transform, false);
+            proxyCamera = go.AddComponent<Camera>();
+            proxyCamera.enabled = false;
+
+            if (go.GetComponent<AudioListener>() == null)
+                go.AddComponent<AudioListener>().enabled = false;
+        }
+
+        SyncProxyPostProcessing(_activeCamera);
+    }
+
+    /// <summary>
+    /// Ensures the proxy has a PostProcessLayer matching <paramref name="templateCamera"/>
+    /// (resources / AA), then applies the configured volume layer for seamless blends.
+    /// </summary>
+    void SyncProxyPostProcessing(Camera templateCamera)
+    {
+        if (proxyCamera == null)
             return;
 
-        var go = new GameObject("ProxyCamera");
-        go.transform.SetParent(transform, false);
-        proxyCamera = go.AddComponent<Camera>();
-        proxyCamera.enabled = false;
+        PostProcessLayer template = FindPostProcessLayer(templateCamera);
+        PostProcessLayer proxyLayer = proxyCamera.GetComponent<PostProcessLayer>();
 
-        if (go.GetComponent<AudioListener>() == null)
-            go.AddComponent<AudioListener>().enabled = false;
+        if (proxyLayer == null)
+        {
+            proxyLayer = proxyCamera.gameObject.AddComponent<PostProcessLayer>();
+            PostProcessResources resources = GetPostProcessResources(template);
+            if (resources != null)
+                proxyLayer.Init(resources);
+        }
+
+        if (template != null)
+        {
+            proxyLayer.antialiasingMode = template.antialiasingMode;
+            proxyLayer.stopNaNPropagation = template.stopNaNPropagation;
+            proxyLayer.finalBlitToCameraTarget = template.finalBlitToCameraTarget;
+            proxyLayer.breakBeforeColorGrading = template.breakBeforeColorGrading;
+        }
+
+        ApplyProxyPostEffectLayer(proxyLayer, template);
+    }
+
+    void ApplyProxyPostEffectLayer(PostProcessLayer proxyLayer, PostProcessLayer template)
+    {
+        if (proxyLayer == null)
+            return;
+
+        proxyLayer.volumeLayer = proxyPostEffectLayer;
+
+        if (proxyVolumeTrigger != null)
+            proxyLayer.volumeTrigger = proxyVolumeTrigger;
+        else if (template != null && template.volumeTrigger != null)
+            proxyLayer.volumeTrigger = template.volumeTrigger;
+    }
+
+    PostProcessLayer FindPostProcessLayer(Camera preferred)
+    {
+        if (preferred != null)
+        {
+            PostProcessLayer onPreferred = preferred.GetComponent<PostProcessLayer>();
+            if (onPreferred != null)
+                return onPreferred;
+        }
+
+        for (int i = 0; i < Cameras.Count; i++)
+        {
+            Camera cam = Cameras[i]?.Camera;
+            if (cam == null)
+                continue;
+
+            PostProcessLayer layer = cam.GetComponent<PostProcessLayer>();
+            if (layer != null)
+                return layer;
+        }
+
+        return null;
+    }
+
+    static PostProcessResources GetPostProcessResources(PostProcessLayer layer)
+    {
+        if (layer == null || PostProcessResourcesField == null)
+            return null;
+
+        return PostProcessResourcesField.GetValue(layer) as PostProcessResources;
     }
 
     void KillTransition(bool disableProxy)

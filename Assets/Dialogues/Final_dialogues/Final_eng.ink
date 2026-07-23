@@ -180,7 +180,7 @@ Drunk Man: A pretty lady at this hour? Are you looking for me?
 Drunk Man: You’re lucky to have me here, you know. 
 Drunk Man: I’m a cop — no one would dare to harass a beautiful young lady like yourself in front of a police officer!
 Drunk Cop: No villains can slip through my fingers.
-~ ChangeCamera("b1")
+~ ChangeCamera("l3")
 Thoughts: Shit. I thought he’s just an average drunk...
 ~ ChangeCamera("Player")
 * [...] 
@@ -190,7 +190,7 @@ Drunk Cop: ... -> clothes_question
 You: Sorry, but you don’t look like a police officer.
 Drunk Cop: What, are cops not allowed to do their laundry at night, 
 Drunk Cop: after investigating a bloody crime scene?
-~ ChangeCamera("Player")
+~ ChangeCamera("l1")
 ** [Nevermind]
 You: Never mind what I said.
 -> clothes_question
@@ -261,12 +261,13 @@ Drunk Cop: But your boyfriend couldn’t be bothered to accompany you at this ho
         Drunk Cop: Busy at this hour, huh? 
         Drunk Cop: Are you sure he’s not up to no good?
 - 
-~ ChangeCamera("Player")
+~ ChangeCamera("l2")
 * [Can’t stop him.]
 You: Well, I can’t stop him from working.
 * [Excuse]
 You: ...He’s a hardworking guy.
 -
+~ ChangeCamera("Player")
 Drunk Cop: Fair. Money is important.
 Drunk Cop: Your boyfriend is lucky to have someone like you to wash his clothes.
 -> ending
@@ -295,11 +296,11 @@ Drunk Cop: All good?
 ~ game_progression = 2
 { Mandy_story_phase_1 > 1: -> Mandy_phase_1_repeat }
 ~ TriggerAnimation("Mandy", "doRelax")
+~ ChangeCamera("Player")
 Mrs Wong: Hey!
 Mrs Wong: Isn’t that Miss Lee! Doing laundry at this hour?
 
 - (You_intro_choice)
-~ ChangeCamera("Player")
 * [Can’t sleep] 
     You: Uh, yeah. I just couldn’t sleep.
     ~ cant_sleep = true
@@ -315,7 +316,7 @@ Mrs Wong: Isn’t that Miss Lee! Doing laundry at this hour?
 
   = MrsWong_ask_alright 
 Mrs Wong: Is everything alright?
-~ ChangeCamera("b1")
+~ ChangeCamera("m4")
 Thoughts: Mrs Wong is always so kind to me... I used to tell her so many things.
 Thoughts: But now I have blood on my hands...
 Thoughts: I can only pretend that everything is normal.
@@ -384,7 +385,7 @@ Mrs Wong: I’m used to it by now.
 = MrsWong_phase_1_proposol
 Mrs Wong: Okay, enough about me.
 Mrs Wong: I haven’t seen your boyfriend in a while, how are you guys doing?
-~ ChangeCamera("b3")
+~ ChangeCamera("b4")
 Thoughts: A week ago, he proposed to me, and I said yes. 
 Thoughts: That was the happiest day of my life.
 Thoughts: Why does this terrible thing need to happen to us...
@@ -401,9 +402,8 @@ Mrs Wong: I see.
 -> MrsWong_phase_1_laundry_coin
 
 = proposal_admitted
-~ ChangeCamera("b2")
-Thoughts: If this hadn’t happened, I’d probably be in Jason’s arms right now, dreaming about our wedding...
 ~ ChangeCamera("Player")
+Thoughts: If this hadn’t happened, I’d probably be in Jason’s arms right now, dreaming about our wedding...
 * [Force a smile and say you’re happy]
 You: Of course, I’ve been waiting for his proposal for months!
 * [Excuse of looking concerned]
@@ -421,8 +421,9 @@ Mrs Wong: ...
 -> MrsWong_phase_1_laundry_coin
 
 = MrsWong_phase_1_laundry_coin
+~ ChangeCamera("Player")
 Mrs Wong: Give me your clothes and I’ll toss them in for you.
-~ ChangeCamera("b2")
+~ ChangeCamera("m5")
 Thoughts: No, she can’t touch the clothes, it has blood all over...
 ~ ChangeCamera("Player")
 * [I will do it myself.]
@@ -434,7 +435,6 @@ Mrs Wong: Okay. Let me at least help you separate the colors from the whites—
 * [Refuse] 
 You: No, thanks—I’ll just tuck everything in one big load.
 Mrs Wong: That would ruin your clothes, Miss Lee.
-  ~ ChangeCamera("Player")
   ** [It will be fine.]
   You: It will be fine.
   ** [I don’t mind.]
@@ -520,7 +520,7 @@ Thoughts: I have to ask around to get some.
 * [Ask about detergent]
 You: Mrs Wong, there’s no heavy-duty laundry detergent left.
 Mrs Wong: Is that so? I remember I put a lot of regular detergent there, isn’t that strong enough?
-~ ChangeCamera("b1")
+~ ChangeCamera("m4")
 Thoughts: I don’t want to lie to Mrs Wong, but how can I explain...
   ~ ChangeCamera("Player")
   ** [Cat peed on the clothes. (Lie)]
@@ -565,6 +565,7 @@ You: Yeah, pretty wild.
 -> get_detergent_in_backroom
 
 = get_detergent_in_backroom
+~ ChangeCamera("b5")
 Mrs Wong: The heavy-duty detergents are in the backroom. 
 Mrs Wong: I’m too tired to move... Can you get it yourself?
 ~ ChangeCamera("Player")
@@ -632,8 +633,10 @@ Drunk Cop: What does a beauty like you want with me?
             -> END
     
     - 
+    ~ ChangeCamera("l2")
     Drunk Cop: Hm, what could I get in return?
     Drunk Cop: ...How about a little kiss?
+    ~ ChangeCamera("Player")
     -> LAU_story_phase_2_continue_1
 
 
@@ -661,9 +664,12 @@ Drunk Cop: What does a beauty like you want with me?
                 Drunk Cop: I don’t know...
             * * [Apologize] You: I’m sorry, I didn’t mean to...
                 Drunk Cop: It’s okay.
-            - - Drunk Cop: I didn’t even see it coming. 
+            - - 
+            ~ ChangeCamera("l4")
+            Drunk Cop: I didn’t even see it coming. 
             Drunk Cop: I worked so hard day and night for her and the kid, 
             Drunk Cop: but it was still not enough?
+            ~ ChangeCamera("Player")
             Drunk Cop: Anyways, I’m single now, so where is my kiss?
             -> LAU_story_phase_2_continue_1
 
@@ -680,7 +686,7 @@ Drunk Cop: What does a beauty like you want with me?
 * [Lie] You: My cat peed on the sheets. It’s stinky as hell.
             Drunk Cop: Really? I can’t smell it.
             ~ lau_cat_pee = true
-            ~ ChangeCamera("Player")
+            ~ ChangeCamera("l3")
             ** [Bluff]
             You: If you really want to take a whiff of my cat’s pee, go ahead.
             Drunk Cop: Haha, no need. I believe you.
@@ -688,6 +694,7 @@ Drunk Cop: What does a beauty like you want with me?
             You: What’s wrong with your nose?
             Drunk Cop: What? I have the best nose of the whole precinct.
         -
+        ~ ChangeCamera("Player")
         Drunk Cop: Anyways, I don’t have the special detergent for you. 
         Drunk Cop: You should go ask Mrs Wong.
     ~ ChangeCamera("Player")
@@ -848,7 +855,7 @@ Mrs Wong: Another one? Did all your clothes fall into a pit or something?
 
 = Mandy_phase_3_fair
 Mrs Wong: Why didn’t your boyfriend come and let you rest?
-~ ChangeCamera("b4")
+~ ChangeCamera("m4")
 Thoughts: He’s currently dealing with the body...
 ~ ChangeCamera("Player")
 * [I volunteered (Lie)]
@@ -863,7 +870,6 @@ You: He works very hard to earn money though.
 --
 Mrs Wong: Hmm. I have to warn you, when a man stops getting involved in household, 
 Mrs Wong: it’s normally a sign that he will start neglecting your feelings.
-~ ChangeCamera("b3")
 Thoughts: It’s true that Jason always asks me to do housework...
 Thoughts: But he works a lot to make money. 
 Thoughts: And his marriage proposal was so romantic...
@@ -882,7 +888,7 @@ Mrs Wong: Now, he won’t even talk to me, unless he wants food or needs me to c
 Mrs Wong: And you can see Mr. Lau there, being drunk at 3am...
 Mrs Wong: I have to say, some men really are useless...
 Drunk Cop: You’re speaking a bit too loudly, aren’t you?
-   ~ ChangeCamera("Player")
+   ~ ChangeCamera("l1")
    *** [We were talking about you]
    You: We were talking about you.
    Drunk Cop: I? I’m not useless, I’m the best cop in the whole precinct.
@@ -890,14 +896,14 @@ Drunk Cop: You’re speaking a bit too loudly, aren’t you?
    You: We were not talking about you.
    Drunk Cop: ...
    ---
+   ~ ChangeCamera("Player")
    Mrs Wong: Haha. 
 
 ->Mandy_phase_3_ending
 
 = Cat_name_question
-~ ChangeCamera("b1")
-Thoughts: Now I just have to come up with a name for this imaginary cat...
 ~ ChangeCamera("Player")
+Thoughts: Now I just have to come up with a name for this imaginary cat...
 * [Jason.]
 You: He’s Jason.
 Mrs Wong: Interesting choice to name your cat after your boyfriend, haha.
@@ -917,20 +923,18 @@ Mrs Wong: Cute.
 ->Mandy_phase_3_ending
 
 = Mandy_phase_3_ending
-~ ChangeCamera("b2")
-Thoughts: I should wash them quickly, Jason will get mad if I’m too slow...
 ~ ChangeCamera("Player")
+Thoughts: I should wash them quickly, Jason will get mad if I’m too slow...
 * [Ask Mrs Wong for paying]
 You: The second washer would cost 80 cents, too, right?
 Mrs Wong: Yes.
-~ ChangeCamera("b4")
 Thoughts: (Damn, I’d completely forgotten.
 Thoughts: (Blood had splattered on our money when it happened.
 ~ ChangeCamera("Player")
 ** [Wait, I need to get some change first.]
 You: Uhm, give me one second. I have to get some change.
 Mrs Wong: Are you sure? I have change here.
-~ ChangeCamera("b3")
+~ ChangeCamera("b6")
 Thoughts: (Mrs Wong can’t see the blood on the bill. 
 Thoughts: (I need to use the coin change machine.
    ~ ChangeCamera("Player")
@@ -1034,7 +1038,7 @@ Drunk Cop: There’s an awfully red stain on your clothes.
         You: We tried to wrap his hand around his shirt to stop the bleeding.
         Drunk Cop: Wrap his hand around his shirt? Hahaha
         Drunk Cop: I’m starting to wonder if you’re actually more drunk than I am.
-        ~ ChangeCamera("b1")
+        ~ ChangeCamera("l3")
         Thoughts: Stupid misspoke...I hope he doesn’t notice that my hands are shaking.
         ~ ChangeCamera("Player")
         Drunk Cop: I hope your boyfriend is doing alright.
@@ -1052,7 +1056,7 @@ Drunk Cop: There’s an awfully red stain on your clothes.
         You: Well, my boyfriend spilled red wine all over the place.
         ~ lied_about_wine = true
         Drunk Cop: Really... What kind of wine is that? It’s as red as blood.
-        ~ ChangeCamera("b1")
+        ~ ChangeCamera("l4")
         Thoughts: Damn, I know nothing about wine.
         ~ ChangeCamera("Player")
             * * [I don’t remember.] 
@@ -1083,10 +1087,9 @@ Drunk Cop: There’s an awfully red stain on your clothes.
         * [None of your business.] You: Just mind your own business.
         Drunk Cop: I’m a cop and I patrol this area: 
         Drunk Cop: Of course, I have to take care of other people’s business.
-        ~ ChangeCamera("b4")
+        ~ ChangeCamera("Player")
         Thoughts: I thought I could get away with this... 
         Thoughts: Now I have to come up with an excuse.
-        ~ ChangeCamera("Player")
         -> LAU_story_phase_3_continue_1
     ~ ChangeCamera("Player")
     -> END
@@ -1139,7 +1142,7 @@ Drunk Cop: There’s an awfully red stain on your clothes.
     Drunk Cop: A middle-aged man stabbed his wife to death. 
     Drunk Cop: He refused to plead guilty, so we had no choice but to put him in jail. 
     Drunk Cop: Her shirt also has this red stain...
-    ~ ChangeCamera("Player")
+    ~ ChangeCamera("l1")
     * {lied_about_wine} [Bluff]
     You: There’s no need to overthink it. 
     You: The bottle of wine my boyfriend spilled might just have been made differently.
@@ -1152,6 +1155,7 @@ Drunk Cop: There’s an awfully red stain on your clothes.
     * {Cop_knows_period} [Tell him that he was overthinking]
     You: There’s no need to overthink it. 
     -
+    ~ ChangeCamera("Player")
     Drunk Cop: All right then... I hope you’re being honest. 
     Drunk Cop: You do know what happens if you lie to a police officer, don’t you?
     ~ ChangeCamera("Player")
@@ -1288,7 +1292,6 @@ J: You don’t want our lives ruined, right?
 ~ game_progression = 26
 ~ TriggerAnimation("Mandy", "doRelax")
 Mrs Wong: Is everything okay back there? You’ve been gone quite a while, Miss Lee.
-~ ChangeCamera("Player")
 * [Make an excuse]
 You: Sorry, I couldn’t find the correct switch for the lights.
 * [Sorry.]
@@ -1297,12 +1300,10 @@ You: I’m really sorry.
 Mrs Wong: No need to apologize. Want a cigarette?
 
 - (smoke_choice)
-   ~ ChangeCamera("Player")
    * [No, thanks.]
    You: No, thank you.
    -
    Mrs Wong: Mind if we talk for a second? Just between us women.
-      ~ ChangeCamera("Player")
       ** [What’s it about?]
       You: Sure. What’s it about?
       ** [Not sure.]
@@ -1310,7 +1311,6 @@ Mrs Wong: No need to apologize. Want a cigarette?
       Mrs Wong: I’m just worried about you.
       - -
       Mrs Wong: Someone’s been paging you all the time, right? Is that your boyfriend?
-         ~ ChangeCamera("Player")
          *** [Yes. (Make an excuse)]
          You: Yes, he just worried because it’s late.
          *** [Deny]
@@ -1329,7 +1329,6 @@ Mrs Wong: No need to apologize. Want a cigarette?
 == Mandy_smoking_scene_2 ==
 ~ game_progression = 27
 ~ TriggerAnimation("Mandy", "doRelax")
-~ ChangeCamera("Player")
 + [Tell her about the murder]
 You: Mrs Wong, I’ve done something bad...
 -> Admit_to_Mandy
@@ -1347,30 +1346,25 @@ You: Mrs Wong, I’ve done something bad...
   Mrs Wong: I’m going to have a smoke here for a bit. 
   Mrs Wong: If you want to come talk to me later, feel free to stop by again.
   }
-~ ChangeCamera("Player")
 -> END
 
 = Admit_to_Mandy
 Mrs Wong: Calm down and take a deep breath. I’m here.
-~ ChangeCamera("Player")
 * [Try to calm down and explain]
 You: Someone broke in... 
 You: Jason... he... everything happened so fast. 
 You: he told me if the blood was washed away, everything would go back to normal...
 Mrs Wong: My goodness, Miss Lee...
 Mrs Wong: Have you been lying all the time about the clothes?
-~ ChangeCamera("Player")
 ** [Apologise]
 You: I’m sorry, I was panicking.
 Mrs Wong: (Sigh)
 Mrs Wong: I can’t believe it. I should have known he was that kind of guy. 
-~ ChangeCamera("Player")
 *** [Jason is different]
 You: But he loves me! He was protecting me, Mrs Wong... 
 Mrs Wong: Did he do that for you, or for his own safety? 
 Mrs Wong: But what are you going to do? 
 Mrs Wong: They’ll find out sooner or later.
-~ ChangeCamera("Player")
 **** [I don’t know.]
 You: I don’t know, Mrs Wong...
 ~ TriggerAnimation("Mandy", "doTalk")
@@ -1388,7 +1382,6 @@ Mrs Wong: Think about it, Miss Lee. Take your time.
 == Mandy_smoking_scene_3 ==
 ~ TriggerAnimation("Mandy", "doRelax")
 - (final_choices_mandy)
-~ ChangeCamera("Player")
 * [What is Tou San like?]
 You: What is Tou San like?
 Mrs Wong: My cousin said it’s a county town, not as bustling as here. 
@@ -1399,21 +1392,17 @@ You: I don’t know... I need to think.
 Mrs Wong: Take your time. I’ll be here smoking for a while. 
 Mrs Wong: you can come back to me whenever you’re ready.
 ~ game_progression = 28
-~ ChangeCamera("Player")
 -> END
 
 = Mandy_escape_ending
-~ ChangeCamera("b4")
 Thoughts: It’s time to live on my own.
 Thoughts: I don’t need to listen to Jason anymore,
 Thoughts: and I don’t need to obey him all the time.
 Thoughts: I have to escape this life. And escape him.
-~ ChangeCamera("Player")
 You: So, how can I go to Tou San?
 Mrs Wong: There’s a ferry to go there every morning at 8:00. 
 Mrs Wong: You need to head to the harbor now. 
 Mrs Wong: So leave this man, start a new life.
-~ ChangeCamera("Player")
 * [Thank her]
 You: Thank you, Mrs Wong...
 ~ TriggerAnimation("Mandy", "doTalk")
@@ -1422,17 +1411,14 @@ Mandy: I’ll send a message to my cousin Cindy to pick you up.
 Mandy: Also, Vivian... be independent. 
 Mandy: That’s the most precious thing a woman can have. 
 Mandy: Don’t rely on any men for your life and happiness.
- ~ ChangeCamera("Player")
  ** [Promise]
 You: I promise you, Mandy.
 Mandy: Goodbye, Vivian.
-  ~ ChangeCamera("Player")
   *** [Goodbye. (Leave)]
 You: Goodbye, Mandy. 
 -
 ~ game_progression = 28
 ~ PlayEndingCutscene(1)
-~ ChangeCamera("Player")
 -> END
 
 // =============================================================================
@@ -1451,10 +1437,8 @@ J: Write me as soon as you’re coming home.
 // =============================================================================
 == Lau_confess_ending ==
 Drunk Cop: What’s that face for, sweet heart? You look like you just saw a ghost.
-~ ChangeCamera("Player")
 + [Nothing.]
 You: I’m just tired.
-~ ChangeCamera("Player")
 -> END
 * [Report boyfriend’s murder]
 You: I want to report a murder.
@@ -1465,7 +1449,6 @@ You: Someone broke in and threatened us.
 You: And my boyfriend... My boyfriend took a {kitchen_knife: kitchen knife}{gun_chosen: gun.}
 You: It all happened so fast...
 Police Officer: Were you a part of this?
-  ~ ChangeCamera("Player")
   ** [I gave it to him.]
   You: He asked me to get a {kitchen_knife: knife}{gun_chosen: gun} for him when the intruder broke in. 
   You: And then asked me to wash these clothes.
@@ -1475,18 +1458,15 @@ Police Officer: Were you a part of this?
   -
   Police Officer: Where is the suspect right now?
   -(answer_suspect)
-  ~ ChangeCamera("Player")
   *** [Say address]
   You: He’s at our apartment. 4th Floor, Block 3, 32 Lin Faa Street.
   *** [...]
   Police Officer: Miss, please cooperate.-> answer_suspect
   ---
   Police Officer: What’s your name?
-  ~ ChangeCamera("Player")
   **** [Say your name]
   You: Vivian Lee.
   Police Officer: And his name?
-  ~ ChangeCamera("Player")
   ***** [Say his name]
   You: Jason Ho.
   
@@ -1497,7 +1477,6 @@ Police Officer: Were you a part of this?
   Police Officer: Now, please come with me.
   ~ game_progression = 30
   ~ PlayEndingCutscene(2)
-  ~ ChangeCamera("Player")
   -> END
 
 // =============================================================================
