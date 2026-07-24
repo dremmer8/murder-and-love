@@ -1,0 +1,20 @@
+fileFormatVersion: 2
+guid: 317a5657c0c8ff740b032ae606d77cc8
+timeCreated: 1589371824
+licenseType: Store
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 181312
+  packageName: Puppet Face
+  packageVersion: 1.5.1
+  assetPath: Assets/PuppetFace/Scripts/EyeMotion.cs
+  uploadId: 470716

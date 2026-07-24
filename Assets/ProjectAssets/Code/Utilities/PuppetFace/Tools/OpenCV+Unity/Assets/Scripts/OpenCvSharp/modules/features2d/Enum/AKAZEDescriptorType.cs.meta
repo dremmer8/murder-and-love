@@ -1,0 +1,19 @@
+fileFormatVersion: 2
+guid: cf314b6b6b89d6e49b7bbca5190f532e
+timeCreated: 1510768040
+licenseType: Store
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 181312
+  packageName: Puppet Face
+  packageVersion: 1.5.1
+  assetPath: Assets/PuppetFace/Tools/OpenCV+Unity/Assets/Scripts/OpenCvSharp/modules/features2d/Enum/AKAZEDescriptorType.cs
+  uploadId: 470716

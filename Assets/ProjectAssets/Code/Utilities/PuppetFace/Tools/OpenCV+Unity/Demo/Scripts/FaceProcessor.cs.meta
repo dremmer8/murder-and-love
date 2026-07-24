@@ -1,0 +1,19 @@
+fileFormatVersion: 2
+guid: f9cdfe57d72b3b045a766e458995fa8e
+timeCreated: 1510768042
+licenseType: Store
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 181312
+  packageName: Puppet Face
+  packageVersion: 1.5.1
+  assetPath: Assets/PuppetFace/Tools/OpenCV+Unity/Demo/Scripts/FaceProcessor.cs
+  uploadId: 470716

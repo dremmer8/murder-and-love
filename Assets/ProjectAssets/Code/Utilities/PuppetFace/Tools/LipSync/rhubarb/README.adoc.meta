@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 83e85c66abb25c443a0be14c7b3439be
+timeCreated: 1563195415
+licenseType: Store
+DefaultImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 181312
+  packageName: Puppet Face
+  packageVersion: 1.5.1
+  assetPath: Assets/PuppetFace/Tools/LipSync/rhubarb/README.adoc
+  uploadId: 470716

@@ -1,0 +1,19 @@
+fileFormatVersion: 2
+guid: a11aab4ca437de14ca34092630cbb53c
+timeCreated: 1510768038
+licenseType: Store
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 181312
+  packageName: Puppet Face
+  packageVersion: 1.5.1
+  assetPath: Assets/PuppetFace/Tools/OpenCV+Unity/Assets/Scripts/OpenCvSharp/Vector/VectorOfPoint.cs
+  uploadId: 470716

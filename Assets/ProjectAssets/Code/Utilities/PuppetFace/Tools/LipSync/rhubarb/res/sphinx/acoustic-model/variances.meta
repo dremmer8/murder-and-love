@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 4cdb6457390bf3e4f97056bf268cf68a
+timeCreated: 1563195415
+licenseType: Store
+DefaultImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 181312
+  packageName: Puppet Face
+  packageVersion: 1.5.1
+  assetPath: Assets/PuppetFace/Tools/LipSync/rhubarb/res/sphinx/acoustic-model/variances
+  uploadId: 470716

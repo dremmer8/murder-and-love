@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: ea71b568e71f0bb459aa80214e879c9e
+timeCreated: 1563195415
+licenseType: Store
+DefaultImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 181312
+  packageName: Puppet Face
+  packageVersion: 1.5.1
+  assetPath: Assets/PuppetFace/Tools/LipSync/rhubarb/res/sphinx/acoustic-model/mixture_weights
+  uploadId: 470716

@@ -1,0 +1,19 @@
+fileFormatVersion: 2
+guid: 361ab9041cda400408c358c18b79e74f
+timeCreated: 1510768033
+licenseType: Store
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 181312
+  packageName: Puppet Face
+  packageVersion: 1.5.1
+  assetPath: Assets/PuppetFace/Tools/OpenCV+Unity/Assets/Scripts/OpenCvSharp/modules/core/MatExprRangeIndexer.cs
+  uploadId: 470716

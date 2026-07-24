@@ -1,0 +1,19 @@
+{
+    "name": "Utilities.PuppetFace.Scripts.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:c2bca9b0cfe44ed4b9952f91a24d862e",
+        "GUID:e4f6d55eb9fdcde439f90b4c2b1f8826"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -13,7 +13,6 @@ public class GlobalVariableOperator : MonoBehaviour
     {
         "mahjong_mentioned",
         "kitchen_knife",
-        "gun_chosen",
         "has_detergent",
         "lied_about_cat",
         "black_out_happened",
@@ -22,6 +21,7 @@ public class GlobalVariableOperator : MonoBehaviour
         "told_lie_busy",
         "lied_about_wine",
         "lied_about_hand",
+        "knows_backroom",
         "coin_machine_attempt",
         StoryPhaseVar,
         GameProgressionVar

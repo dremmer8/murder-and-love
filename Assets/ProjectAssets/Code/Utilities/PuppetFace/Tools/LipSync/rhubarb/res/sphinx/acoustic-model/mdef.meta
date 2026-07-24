@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 494f9fbfc13a7c34a94e6177310b576c
+timeCreated: 1563195415
+licenseType: Store
+DefaultImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 181312
+  packageName: Puppet Face
+  packageVersion: 1.5.1
+  assetPath: Assets/PuppetFace/Tools/LipSync/rhubarb/res/sphinx/acoustic-model/mdef
+  uploadId: 470716

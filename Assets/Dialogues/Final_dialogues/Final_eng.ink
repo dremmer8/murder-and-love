@@ -34,7 +34,6 @@ VAR proposal_admit = false
 VAR boyfriend_needs_clothes = false
 VAR cant_sleep = false
 VAR kitchen_knife = false
-VAR gun_chosen = false
 VAR has_detergent = false
 VAR lied_about_cat = false
 VAR lau_cat_pee = false
@@ -48,7 +47,7 @@ VAR lied_about_wine = false
 VAR lied_about_hand = false
 VAR Cop_knows_period = false
 VAR coin_machine_attempt = 0
-VAR Sus = 0
+VAR knows_backroom = false
 
 {story_phase:
     - 1: -> intro
@@ -120,7 +119,7 @@ VAR Sus = 0
 // =============================================================================
 == intro ==
 ~ game_progression = 1
-On a humid midnight in Lam Tong City. We were just about to go to sleep after a tiring day.
+Lam Tong City. Another damp midnight. After an exhausting day, we were getting ready for bed.
 -> intro_intruder
 
 = intro_intruder
@@ -134,9 +133,7 @@ But that peace was suddenly shattered by a <>
 // change page
 He tore through our home, destroyed what we’d built, searching for anything of value. My boyfriend said there was only one way out. He turned to me and asked for the 
 * kitchen knife.
-    ~ kitchen_knife = true
-* gun.
-    ~ gun_chosen = true
+* box cutter.
 -
 
 // change page
@@ -178,7 +175,7 @@ Drunk Man: A pretty lady at this hour? Are you looking for me?
 
 = flattery
 Drunk Man: You’re lucky to have me here, you know. 
-Drunk Man: I’m a cop — no one would dare to harass a beautiful young lady like yourself in front of a police officer!
+Drunk Man: No one would dare to harass a beautiful young lady like yourself in front of a police officer!!
 Drunk Cop: No villains can slip through my fingers.
 ~ ChangeCamera("l3")
 Thoughts: Shit. I thought he’s just an average drunk...
@@ -197,8 +194,7 @@ You: Never mind what I said.
 
 = clothes_question
 { boyfriend_needs_clothes:
-    Drunk Cop: Sorry for eavesdropping... 
-    Drunk Cop: Why would your boyfriend need you to wash clothes in the middle of the night?
+    Drunk Cop: So? Your boyfriend wants you to wash clothes in the middle of the night?
 - else:
     Drunk Cop: Why are you washing clothes in the middle of the night?
 }
@@ -269,7 +265,7 @@ You: ...He’s a hardworking guy.
 -
 ~ ChangeCamera("Player")
 Drunk Cop: Fair. Money is important.
-Drunk Cop: Your boyfriend is lucky to have someone like you to wash his clothes.
+Drunk Cop: Your boyfriend is lucky to have someone like you.
 -> ending
 
 = ending
@@ -278,6 +274,7 @@ Drunk Cop: Go on and wash your clothes then, young lady.
 -> END
 
 = repeat_visit
+~ game_progression = 3
 Drunk Cop: All good?
     ~ ChangeCamera("Player")
     + [Nothing.]
@@ -285,6 +282,9 @@ Drunk Cop: All good?
     + [Ask which machine]
         You: Which machine did I put my clothes in again?
         Drunk Cop: Hmmm... Number four?
+    + [Ask about where to find detergent]
+        You: Where can I find detergent?
+        Drunk Cop: It’s on the table behind me.
 -
 ~ ChangeCamera("Player")
 -> END
@@ -513,10 +513,11 @@ Thoughts: I have to ask around to get some.
 
 == Mandy_story_phase_2 ==
 ~ game_progression = 6
-{ Mandy_story_phase_2 > 1:-> ask_mandy_questions}
+{ knows_backroom:-> ask_mandy_questions}
 ~ TriggerAnimation("Mandy", "doRelax")
 
 ~ ChangeCamera("Player")
+* [Nothing] -> END
 * [Ask about detergent]
 You: Mrs Wong, there’s no heavy-duty laundry detergent left.
 Mrs Wong: Is that so? I remember I put a lot of regular detergent there, isn’t that strong enough?
@@ -582,6 +583,7 @@ Mrs Wong: Thank you. I will rest here then.
 Mrs Wong: Here is the key to the backroom. It’s near Washer Nr. 9. 
 Mrs Wong: The detergent you want is called Enzyme Laundry Detergent, the blue one on the shelf.
 You: Thank you, Mrs Wong.
+~ knows_backroom = true
 
 ~ ChangeCamera("Player")
 -> END
@@ -846,7 +848,7 @@ Mrs Wong: Another one? Did all your clothes fall into a pit or something?
     Mrs Wong: Naughty cat. What’s the name? -> Cat_name_question
     ** {lie_about_period} [Period got everywhere]
      You: Well... 
-     You: My period is especially heavy today...
+     You: My flow is especially heavy today...
      You: And I accidentally put my clothes on the bloodstained sheets.
      -> Mandy_phase_3_fair
 * [Nothing]
@@ -1015,6 +1017,33 @@ You: Yes, here.
 ~ TriggerAnimation("Mandy", "doGiveItem")
 ~ UnhideItem("second_laundry_coin")
 Mrs Wong: Here you are. Washer Nr. 9.
+Mrs Wong: Miss Lee, wait.
+Mrs Wong: What happened with your arm?
+~ ChangeCamera("Player")
+Thoughts: I almost thought there was still blood on my hand.
+Thoughts: It was just a bruise. 
+Thoughts: Jason had gripped my arm tightly when he asked me to get the knife. 
+Thoughts: I hadn’t even noticed that you could see it at all.
+** [Lie]
+You: Oh, I was too clumsy, I accidentally bumped into the corner of the table.
+Mrs Wong: Really? I thought these come from... You know.
+** [Dodge]
+You: Oh, you don’t really need to know, Mrs Wong.
+-
+Mrs Wong: I know where these come from.
+Mrs Wong: Whenever my husband comes home drunk, I have to put up with that, too.
+Thoughts: Jason had a few drinks tonight before it happened. 
+Thoughts: With alcohol he becomes different, sometimes. 
+Thoughts: He can get... pretty rough. 
+Thoughts: But that’s mostly because of the stress from his job. 
+Thoughts: Aside from these drunk episodes, he’s the sweetest person I’ve ever met.
+** [Defend Jason]
+You: No Jason is not like that, it happened by accident. 
+** [Feel sorry for her]
+You: I understand...I feel so sorry for you.
+--
+Mrs Wong: If you have any trouble, please let me know, okay?
+Mrs Wong: Here you are. Washer Nr. 9.
 ~ ChangeCamera("Player")
 -> END
 
@@ -1046,7 +1075,7 @@ Drunk Cop: There’s an awfully red stain on your clothes.
         ~ ChangeCamera("Player")
         *** [He is.]
         You: Yes, he is, thanks. That’s why he’s home.
-        *** [Bluff]
+        *** [Deflect]
         You: You’re the nosiest cop I’ve ever seen.
         Drunk Cop: Or the most observant.
         ---
@@ -1356,11 +1385,11 @@ You: Someone broke in...
 You: Jason... he... everything happened so fast. 
 You: he told me if the blood was washed away, everything would go back to normal...
 Mrs Wong: My goodness, Miss Lee...
-Mrs Wong: Have you been lying all the time about the clothes?
+Mrs Wong: So all those lies... You were just trying to survive, right?
 ** [Apologise]
 You: I’m sorry, I was panicking.
 Mrs Wong: (Sigh)
-Mrs Wong: I can’t believe it. I should have known he was that kind of guy. 
+Mrs Wong: I should have known he was that kind of guy. 
 *** [Jason is different]
 You: But he loves me! He was protecting me, Mrs Wong... 
 Mrs Wong: Did he do that for you, or for his own safety? 
@@ -1390,7 +1419,7 @@ Mrs Wong: If you put in some effort, you can still find a good way to make a liv
 + [Accept help and escape (Ending)]-> Mandy_escape_ending
 + [Take time to think (You can come back later)]
 You: I don’t know... I need to think.
-Mrs Wong: Take your time. I’ll be here smoking for a while. 
+Mrs Wong: Take your time. I’ll stay here for a while. 
 Mrs Wong: you can come back to me whenever you’re ready.
 ~ game_progression = 28
 -> END
@@ -1448,14 +1477,14 @@ Police Officer: Say that again, miss. What happened?
 -> murder_confess
 = murder_confess
 You: Someone broke in and threatened us. 
-You: And my boyfriend... My boyfriend took a {kitchen_knife: kitchen knife}{gun_chosen: gun.}
+You: And my boyfriend... My boyfriend wanted to solve it with a knife.
 You: It all happened so fast...
 Police Officer: Were you a part of this?
   ** [I gave it to him.]
-  You: He asked me to get a {kitchen_knife: knife}{gun_chosen: gun} for him when the intruder broke in. 
+  You: He asked me to get a knife for him when the intruder broke in. 
   You: And then asked me to wash these clothes.
   ** [No, I’m not part of this.]
-  You: I didn’t touch the {kitchen_knife: knife}{gun_chosen: gun}. He asked me to wash those clothes, 
+  You: I didn’t touch the knife. He asked me to wash those clothes, 
   You: I didn’t know what to do so I came here.
   -
   Police Officer: Where is the suspect right now?
@@ -1482,30 +1511,19 @@ Police Officer: Were you a part of this?
   -> END
 
 // =============================================================================
-//  PHASE 31 Standard dialogue after choosing to complete the mission on the pager.
+//  PHASE 31 Standard dialogue after choosing to complete the mission on the pager. Maybe shown after the black screen?
 // =============================================================================
 == Boyfriend_ending_dialogue_final ==
 ~ game_progression = 31
-You: I’m done.
-J: I know that I can trust you, sweetheart.
-J: Come back home. Can’t wait to cuddle.
-J: Sorry this happened.
-J: Things will get better. 
-J: You’ve got me.
-J: We should go on a trip. 
-J: Setting off tomorrow.
-J: Road trip for two, hh.
-J: The night will pass.
-J: We still have tomorrow.
-~ ChangeCamera("Player")
--> END
-
-//test
-== Arrested_final ==
-Police Officer: I think you should know why I’m standing here.
-~ ChangeCamera("Player")
-* [Try to get away with it]
-* [Confess]
--
+You: I’m back.
+Jason: I just got home, too.
+Jason: I love you.
+You: I love you, too.
+Jason: It will pass.
+Jason: We still have tomorrow.
+Jason: We’ve got us.
+You: We’ve got us.
+Jason: Now, try to forget about it. 
+Jason: Come into my arm, sweetheart.
 ~ ChangeCamera("Player")
 -> END

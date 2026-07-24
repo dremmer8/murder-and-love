@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 74ba6fe67da54f04a95abd9bc8e42765
+timeCreated: 1511104627
+licenseType: Store
+DefaultImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 181312
+  packageName: Puppet Face
+  packageVersion: 1.5.1
+  assetPath: Assets/PuppetFace/Tools/OpenCV+Unity/smcs.rsp
+  uploadId: 470716
