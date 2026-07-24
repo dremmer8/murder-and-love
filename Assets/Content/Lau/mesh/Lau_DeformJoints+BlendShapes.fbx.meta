@@ -12,7 +12,17 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
+      name: EyeBalls1
+    second: {fileID: 2100000, guid: 4329276b54997224499f24147d93f6ba, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
       name: EyePupils
+    second: {fileID: 2100000, guid: 4329276b54997224499f24147d93f6ba, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: EyePupils1
     second: {fileID: 2100000, guid: 4329276b54997224499f24147d93f6ba, type: 2}
   - first:
       type: UnityEngine:Material
@@ -22,7 +32,17 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
+      name: Eyebrows1
+    second: {fileID: 2100000, guid: 4329276b54997224499f24147d93f6ba, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
       name: Hair
+    second: {fileID: 2100000, guid: 4329276b54997224499f24147d93f6ba, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Hair1
     second: {fileID: 2100000, guid: 4329276b54997224499f24147d93f6ba, type: 2}
   - first:
       type: UnityEngine:Material
@@ -32,7 +52,17 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
+      name: Hands_Legs1
+    second: {fileID: 2100000, guid: 4329276b54997224499f24147d93f6ba, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
       name: Head
+    second: {fileID: 2100000, guid: 4329276b54997224499f24147d93f6ba, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Head1
     second: {fileID: 2100000, guid: 4329276b54997224499f24147d93f6ba, type: 2}
   - first:
       type: UnityEngine:Material
@@ -42,7 +72,17 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
+      name: Pants1
+    second: {fileID: 2100000, guid: 4329276b54997224499f24147d93f6ba, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
       name: Shirt
+    second: {fileID: 2100000, guid: 4329276b54997224499f24147d93f6ba, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Shirt1
     second: {fileID: 2100000, guid: 4329276b54997224499f24147d93f6ba, type: 2}
   - first:
       type: UnityEngine:Material
@@ -52,7 +92,17 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
+      name: Shoes1
+    second: {fileID: 2100000, guid: 4329276b54997224499f24147d93f6ba, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
       name: Teeth
+    second: {fileID: 2100000, guid: 4329276b54997224499f24147d93f6ba, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Teeth1
     second: {fileID: 2100000, guid: 4329276b54997224499f24147d93f6ba, type: 2}
   - first:
       type: UnityEngine:Material
@@ -62,12 +112,27 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
+      name: Tie1
+    second: {fileID: 2100000, guid: 4329276b54997224499f24147d93f6ba, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
       name: Tongue
     second: {fileID: 2100000, guid: 4329276b54997224499f24147d93f6ba, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
+      name: Tongue1
+    second: {fileID: 2100000, guid: 4329276b54997224499f24147d93f6ba, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
       name: Watch
+    second: {fileID: 2100000, guid: 4329276b54997224499f24147d93f6ba, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Watch1
     second: {fileID: 2100000, guid: 4329276b54997224499f24147d93f6ba, type: 2}
   materials:
     materialImportMode: 2
@@ -138,7 +203,7 @@ ModelImporter:
     tangentImportMode: 3
     normalCalculationMode: 4
     legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
-    blendShapeNormalImportMode: 1
+    blendShapeNormalImportMode: 0
     normalSmoothingSource: 0
   referencedClips: []
   importAnimation: 1

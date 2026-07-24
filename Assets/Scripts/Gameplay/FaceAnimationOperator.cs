@@ -2,7 +2,7 @@ using UnityEngine;
 
 /// <summary>
 /// Procedural face life for an animated character. Runs in LateUpdate on top of the
-/// Animator pose and drives three independent systems:
+/// Animator pose and drives four independent systems:
 ///
 /// 1. Blinking — rotates the eyelid bone(s) on their local X axis from 0 (open) to
 ///    <see cref="blinkClosedAngle"/> (default 60, fully closed). Two triggers:
@@ -17,6 +17,9 @@ using UnityEngine;
 ///
 /// 3. Eyes — when the player is close the eyes track the camera, with a small amount of
 ///    gaze wander around the camera so the stare feels alive rather than robotic.
+///
+/// 4. Hero blend shape — occasionally tweens the "hero" blend shape weight (0..100) by a
+///    random delta, with quiet idle stretches so it does not constantly fidget.
 ///
 /// Head / neck bones keep following the Animator when the look weight is 0, so
 /// "losing interest" blends back into the baked animation rather than snapping to rest.
@@ -134,9 +137,42 @@ public class FaceAnimationOperator : MonoBehaviour
     [Tooltip("How quickly the eye wander offset drifts.")]
     [SerializeField] float eyeWanderSpeed = 0.6f;
 
+    [Header("Hero Blend Shape")]
+    [Tooltip("Skinned mesh that owns the hero blend shape. Auto-finds under this transform if empty.")]
+    [SerializeField] SkinnedMeshRenderer faceMesh;
+
+    [Tooltip("Exact blend shape name to drive (case-insensitive).")]
+    [SerializeField] string heroBlendShapeName = "hero";
+
+    [Tooltip("Random seconds between hero change attempts (min, max).")]
+    [SerializeField] Vector2 heroChangeInterval = new(3f, 8f);
+
+    [Tooltip("Chance (0..1) that an attempt actually starts a tween. Misses just wait again.")]
+    [Range(0f, 1f)]
+    [SerializeField] float heroChangeChance = 0.35f;
+
+    [Tooltip("Seconds to smoothly tween to the new hero weight.")]
+    [SerializeField] float heroTweenTime = 0.55f;
+
+    [Tooltip("Minimum absolute weight change (0..100) when a tween fires.")]
+    [SerializeField] float heroMinDelta = 20f;
+
+    [Tooltip("Maximum absolute weight change (0..100) when a tween fires.")]
+    [SerializeField] float heroMaxDelta = 50f;
+
     // --- runtime ---
     Quaternion[] _eyelidRest;
     Quaternion[] _eyeRest;
+
+    // Hero blend shape state.
+    int _heroBlendIndex = -1;
+    float _heroWeight;
+    float _heroTargetWeight;
+    float _heroTweenElapsed;
+    float _heroTweenDuration;
+    float _heroTweenFrom;
+    float _heroIdleTimer;
+    bool _heroTweening;
 
     // Blink state.
     bool _isBlinking;
@@ -172,6 +208,8 @@ public class FaceAnimationOperator : MonoBehaviour
         ScheduleNextBlink();
         _interestTimer = RandomIn(interestDuration);
         _wanderSeed = new Vector2(Random.value * 100f, Random.value * 100f);
+        ResolveHeroBlendShape();
+        ScheduleNextHeroAttempt();
     }
 
     void LateUpdate()
@@ -189,6 +227,7 @@ public class FaceAnimationOperator : MonoBehaviour
         UpdateInterest(dt, dialogue);
         UpdateGaze(dt, dialogue);
         ApplyLook();
+        UpdateHeroBlendShape(dt);
     }
 
     // ---------------------------------------------------------------- Blink
@@ -480,6 +519,109 @@ public class FaceAnimationOperator : MonoBehaviour
         Quaternion aimed = delta * baseRot;
 
         bone.rotation = Quaternion.Slerp(baseRot, aimed, weight);
+    }
+
+    // ---------------------------------------------------- Hero Blend Shape
+
+    void ResolveHeroBlendShape()
+    {
+        _heroBlendIndex = -1;
+
+        if (faceMesh == null)
+            faceMesh = GetComponentInChildren<SkinnedMeshRenderer>(true);
+
+        if (faceMesh == null || faceMesh.sharedMesh == null || string.IsNullOrEmpty(heroBlendShapeName))
+            return;
+
+        Mesh mesh = faceMesh.sharedMesh;
+        for (int i = 0; i < mesh.blendShapeCount; i++)
+        {
+            if (string.Equals(mesh.GetBlendShapeName(i), heroBlendShapeName, System.StringComparison.OrdinalIgnoreCase))
+            {
+                _heroBlendIndex = i;
+                _heroWeight = faceMesh.GetBlendShapeWeight(i);
+                _heroTargetWeight = _heroWeight;
+                return;
+            }
+        }
+    }
+
+    void UpdateHeroBlendShape(float dt)
+    {
+        if (_heroBlendIndex < 0 || faceMesh == null)
+            return;
+
+        if (_heroTweening)
+        {
+            _heroTweenElapsed += dt;
+            float t = SafeDiv(_heroTweenElapsed, _heroTweenDuration);
+            if (t >= 1f)
+            {
+                _heroWeight = _heroTargetWeight;
+                _heroTweening = false;
+                ScheduleNextHeroAttempt();
+            }
+            else
+            {
+                _heroWeight = Mathf.Lerp(_heroTweenFrom, _heroTargetWeight, Mathf.SmoothStep(0f, 1f, t));
+            }
+
+            faceMesh.SetBlendShapeWeight(_heroBlendIndex, _heroWeight);
+            return;
+        }
+
+        _heroIdleTimer -= dt;
+        if (_heroIdleTimer > 0f)
+            return;
+
+        if (Random.value > heroChangeChance)
+        {
+            ScheduleNextHeroAttempt();
+            return;
+        }
+
+        StartHeroTween();
+    }
+
+    void StartHeroTween()
+    {
+        float minDelta = Mathf.Min(heroMinDelta, heroMaxDelta);
+        float maxDelta = Mathf.Max(heroMinDelta, heroMaxDelta);
+        float delta = Random.Range(minDelta, maxDelta);
+        if (Random.value < 0.5f)
+            delta = -delta;
+
+        float target = Mathf.Clamp(_heroWeight + delta, 0f, 100f);
+
+        // Near 0/100 a one-sided delta may undershoot the min — flip and retry once.
+        if (Mathf.Abs(target - _heroWeight) < minDelta)
+        {
+            target = Mathf.Clamp(_heroWeight - delta, 0f, 100f);
+            if (Mathf.Abs(target - _heroWeight) < minDelta * 0.5f)
+            {
+                // Still stuck at an edge — jump toward the opposite side.
+                target = _heroWeight < 50f
+                    ? Mathf.Clamp(_heroWeight + minDelta, 0f, 100f)
+                    : Mathf.Clamp(_heroWeight - minDelta, 0f, 100f);
+            }
+        }
+
+        if (Mathf.Approximately(target, _heroWeight))
+        {
+            ScheduleNextHeroAttempt();
+            return;
+        }
+
+        _heroTweenFrom = _heroWeight;
+        _heroTargetWeight = target;
+        _heroTweenElapsed = 0f;
+        _heroTweenDuration = Mathf.Max(0.01f, heroTweenTime);
+        _heroTweening = true;
+    }
+
+    void ScheduleNextHeroAttempt()
+    {
+        _heroIdleTimer = RandomIn(heroChangeInterval);
     }
 
     // ------------------------------------------------------------ Helpers
