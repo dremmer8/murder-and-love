@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rhubarbResult>
+  <metadata>
+    <soundFile>D:/murder-and-love/Assets\Content/voice/Mandy/p_6/p_6_l_17.wav</soundFile>
+    <duration>6.19</duration>
+  </metadata>
+  <mouthCues>
+    <mouthCue start="0.00" end="0.46">X</mouthCue>
+    <mouthCue start="0.46" end="0.51">B</mouthCue>
+    <mouthCue start="0.51" end="0.70">H</mouthCue>
+    <mouthCue start="0.70" end="0.84">E</mouthCue>
+    <mouthCue start="0.84" end="1.13">B</mouthCue>
+    <mouthCue start="1.13" end="1.27">C</mouthCue>
+    <mouthCue start="1.27" end="1.35">A</mouthCue>
+    <mouthCue start="1.35" end="1.49">B</mouthCue>
+    <mouthCue start="1.49" end="1.63">X</mouthCue>
+    <mouthCue start="1.63" end="1.69">B</mouthCue>
+    <mouthCue start="1.69" end="1.74">C</mouthCue>
+    <mouthCue start="1.74" end="2.23">B</mouthCue>
+    <mouthCue start="2.23" end="2.30">E</mouthCue>
+    <mouthCue start="2.30" end="2.37">G</mouthCue>
+    <mouthCue start="2.37" end="2.44">B</mouthCue>
+    <mouthCue start="2.44" end="2.65">D</mouthCue>
+    <mouthCue start="2.65" end="2.79">C</mouthCue>
+    <mouthCue start="2.79" end="3.07">B</mouthCue>
+    <mouthCue start="3.07" end="3.17">D</mouthCue>
+    <mouthCue start="3.17" end="3.21">C</mouthCue>
+    <mouthCue start="3.21" end="3.29">A</mouthCue>
+    <mouthCue start="3.29" end="3.47">E</mouthCue>
+    <mouthCue start="3.47" end="3.61">C</mouthCue>
+    <mouthCue start="3.61" end="3.75">B</mouthCue>
+    <mouthCue start="3.75" end="3.83">A</mouthCue>
+    <mouthCue start="3.83" end="4.02">E</mouthCue>
+    <mouthCue start="4.02" end="4.09">B</mouthCue>
+    <mouthCue start="4.09" end="4.23">G</mouthCue>
+    <mouthCue start="4.23" end="4.30">C</mouthCue>
+    <mouthCue start="4.30" end="4.37">B</mouthCue>
+    <mouthCue start="4.37" end="4.79">C</mouthCue>
+    <mouthCue start="4.79" end="4.86">B</mouthCue>
+    <mouthCue start="4.86" end="5.14">F</mouthCue>
+    <mouthCue start="5.14" end="5.42">B</mouthCue>
+    <mouthCue start="5.42" end="5.49">F</mouthCue>
+    <mouthCue start="5.49" end="5.77">B</mouthCue>
+    <mouthCue start="5.77" end="6.19">X</mouthCue>
+  </mouthCues>
+</rhubarbResult>

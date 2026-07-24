@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rhubarbResult>
+  <metadata>
+    <soundFile>D:/murder-and-love/Assets\Content/voice/Lau/p_15/p_15_l_38.wav</soundFile>
+    <duration>0.98</duration>
+  </metadata>
+  <mouthCues>
+    <mouthCue start="0.00" end="0.10">X</mouthCue>
+    <mouthCue start="0.10" end="0.15">B</mouthCue>
+    <mouthCue start="0.15" end="0.34">G</mouthCue>
+    <mouthCue start="0.34" end="0.76">C</mouthCue>
+    <mouthCue start="0.76" end="0.97">B</mouthCue>
+    <mouthCue start="0.97" end="0.98">X</mouthCue>
+  </mouthCues>
+</rhubarbResult>

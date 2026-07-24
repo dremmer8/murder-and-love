@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rhubarbResult>
+  <metadata>
+    <soundFile>D:/murder-and-love/Assets\Content/voice/Mandy/p_3/p_3_l_28.wav</soundFile>
+    <duration>0.98</duration>
+  </metadata>
+  <mouthCues>
+    <mouthCue start="0.00" end="0.09">X</mouthCue>
+    <mouthCue start="0.09" end="0.45">B</mouthCue>
+    <mouthCue start="0.45" end="0.52">C</mouthCue>
+    <mouthCue start="0.52" end="0.59">B</mouthCue>
+    <mouthCue start="0.59" end="0.87">F</mouthCue>
+    <mouthCue start="0.87" end="0.95">A</mouthCue>
+    <mouthCue start="0.95" end="0.98">X</mouthCue>
+  </mouthCues>
+</rhubarbResult>

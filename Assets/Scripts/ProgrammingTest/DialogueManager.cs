@@ -182,6 +182,9 @@ public class DialogueManager : MonoBehaviour
         if (!string.IsNullOrEmpty(knotName))
             currentStory.ChoosePathString(knotName);
 
+        if (mode == DialoguePresentationMode.Standard)
+            BeginVoiceOverSession(inkFile, knotName);
+
         switch (mode)
         {
             case DialoguePresentationMode.Standard:
@@ -382,8 +385,43 @@ public class DialogueManager : MonoBehaviour
 
         HideChoiceButtons();
 
+        EndVoiceOverSession();
+
         if (GameStateManager.CurrentState == GameState.Dialogue)
             GameStateManager.ChangeState(GameState.Gameplay);
+    }
+
+    void BeginVoiceOverSession(TextAsset inkFile, string knotName)
+    {
+        VoiceOverOperator voice = VoiceOverOperator.Instance;
+        if (voice == null)
+            voice = FindFirstObjectByType<VoiceOverOperator>();
+        if (voice == null)
+            return;
+
+        int storyPhase = 0;
+        if (GlobalVariableOperator.Instance != null)
+            storyPhase = GlobalVariableOperator.Instance.GetInt(GlobalVariableOperator.StoryPhaseVar, 0);
+
+        voice.BeginDialogue(knotName, storyPhase, inkFile);
+    }
+
+    void PlayVoiceOverForLine(string rawLine, List<string> inkTags)
+    {
+        VoiceOverOperator voice = VoiceOverOperator.Instance;
+        if (voice == null)
+            return;
+
+        voice.PlayForLine(rawLine, inkTags);
+    }
+
+    void EndVoiceOverSession()
+    {
+        VoiceOverOperator voice = VoiceOverOperator.Instance;
+        if (voice == null)
+            return;
+
+        voice.EndDialogue();
     }
 
     private void BeginPager(bool respondSupportPager = false)
@@ -474,6 +512,8 @@ public class DialogueManager : MonoBehaviour
 
         HideChoiceButtons();
 
+        EndVoiceOverSession();
+
         // Internal monologue never took the cursor; don't steal it back
         // (e.g. minigame / pager UI that needs it visible).
         if (endingMode != DialoguePresentationMode.InternalMonologue
@@ -526,6 +566,8 @@ public class DialogueManager : MonoBehaviour
 
         HideChoiceButtons();
 
+        EndVoiceOverSession();
+
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
@@ -559,14 +601,24 @@ public class DialogueManager : MonoBehaviour
         }
 
         string text = currentStory.Continue();
+        var inkTags = new List<string>();
+        if (currentStory.currentTags != null)
+            inkTags.AddRange(currentStory.currentTags);
+
         while (string.IsNullOrWhiteSpace(text) && currentStory.canContinue)
+        {
             text = currentStory.Continue();
+            if (currentStory.currentTags != null)
+                inkTags.AddRange(currentStory.currentTags);
+        }
 
         nextInputTime = Time.time + inputDelay;
 
         if (!string.IsNullOrWhiteSpace(text))
         {
             string trimmed = text.Trim();
+            PlayVoiceOverForLine(trimmed, inkTags);
+
             if (writer != null)
             {
                 // Keep choices hidden until typing finishes. Showing them early let a click

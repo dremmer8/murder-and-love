@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rhubarbResult>
+  <metadata>
+    <soundFile>D:/murder-and-love/Assets\Content/voice/MC/p_8/p_8_l_3.wav</soundFile>
+    <duration>2.72</duration>
+  </metadata>
+  <mouthCues>
+    <mouthCue start="0.00" end="0.01">X</mouthCue>
+    <mouthCue start="0.01" end="0.07">B</mouthCue>
+    <mouthCue start="0.07" end="0.19">C</mouthCue>
+    <mouthCue start="0.19" end="0.26">B</mouthCue>
+    <mouthCue start="0.26" end="0.40">E</mouthCue>
+    <mouthCue start="0.40" end="0.75">F</mouthCue>
+    <mouthCue start="0.75" end="0.84">A</mouthCue>
+    <mouthCue start="0.84" end="0.96">C</mouthCue>
+    <mouthCue start="0.96" end="1.45">X</mouthCue>
+    <mouthCue start="1.45" end="1.51">B</mouthCue>
+    <mouthCue start="1.51" end="1.57">E</mouthCue>
+    <mouthCue start="1.57" end="1.78">B</mouthCue>
+    <mouthCue start="1.78" end="1.86">A</mouthCue>
+    <mouthCue start="1.86" end="1.99">E</mouthCue>
+    <mouthCue start="1.99" end="2.34">B</mouthCue>
+    <mouthCue start="2.34" end="2.42">A</mouthCue>
+    <mouthCue start="2.42" end="2.70">B</mouthCue>
+    <mouthCue start="2.70" end="2.72">X</mouthCue>
+  </mouthCues>
+</rhubarbResult>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rhubarbResult>
+  <metadata>
+    <soundFile>D:/murder-and-love/Assets\Content/voice/MC/p_27/p_27_l_1.wav</soundFile>
+    <duration>2.16</duration>
+  </metadata>
+  <mouthCues>
+    <mouthCue start="0.00" end="0.02">X</mouthCue>
+    <mouthCue start="0.02" end="0.33">B</mouthCue>
+    <mouthCue start="0.33" end="0.40">F</mouthCue>
+    <mouthCue start="0.40" end="0.54">D</mouthCue>
+    <mouthCue start="0.54" end="0.68">C</mouthCue>
+    <mouthCue start="0.68" end="0.82">B</mouthCue>
+    <mouthCue start="0.82" end="1.01">X</mouthCue>
+    <mouthCue start="1.01" end="1.07">B</mouthCue>
+    <mouthCue start="1.07" end="1.20">C</mouthCue>
+    <mouthCue start="1.20" end="1.55">B</mouthCue>
+    <mouthCue start="1.55" end="1.63">A</mouthCue>
+    <mouthCue start="1.63" end="1.80">C</mouthCue>
+    <mouthCue start="1.80" end="1.87">D</mouthCue>
+    <mouthCue start="1.87" end="2.08">B</mouthCue>
+    <mouthCue start="2.08" end="2.15">C</mouthCue>
+    <mouthCue start="2.15" end="2.16">X</mouthCue>
+  </mouthCues>
+</rhubarbResult>

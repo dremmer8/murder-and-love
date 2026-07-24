@@ -1,0 +1,15 @@
+D:\murder-and-love\_tmp_ink_compile\InkCheck\obj\Release\net8.0\InkCheck.GeneratedMSBuildEditorConfig.editorconfig
+D:\murder-and-love\_tmp_ink_compile\InkCheck\obj\Release\net8.0\InkCheck.AssemblyInfoInputs.cache
+D:\murder-and-love\_tmp_ink_compile\InkCheck\obj\Release\net8.0\InkCheck.AssemblyInfo.cs
+D:\murder-and-love\_tmp_ink_compile\InkCheck\obj\Release\net8.0\InkCheck.csproj.CoreCompileInputs.cache
+D:\murder-and-love\_tmp_ink_compile\InkCheck\obj\Release\net8.0\InkCheck.sourcelink.json
+D:\murder-and-love\_tmp_ink_compile\InkCheck\bin\Release\net8.0\InkCheck.exe
+D:\murder-and-love\_tmp_ink_compile\InkCheck\bin\Release\net8.0\InkCheck.deps.json
+D:\murder-and-love\_tmp_ink_compile\InkCheck\bin\Release\net8.0\InkCheck.runtimeconfig.json
+D:\murder-and-love\_tmp_ink_compile\InkCheck\bin\Release\net8.0\InkCheck.dll
+D:\murder-and-love\_tmp_ink_compile\InkCheck\bin\Release\net8.0\InkCheck.pdb
+D:\murder-and-love\_tmp_ink_compile\InkCheck\obj\Release\net8.0\InkCheck.dll
+D:\murder-and-love\_tmp_ink_compile\InkCheck\obj\Release\net8.0\refint\InkCheck.dll
+D:\murder-and-love\_tmp_ink_compile\InkCheck\obj\Release\net8.0\InkCheck.pdb
+D:\murder-and-love\_tmp_ink_compile\InkCheck\obj\Release\net8.0\InkCheck.genruntimeconfig.cache
+D:\murder-and-love\_tmp_ink_compile\InkCheck\obj\Release\net8.0\ref\InkCheck.dll

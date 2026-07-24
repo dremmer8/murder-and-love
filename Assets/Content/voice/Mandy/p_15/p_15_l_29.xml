@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rhubarbResult>
+  <metadata>
+    <soundFile>D:/murder-and-love/Assets\Content/voice/Mandy/p_15/p_15_l_29.wav</soundFile>
+    <duration>4.29</duration>
+  </metadata>
+  <mouthCues>
+    <mouthCue start="0.00" end="0.44">X</mouthCue>
+    <mouthCue start="0.44" end="0.48">B</mouthCue>
+    <mouthCue start="0.48" end="0.52">C</mouthCue>
+    <mouthCue start="0.52" end="0.60">A</mouthCue>
+    <mouthCue start="0.60" end="0.67">C</mouthCue>
+    <mouthCue start="0.67" end="0.80">B</mouthCue>
+    <mouthCue start="0.80" end="0.94">G</mouthCue>
+    <mouthCue start="0.94" end="1.01">C</mouthCue>
+    <mouthCue start="1.01" end="1.11">A</mouthCue>
+    <mouthCue start="1.11" end="1.26">D</mouthCue>
+    <mouthCue start="1.26" end="1.33">H</mouthCue>
+    <mouthCue start="1.33" end="1.40">C</mouthCue>
+    <mouthCue start="1.40" end="1.54">B</mouthCue>
+    <mouthCue start="1.54" end="1.61">E</mouthCue>
+    <mouthCue start="1.61" end="1.68">B</mouthCue>
+    <mouthCue start="1.68" end="1.75">C</mouthCue>
+    <mouthCue start="1.75" end="1.89">G</mouthCue>
+    <mouthCue start="1.89" end="2.17">B</mouthCue>
+    <mouthCue start="2.17" end="2.31">C</mouthCue>
+    <mouthCue start="2.31" end="2.38">H</mouthCue>
+    <mouthCue start="2.38" end="2.78">X</mouthCue>
+    <mouthCue start="2.78" end="2.83">B</mouthCue>
+    <mouthCue start="2.83" end="2.91">A</mouthCue>
+    <mouthCue start="2.91" end="3.50">C</mouthCue>
+    <mouthCue start="3.50" end="3.57">F</mouthCue>
+    <mouthCue start="3.57" end="3.71">B</mouthCue>
+    <mouthCue start="3.71" end="4.29">X</mouthCue>
+  </mouthCues>
+</rhubarbResult>

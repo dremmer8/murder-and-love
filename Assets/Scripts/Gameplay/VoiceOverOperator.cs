@@ -1,0 +1,342 @@
+using System;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
+using PuppetFace;
+using UnityEngine;
+
+/// <summary>
+/// Plays dialogue voice-over from <see cref="VoiceLineLibrary"/> and drives Mandy/Lau
+/// <see cref="LipSync"/> (audio + Rhubarb phonemes). MC (<c>You</c>) gets audio only.
+/// <para>
+/// Lines are tagged in Ink as <c># vo:p_N_l_M</c>. Runtime reads that tag from
+/// <c>story.currentTags</c> after <c>Continue()</c> — no ink-text matching required.
+/// </para>
+/// Mandy/Lau use early LipSync while <c>game_progression &lt; modelSwitchProgression</c>
+/// (default 22), late afterward (prefers the hierarchy-active instance).
+/// </summary>
+public class VoiceOverOperator : MonoBehaviour
+{
+    public static VoiceOverOperator Instance { get; private set; }
+
+    public const string VoiceTagPrefix = "vo:";
+
+    static readonly Regex VoiceFileRegex = new(
+        @"^vo:(p_(\d+)_l_(\d+))$",
+        RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+    [Header("Library")]
+    [SerializeField] VoiceLineLibrary library;
+
+    [Header("Mandy LipSync (lipsync + audio)")]
+    [SerializeField] LipSync mandyLipSyncEarly;
+    [SerializeField] LipSync mandyLipSyncLate;
+
+    [Header("Lau LipSync (lipsync + audio)")]
+    [SerializeField] LipSync lauLipSyncEarly;
+    [SerializeField] LipSync lauLipSyncLate;
+
+    [Header("MC audio only")]
+    [Tooltip("Plays You/Vivian lines. No LipSync.")]
+    [SerializeField] AudioSource mcAudioSource;
+
+    [Header("Model switch")]
+    [Tooltip("Early LipSync while game_progression is below this; late from this value up.")]
+    [SerializeField] int modelSwitchProgression = 22;
+
+    [Header("Debug")]
+    [SerializeField] bool logMissingLines;
+
+    LipSync _playingLipSync;
+    bool _mcPlaying;
+
+    void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Debug.LogWarning($"{name}: more than one VoiceOverOperator in scene.", this);
+            return;
+        }
+
+        Instance = this;
+
+        if (mcAudioSource != null)
+            mcAudioSource.playOnAwake = false;
+    }
+
+    void OnDestroy()
+    {
+        if (Instance == this)
+            Instance = null;
+    }
+
+    public void BeginDialogue(string knotName, int storyPhase, TextAsset inkFile = null)
+    {
+        StopPlayback();
+    }
+
+    public void EndDialogue()
+    {
+        StopPlayback();
+    }
+
+    /// <summary>
+    /// Play VO for a spoken line using Ink tags (<c># vo:p_N_l_M</c>) collected after Continue.
+    /// </summary>
+    public void PlayForLine(string rawLine, IReadOnlyList<string> inkTags)
+    {
+        StopPlayback();
+
+        if (library == null)
+            return;
+
+        if (!TryGetVoiceFileId(inkTags, out string fileId, out int phase, out int line))
+        {
+            if (logMissingLines && !string.IsNullOrWhiteSpace(rawLine))
+            {
+                Debug.Log(
+                    $"[VoiceOver] No # vo:p_N_l_M tag on line: '{Truncate(rawLine)}'",
+                    this);
+            }
+
+            return;
+        }
+
+        if (!TryParseSpeakerLine(rawLine, out string speaker, out _))
+        {
+            if (logMissingLines)
+                Debug.Log($"[VoiceOver] Tag {fileId} but could not parse speaker on '{Truncate(rawLine)}'", this);
+            return;
+        }
+
+        if (!TryMapSpeaker(speaker, out VoiceLineLibrary.VoiceCharacter character))
+        {
+            // Thoughts / Jason / etc. — tagged for future use, but not voiced yet.
+            return;
+        }
+
+        if (!library.TryGet(character, phase, line, out VoiceLineLibrary.Entry entry))
+        {
+            if (logMissingLines)
+            {
+                Debug.Log(
+                    $"[VoiceOver] Missing clip {character}/{fileId}.wav (tag present)",
+                    this);
+            }
+
+            return;
+        }
+
+        switch (character)
+        {
+            case VoiceLineLibrary.VoiceCharacter.MC:
+                PlayMc(entry.Clip);
+                break;
+            case VoiceLineLibrary.VoiceCharacter.Mandy:
+                PlayLipSync(ResolveLipSync(mandyLipSyncEarly, mandyLipSyncLate), entry);
+                break;
+            case VoiceLineLibrary.VoiceCharacter.Lau:
+                PlayLipSync(ResolveLipSync(lauLipSyncEarly, lauLipSyncLate), entry);
+                break;
+        }
+    }
+
+    /// <summary>Legacy overload — looks for an inline <c># vo:</c> in the text (usually stripped by Ink).</summary>
+    public void PlayForLine(string rawLine)
+    {
+        PlayForLine(rawLine, ExtractInlineVoiceTags(rawLine));
+    }
+
+    public void StopPlayback()
+    {
+        if (_playingLipSync != null)
+        {
+            if (_playingLipSync.isActiveAndEnabled)
+                _playingLipSync.Stop();
+            _playingLipSync = null;
+        }
+
+        if (_mcPlaying && mcAudioSource != null)
+        {
+            mcAudioSource.Stop();
+            mcAudioSource.clip = null;
+            _mcPlaying = false;
+        }
+    }
+
+    public static bool TryGetVoiceFileId(
+        IReadOnlyList<string> tags,
+        out string fileId,
+        out int phase,
+        out int line)
+    {
+        fileId = null;
+        phase = 0;
+        line = 0;
+        if (tags == null)
+            return false;
+
+        for (int i = 0; i < tags.Count; i++)
+        {
+            if (TryParseVoiceTag(tags[i], out fileId, out phase, out line))
+                return true;
+        }
+
+        return false;
+    }
+
+    public static bool TryParseVoiceTag(string tag, out string fileId, out int phase, out int line)
+    {
+        fileId = null;
+        phase = 0;
+        line = 0;
+        if (string.IsNullOrWhiteSpace(tag))
+            return false;
+
+        Match match = VoiceFileRegex.Match(tag.Trim());
+        if (!match.Success)
+            return false;
+
+        fileId = match.Groups[1].Value;
+        phase = int.Parse(match.Groups[2].Value);
+        line = int.Parse(match.Groups[3].Value);
+        return phase > 0 && line > 0;
+    }
+
+    static List<string> ExtractInlineVoiceTags(string rawLine)
+    {
+        var tags = new List<string>();
+        if (string.IsNullOrEmpty(rawLine))
+            return tags;
+
+        foreach (Match match in Regex.Matches(rawLine, @"#\s*(vo:p_\d+_l_\d+)\b", RegexOptions.IgnoreCase))
+            tags.Add(match.Groups[1].Value);
+
+        return tags;
+    }
+
+    void PlayMc(AudioClip clip)
+    {
+        if (mcAudioSource == null || clip == null)
+            return;
+
+        mcAudioSource.clip = clip;
+        mcAudioSource.Play();
+        _mcPlaying = true;
+    }
+
+    void PlayLipSync(LipSync lipSync, VoiceLineLibrary.Entry entry)
+    {
+        if (lipSync == null || entry == null || entry.Clip == null)
+            return;
+
+        lipSync.AudioClips = new[] { entry.Clip };
+        lipSync.LipSyncFiles = entry.PhonemeXml != null
+            ? new[] { entry.PhonemeXml }
+            : Array.Empty<TextAsset>();
+        lipSync.LipSyncIndex = 0;
+        lipSync.PlayAll = false;
+        lipSync.Repeat = false;
+        lipSync.PlayOnAwake = false;
+        lipSync.InitializeFromFile();
+        lipSync.Play(0);
+        _playingLipSync = lipSync;
+    }
+
+    LipSync ResolveLipSync(LipSync early, LipSync late)
+    {
+        int progression = GlobalVariableOperator.Instance != null
+            ? GlobalVariableOperator.Instance.GameProgression
+            : 0;
+
+        LipSync preferred = progression < modelSwitchProgression ? early : late;
+        LipSync fallback = progression < modelSwitchProgression ? late : early;
+
+        if (IsUsable(preferred))
+            return preferred;
+        if (IsUsable(fallback))
+            return fallback;
+        if (IsUsable(early))
+            return early;
+        if (IsUsable(late))
+            return late;
+
+        return preferred != null ? preferred : fallback;
+    }
+
+    static bool IsUsable(LipSync lipSync)
+    {
+        return lipSync != null && lipSync.isActiveAndEnabled && lipSync.gameObject.activeInHierarchy;
+    }
+
+    public static bool TryParseSpeakerLine(string raw, out string speaker, out string body)
+    {
+        speaker = null;
+        body = null;
+        if (string.IsNullOrWhiteSpace(raw))
+            return false;
+
+        string line = raw.Trim();
+        // Strip ink tags that might still be present in editor previews.
+        line = Regex.Replace(line, @"\s*#\s*\S+", "").Trim();
+
+        int colon = line.IndexOf(':');
+        if (colon <= 0 || colon > 40)
+            return false;
+
+        speaker = line.Substring(0, colon).Trim();
+        if (speaker.Length == 0 || !HasLetter(speaker))
+            return false;
+
+        body = line.Substring(colon + 1).Trim();
+        body = Regex.Replace(body, @"\s*->\s*\S+\s*$", "").Trim();
+        return true;
+    }
+
+    public static bool TryMapSpeaker(string speaker, out VoiceLineLibrary.VoiceCharacter character)
+    {
+        character = default;
+        if (string.IsNullOrWhiteSpace(speaker))
+            return false;
+
+        switch (speaker.Trim().ToLowerInvariant())
+        {
+            case "you":
+            case "vivian":
+            case "vi":
+                character = VoiceLineLibrary.VoiceCharacter.MC;
+                return true;
+            case "mrs wong":
+            case "mrs. wong":
+            case "mandy":
+                character = VoiceLineLibrary.VoiceCharacter.Mandy;
+                return true;
+            case "drunk man":
+            case "drunk cop":
+            case "lau":
+            case "cop":
+            case "police officer":
+                character = VoiceLineLibrary.VoiceCharacter.Lau;
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    static bool HasLetter(string value)
+    {
+        for (int i = 0; i < value.Length; i++)
+        {
+            if (char.IsLetter(value[i]))
+                return true;
+        }
+
+        return false;
+    }
+
+    static string Truncate(string value, int max = 64)
+    {
+        if (string.IsNullOrEmpty(value) || value.Length <= max)
+            return value;
+        return value.Substring(0, max) + "…";
+    }
+}
