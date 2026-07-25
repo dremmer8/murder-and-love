@@ -10,9 +10,9 @@ using UnityEngine;
 ///   2. Control hint      — exclusive top-right panel for the current mode:
 ///        • normal gameplay .......... "[TAB] Check pager"
 ///        • minigame active .......... per-minigame ControlHints (fallback below)
-///        • pager open ............... A/D scroll, Space next, Tab put down
-///        • pager first-open tutorial  scroll A/D, then Space (Tab locked until done)
-///        • pager respond (reading) .. A/D scroll, Space continue, Tab put down
+///        • pager open ............... A/D scroll, D at end next, Tab put down
+///        • pager first-open tutorial  scroll A/D, then D at end (Tab locked until done)
+///        • pager respond (reading) .. A/D scroll, D at end continue, Tab put down
 ///        • pager respond (typing) ... any key types the reply, Tab put down
 ///        • dialogue / intro ......... Space continue, or mouse to choose options
 ///
@@ -44,16 +44,16 @@ public class ControlHintsPresenter : MonoBehaviour
         "A / D — turn dial\nMouse — grab & place\n[ESC] Leave";
 
     [TextArea] [SerializeField] private string pagerOpenHint =
-        "A / D — scroll\n[SPACE] Next message\n[TAB] Put down pager";
+        "A / D — scroll\n[D] at end — next message\n[TAB] Put down pager";
 
     [TextArea] [SerializeField] private string pagerTutorialScrollHint =
         "[A] / [D] Scroll left & right";
 
     [TextArea] [SerializeField] private string pagerTutorialAdvanceHint =
-        "[SPACE] Next message";
+        "[D] at end — next message";
 
     [TextArea] [SerializeField] private string pagerRespondReadingHint =
-        "A / D — scroll\n[SPACE] Continue / reply\n[TAB] Put down pager";
+        "A / D — scroll\n[D] at end — continue / reply\n[TAB] Put down pager";
 
     [TextArea] [SerializeField] private string pagerRespondTypingHint =
         "Type on any key to reply\n[TAB] Put down pager";
@@ -62,7 +62,7 @@ public class ControlHintsPresenter : MonoBehaviour
         "[A] / [D] Scroll left & right";
 
     [TextArea] [SerializeField] private string pagerRespondTutorialAdvanceHint =
-        "[SPACE] Continue / reply";
+        "[D] at end — continue / reply";
 
     [TextArea] [SerializeField] private string dialogueProgressHint =
         "[SPACE] Continue\nMouse — choose options";

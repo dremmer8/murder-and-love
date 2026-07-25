@@ -46,7 +46,7 @@ public class DialogueTrigger : MonoBehaviour
     [Tooltip("If true, starting this trigger aborts any active dialogue and starts immediately.")]
     public bool forceCancelPrevious;
 
-    [Tooltip("Pager only: after the inbound message, Space shows \"start typing\" and any key types the canned reply. When finished, plays the completion ending cutscene and fires Next Dialogue Trigger. Tab is the only way to leave the pager during this sequence.")]
+    [Tooltip("Pager only: after the inbound message, D at end of scroll shows \"start typing\" and any key types the canned reply. When finished, plays the completion ending cutscene and fires Next Dialogue Trigger. Tab is the only way to leave the pager during this sequence.")]
     [SerializeField] private bool isRespondSupportPager;
 
     [Header("Player Pose")]
@@ -113,10 +113,12 @@ public class DialogueTrigger : MonoBehaviour
         if (GameStateManager.CurrentState == GameState.Paused)
             return;
 
-        // Non-force triggers wait; forceCancelPrevious may interrupt Dialogue / Pager.
-        if (!forceCancelPrevious
-            && (GameStateManager.CurrentState == GameState.Dialogue
-                || GameStateManager.CurrentState == GameState.Pager))
+        // Pager owns input while open — no KeyPress / TriggerZone starts (including forceCancelPrevious).
+        if (GameStateManager.CurrentState == GameState.Pager)
+            return;
+
+        // Non-force triggers wait; forceCancelPrevious may interrupt Dialogue.
+        if (!forceCancelPrevious && GameStateManager.CurrentState == GameState.Dialogue)
             return;
 
         if (!forceCancelPrevious
@@ -234,6 +236,9 @@ public class DialogueTrigger : MonoBehaviour
     public bool CanStartFromLook()
     {
         if (activationMode != DialogueActivationMode.KeyPress)
+            return false;
+
+        if (GameStateManager.CurrentState != GameState.Gameplay)
             return false;
 
         if (storyPhaseController != null)

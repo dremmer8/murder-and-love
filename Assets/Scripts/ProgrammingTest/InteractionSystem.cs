@@ -46,6 +46,10 @@ public class InteractionSystem : MonoBehaviour
 
     void Update()
     {
+        // Look+E is free-roam only — pager / dialogue / pause must not fire interactables or talk.
+        if (GameStateManager.CurrentState != GameState.Gameplay)
+            return;
+
         if (Input.GetKeyDown(interactKey))
             CheckForInteraction();
     }

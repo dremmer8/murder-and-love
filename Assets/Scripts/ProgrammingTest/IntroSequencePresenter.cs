@@ -1,5 +1,7 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -17,13 +19,16 @@ public class IntroBitRow
 
     public TextMeshProUGUI textBit;
 
+    [Tooltip("Optional fade target for this row. If empty, CanvasGroups are resolved on textBit / option buttons.")]
+    public CanvasGroup canvasGroup;
+
     [Tooltip("Up to three option slots (leave empty for text-only bits).")]
     public Button[] optionButtons = new Button[3];
 }
 
 /// <summary>
-/// Static intro layout: opening text bit, text+option rows, then a closing text-only bit.
-/// After a pick, hide all option buttons and leave the text bit.
+/// Intro layout: one row visible at a time. Each row fades in from transparent;
+/// after the row is done, wait, hide it, then fade in the next.
 /// </summary>
 public class IntroSequencePresenter : MonoBehaviour
 {
@@ -39,6 +44,13 @@ public class IntroSequencePresenter : MonoBehaviour
     [Tooltip("If true, Space or left click advances when a revealed bit has no pending choices.")]
     [SerializeField] private bool advanceTextWithSpace = true;
 
+    [Header("Transitions")]
+    [Tooltip("Seconds to wait after a row is done before hiding it and showing the next.")]
+    [SerializeField] private float rowTransitionDelay = 1f;
+
+    [Tooltip("Fade-in / fade-out duration for each row.")]
+    [SerializeField] private float rowFadeDuration = 0.6f;
+
     [Header("Typewriter")]
     [SerializeField] private DialogueTypewriter typewriter;
 
@@ -46,8 +58,11 @@ public class IntroSequencePresenter : MonoBehaviour
     private Action _onComplete;
     private bool _active;
     private bool _isChoosing;
+    private bool _transitioning;
     private float _nextInputTime;
     private int _activeRowIndex = -1;
+    private Coroutine _showRoutine;
+    private readonly List<Tween> _activeFades = new List<Tween>();
 
     public bool IsActive => _active;
 
@@ -72,6 +87,7 @@ public class IntroSequencePresenter : MonoBehaviour
         _onComplete = onComplete;
         _active = true;
         _isChoosing = false;
+        _transitioning = false;
         _activeRowIndex = -1;
         _nextInputTime = Time.time + inputDelay;
 
@@ -105,13 +121,14 @@ public class IntroSequencePresenter : MonoBehaviour
         if (!_active)
             return;
 
+        StopTransition();
         ResolveTypewriter()?.Stop(clearText: false);
         Finish(invokeCallback: false);
     }
 
     private void Update()
     {
-        if (!_active || _isChoosing)
+        if (!_active || _isChoosing || _transitioning)
             return;
 
         if (!advanceTextWithSpace)
@@ -132,7 +149,7 @@ public class IntroSequencePresenter : MonoBehaviour
 
     private void RevealNextBit()
     {
-        if (_story == null)
+        if (_story == null || _transitioning)
             return;
 
         if (_isChoosing)
@@ -154,8 +171,13 @@ public class IntroSequencePresenter : MonoBehaviour
         if (string.IsNullOrEmpty(prompt) && _story.currentChoices.Count > 0)
         {
             if (_activeRowIndex < 0)
-                ActivateNextRow("");
-            ShowOptionsOnActiveRow();
+            {
+                if (_showRoutine != null)
+                    StopCoroutine(_showRoutine);
+                _showRoutine = StartCoroutine(ShowTextBitRoutine("", showChoicesAfterType: true));
+            }
+            else
+                ShowOptionsOnActiveRow();
             return;
         }
 
@@ -169,39 +191,58 @@ public class IntroSequencePresenter : MonoBehaviour
     private void ShowTextBit(string prompt)
     {
         prompt = CollectClosingParagraphs(prompt);
-
         bool showChoicesAfterType = _story != null && _story.currentChoices.Count > 0;
+
+        if (_showRoutine != null)
+            StopCoroutine(_showRoutine);
+
+        _showRoutine = StartCoroutine(ShowTextBitRoutine(prompt, showChoicesAfterType));
+    }
+
+    private IEnumerator ShowTextBitRoutine(string prompt, bool showChoicesAfterType)
+    {
+        // Leave the finished row: wait, fade out, hide — then reveal the next object.
+        if (_activeRowIndex >= 0)
+        {
+            _transitioning = true;
+            if (rowTransitionDelay > 0f)
+                yield return new WaitForSeconds(rowTransitionDelay);
+
+            yield return FadeRow(_activeRowIndex, 0f);
+            HideRowVisuals(_activeRowIndex);
+            _transitioning = false;
+        }
 
         if (!ActivateNextRow(prompt, showChoicesAfterType ? OnIntroLineTyped : null))
         {
-            // More Ink lines than wired rows — fold remaining text into the last bit.
-            AppendToActiveText(prompt);
-            while (_story.canContinue)
+            // More Ink lines than wired rows — re-show last bit and fold remaining text in.
+            if (_activeRowIndex >= 0)
             {
-                string extra = PullNextText();
-                if (!string.IsNullOrEmpty(extra))
-                    AppendToActiveText(extra);
-            }
+                ShowRowVisuals(_activeRowIndex, fadeIn: true);
+                AppendToActiveText(prompt);
+                while (_story.canContinue)
+                {
+                    string extra = PullNextText();
+                    if (!string.IsNullOrEmpty(extra))
+                        AppendToActiveText(extra);
+                }
 
-            if (_story.currentChoices.Count > 0)
-            {
-                ShowOptionsOnActiveRow();
-                return;
+                if (_story.currentChoices.Count > 0)
+                    ShowOptionsOnActiveRow();
             }
 
             _nextInputTime = Time.time + inputDelay;
-            return;
+            _showRoutine = null;
+            yield break;
         }
 
         _nextInputTime = Time.time + inputDelay;
-
-        // Choices wait for OnIntroLineTyped when a typewriter is running.
-        // Text-only bits (e.g. final closing lines) advance on Space.
+        _showRoutine = null;
     }
 
     private void OnIntroLineTyped()
     {
-        if (!_active || _story == null)
+        if (!_active || _story == null || _transitioning)
             return;
 
         if (_story.currentChoices.Count > 0)
@@ -304,14 +345,11 @@ public class IntroSequencePresenter : MonoBehaviour
 
         _activeRowIndex = next;
 
-        if (row.rowRoot != null)
-            row.rowRoot.SetActive(true);
-
+        ShowRowVisuals(next, fadeIn: true);
         HideAllOptions(row);
 
         if (row.textBit != null)
         {
-            row.textBit.gameObject.SetActive(true);
             DialogueTypewriter writer = ResolveTypewriter();
             if (writer != null)
             {
@@ -357,6 +395,10 @@ public class IntroSequencePresenter : MonoBehaviour
         _isChoosing = true;
         HideAllOptions(row);
 
+        // Ensure option containers are visible for this row.
+        if (row.rowRoot != null)
+            row.rowRoot.SetActive(true);
+
         int slots = Mathf.Min(row.optionButtons.Length, currentChoices.Count);
         for (int i = 0; i < slots; i++)
         {
@@ -367,6 +409,11 @@ public class IntroSequencePresenter : MonoBehaviour
             int choiceIndex = i;
             button.gameObject.SetActive(true);
             button.interactable = true;
+
+            CanvasGroup buttonGroup = GetOrAddCanvasGroup(button.gameObject);
+            buttonGroup.alpha = 1f;
+            buttonGroup.blocksRaycasts = true;
+            buttonGroup.interactable = true;
 
             TextMeshProUGUI label = button.GetComponentInChildren<TextMeshProUGUI>(true);
             if (label != null)
@@ -386,7 +433,7 @@ public class IntroSequencePresenter : MonoBehaviour
 
     private void OnOptionChosen(int choiceIndex)
     {
-        if (!_isChoosing || _story == null)
+        if (!_isChoosing || _story == null || _transitioning)
             return;
 
         if (choiceIndex < 0 || choiceIndex >= _story.currentChoices.Count)
@@ -448,7 +495,7 @@ public class IntroSequencePresenter : MonoBehaviour
     }
 
     /// <summary>
-    /// Ink <> glue after a choice is typically a lowercase continuation ("tried to take...")
+    /// Ink &lt;&gt; glue after a choice is typically a lowercase continuation ("tried to take...")
     /// or a trailing sentence closer (e.g. "." after "shattered by a loan shark").
     /// A new capitalised paragraph is the next intro bit, not glue.
     /// </summary>
@@ -485,8 +532,230 @@ public class IntroSequencePresenter : MonoBehaviour
         }
     }
 
+    private void ShowRowVisuals(int rowIndex, bool fadeIn)
+    {
+        if (bitRows == null || rowIndex < 0 || rowIndex >= bitRows.Length)
+            return;
+
+        IntroBitRow row = bitRows[rowIndex];
+        if (row == null)
+            return;
+
+        if (row.rowRoot != null && (IsRowRootExclusive(rowIndex) || HasAnyOptionButton(row)))
+            row.rowRoot.SetActive(true);
+
+        if (row.textBit != null)
+            row.textBit.gameObject.SetActive(true);
+
+        List<CanvasGroup> groups = CollectFadeGroups(row);
+        for (int i = 0; i < groups.Count; i++)
+        {
+            CanvasGroup group = groups[i];
+            KillFadesOn(group);
+            group.alpha = fadeIn && rowFadeDuration > 0f ? 0f : 1f;
+            group.blocksRaycasts = true;
+            group.interactable = true;
+        }
+
+        if (fadeIn && rowFadeDuration > 0f)
+            StartFade(groups, 1f);
+    }
+
+    private void HideRowVisuals(int rowIndex)
+    {
+        if (bitRows == null || rowIndex < 0 || rowIndex >= bitRows.Length)
+            return;
+
+        IntroBitRow row = bitRows[rowIndex];
+        if (row == null)
+            return;
+
+        HideAllOptions(row);
+
+        if (row.textBit != null)
+        {
+            row.textBit.text = "";
+            row.textBit.gameObject.SetActive(false);
+        }
+
+        if (row.rowRoot != null)
+            row.rowRoot.SetActive(false);
+
+        List<CanvasGroup> groups = CollectFadeGroups(row);
+        for (int i = 0; i < groups.Count; i++)
+        {
+            CanvasGroup group = groups[i];
+            KillFadesOn(group);
+            group.alpha = 0f;
+            group.blocksRaycasts = false;
+            group.interactable = false;
+        }
+    }
+
+    private IEnumerator FadeRow(int rowIndex, float targetAlpha)
+    {
+        if (bitRows == null || rowIndex < 0 || rowIndex >= bitRows.Length)
+            yield break;
+
+        IntroBitRow row = bitRows[rowIndex];
+        if (row == null)
+            yield break;
+
+        List<CanvasGroup> groups = CollectFadeGroups(row);
+        if (groups.Count == 0 || rowFadeDuration <= 0f)
+        {
+            for (int i = 0; i < groups.Count; i++)
+                groups[i].alpha = targetAlpha;
+            yield break;
+        }
+
+        bool done = false;
+        Tween lead = StartFade(groups, targetAlpha, () => done = true);
+        if (lead == null)
+        {
+            for (int i = 0; i < groups.Count; i++)
+                groups[i].alpha = targetAlpha;
+            yield break;
+        }
+
+        while (!done)
+            yield return null;
+    }
+
+    private Tween StartFade(List<CanvasGroup> groups, float targetAlpha, Action onComplete = null)
+    {
+        if (groups == null || groups.Count == 0)
+        {
+            onComplete?.Invoke();
+            return null;
+        }
+
+        Tween lead = null;
+        for (int i = 0; i < groups.Count; i++)
+        {
+            CanvasGroup group = groups[i];
+            KillFadesOn(group);
+            Tween tween = group.DOFade(targetAlpha, rowFadeDuration)
+                .SetUpdate(true)
+                .SetTarget(group);
+            _activeFades.Add(tween);
+            if (lead == null)
+                lead = tween;
+        }
+
+        if (lead != null && onComplete != null)
+            lead.OnComplete(() => onComplete());
+
+        return lead;
+    }
+
+    private void KillFadesOn(CanvasGroup group)
+    {
+        if (group == null)
+            return;
+
+        DOTween.Kill(group);
+        for (int i = _activeFades.Count - 1; i >= 0; i--)
+        {
+            Tween tween = _activeFades[i];
+            if (tween == null || !tween.IsActive() || tween.target == (object)group)
+                _activeFades.RemoveAt(i);
+        }
+    }
+
+    private void StopTransition()
+    {
+        if (_showRoutine != null)
+        {
+            StopCoroutine(_showRoutine);
+            _showRoutine = null;
+        }
+
+        _transitioning = false;
+
+        for (int i = 0; i < _activeFades.Count; i++)
+        {
+            Tween tween = _activeFades[i];
+            if (tween != null && tween.IsActive())
+                tween.Kill();
+        }
+
+        _activeFades.Clear();
+    }
+
+    private List<CanvasGroup> CollectFadeGroups(IntroBitRow row)
+    {
+        var groups = new List<CanvasGroup>();
+        if (row == null)
+            return groups;
+
+        if (row.canvasGroup != null)
+        {
+            groups.Add(row.canvasGroup);
+            return groups;
+        }
+
+        if (row.textBit != null)
+            groups.Add(GetOrAddCanvasGroup(row.textBit.gameObject));
+
+        if (row.optionButtons != null)
+        {
+            for (int i = 0; i < row.optionButtons.Length; i++)
+            {
+                Button button = row.optionButtons[i];
+                if (button != null)
+                    groups.Add(GetOrAddCanvasGroup(button.gameObject));
+            }
+        }
+
+        return groups;
+    }
+
+    private static CanvasGroup GetOrAddCanvasGroup(GameObject go)
+    {
+        CanvasGroup group = go.GetComponent<CanvasGroup>();
+        if (group == null)
+            group = go.AddComponent<CanvasGroup>();
+        return group;
+    }
+
+    private bool IsRowRootExclusive(int rowIndex)
+    {
+        if (bitRows == null || rowIndex < 0 || rowIndex >= bitRows.Length)
+            return false;
+
+        GameObject root = bitRows[rowIndex]?.rowRoot;
+        if (root == null)
+            return false;
+
+        for (int i = 0; i < bitRows.Length; i++)
+        {
+            if (i == rowIndex || bitRows[i] == null)
+                continue;
+            if (bitRows[i].rowRoot == root)
+                return false;
+        }
+
+        return true;
+    }
+
+    private static bool HasAnyOptionButton(IntroBitRow row)
+    {
+        if (row?.optionButtons == null)
+            return false;
+
+        for (int i = 0; i < row.optionButtons.Length; i++)
+        {
+            if (row.optionButtons[i] != null)
+                return true;
+        }
+
+        return false;
+    }
+
     private void ResetAllRows()
     {
+        StopTransition();
         _isChoosing = false;
         _activeRowIndex = -1;
 
@@ -499,8 +768,7 @@ public class IntroSequencePresenter : MonoBehaviour
             if (row == null)
                 continue;
 
-            if (row.rowRoot != null)
-                row.rowRoot.SetActive(false);
+            HideAllOptions(row);
 
             if (row.textBit != null)
             {
@@ -508,12 +776,25 @@ public class IntroSequencePresenter : MonoBehaviour
                 row.textBit.gameObject.SetActive(false);
             }
 
-            HideAllOptions(row);
+            if (row.rowRoot != null)
+                row.rowRoot.SetActive(false);
+
+            List<CanvasGroup> groups = CollectFadeGroups(row);
+            for (int i = 0; i < groups.Count; i++)
+            {
+                CanvasGroup group = groups[i];
+                KillFadesOn(group);
+                group.alpha = 0f;
+                group.blocksRaycasts = false;
+                group.interactable = false;
+            }
         }
     }
 
     private void Finish(bool invokeCallback)
     {
+        StopTransition();
+
         _active = false;
         _isChoosing = false;
         _story = null;
@@ -528,5 +809,10 @@ public class IntroSequencePresenter : MonoBehaviour
 
         if (invokeCallback)
             callback?.Invoke();
+    }
+
+    private void OnDestroy()
+    {
+        StopTransition();
     }
 }

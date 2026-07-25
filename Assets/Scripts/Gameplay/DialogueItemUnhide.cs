@@ -12,9 +12,6 @@ public class DialogueItemUnhideEntry
     [Tooltip("Object to SetActive(true). Leave inactive in the scene until this fires.")]
     public GameObject target;
 
-    [Tooltip("Seconds to wait after the Ink call (i.e. after the line starts) before unhiding.")]
-    public float timeOffset = 0.5f;
-
     [Tooltip("Optional hand-held prop on Mandy's skeleton. Active for the give-item anim, then hidden.")]
     public GameObject handProp;
 
@@ -28,8 +25,8 @@ public class DialogueItemUnhideEntry
 }
 
 /// <summary>
-/// Ink EXTERNAL UnhideItem(itemId): after each entry's time offset, activates its target.
-/// Optional handProp activates immediately (give-item anim start) and hides after handPropDuration.
+/// Ink EXTERNAL UnhideItem(itemId): shows the hand prop immediately, then activates the table
+/// target when AnimationSoundboard.NotifyItemPlacedOnTable / RevealTableItem fires.
 /// Wire three entries for: first laundry coin, backroom key, second laundry coin.
 /// </summary>
 public class DialogueItemUnhide : MonoBehaviour
@@ -38,8 +35,8 @@ public class DialogueItemUnhide : MonoBehaviour
 
     [SerializeField] List<DialogueItemUnhideEntry> items = new();
 
-    readonly Dictionary<string, Coroutine> _pending = new();
     readonly Dictionary<string, Coroutine> _handPropHide = new();
+    DialogueItemUnhideEntry _awaitingTableReveal;
 
     void Awake()
     {
@@ -60,7 +57,8 @@ public class DialogueItemUnhide : MonoBehaviour
     }
 
     /// <summary>
-    /// Ink EXTERNAL entry point. Uses the matching entry's <see cref="DialogueItemUnhideEntry.timeOffset"/>.
+    /// Ink EXTERNAL entry point. Shows the hand prop and queues the table target until
+    /// <see cref="RevealTableItem"/> (from AnimationSoundboard.NotifyItemPlacedOnTable).
     /// </summary>
     public void UnhideItem(string itemId)
     {
@@ -86,11 +84,28 @@ public class DialogueItemUnhide : MonoBehaviour
             return;
         }
 
-        if (_pending.TryGetValue(itemId, out Coroutine running) && running != null)
-            StopCoroutine(running);
-
         ShowHandProp(entry);
-        _pending[itemId] = StartCoroutine(UnhideAfterDelay(entry));
+
+        // Give-item entries wait for AnimationSoundboard.NotifyItemPlacedOnTable.
+        // Instant unhides (e.g. police_lights with no hand prop) activate immediately.
+        if (entry.handProp != null)
+            _awaitingTableReveal = entry;
+        else
+            ActivateTarget(entry);
+    }
+
+    /// <summary>
+    /// UnityEvent / AnimationSoundboard target: reveal the table item queued by UnhideItem.
+    /// Call from AnimationSoundboard.NotifyItemPlacedOnTable / onItemPlacedOnTable.
+    /// </summary>
+    public void RevealTableItem()
+    {
+        DialogueItemUnhideEntry entry = _awaitingTableReveal;
+        if (entry == null)
+            return;
+
+        _awaitingTableReveal = null;
+        ActivateTarget(entry);
     }
 
     void ShowHandProp(DialogueItemUnhideEntry entry)
@@ -117,11 +132,10 @@ public class DialogueItemUnhide : MonoBehaviour
         _handPropHide.Remove(entry.itemId);
     }
 
-    IEnumerator UnhideAfterDelay(DialogueItemUnhideEntry entry)
+    void ActivateTarget(DialogueItemUnhideEntry entry)
     {
-        float delay = Mathf.Max(0f, entry.timeOffset);
-        if (delay > 0f)
-            yield return new WaitForSeconds(delay);
+        if (entry == null)
+            return;
 
         if (entry.target != null)
         {
@@ -134,7 +148,6 @@ public class DialogueItemUnhide : MonoBehaviour
         }
 
         entry.fired = true;
-        _pending.Remove(entry.itemId);
     }
 
     void HideAllHandProps()

@@ -1,4 +1,6 @@
+using System;
 using UnityEngine;
+using UnityEngine.Events;
 
 /// <summary>
 /// Drop on the same GameObject as an <see cref="Animator"/>. Wire Animation Events to the
@@ -10,6 +12,13 @@ public class AnimationSoundboard : MonoBehaviour
     [SerializeField]
     [Tooltip("If true, one-shots follow this transform. If false, they play at this position once.")]
     bool m_AttachToThis = true;
+
+    [Header("Give item")]
+    [Tooltip("Fired by ItemPlacedOnTable() Animation Event — wire to DialogueItemUnhide.RevealTableItem.")]
+    public UnityEvent onItemPlacedOnTable;
+
+    /// <summary>C# listeners (e.g. DialogueItemUnhide). Same moment as <see cref="onItemPlacedOnTable"/>.</summary>
+    public event Action ItemPlacedOnTable;
 
     public void Play(string soundLibraryKey)
     {
@@ -28,6 +37,21 @@ public class AnimationSoundboard : MonoBehaviour
             mgr.TryPlayOneShotAttached(key, gameObject);
         else
             mgr.TryPlayOneShot(key, transform.position);
+    }
+
+    /// <summary>
+    /// Animation Event target: call on the frame the item should appear on the table.
+    /// Invokes <see cref="ItemPlacedOnTable"/>, <see cref="onItemPlacedOnTable"/>, and
+    /// <see cref="DialogueItemUnhide.RevealTableItem"/> on the scene instance.
+    /// </summary>
+    public void NotifyItemPlacedOnTable()
+    {
+        ItemPlacedOnTable?.Invoke();
+        onItemPlacedOnTable?.Invoke();
+
+        DialogueItemUnhide unhide = DialogueItemUnhide.Instance;
+        if (unhide != null)
+            unhide.RevealTableItem();
     }
 
     // --- Animation Event targets (SoundLibrary keys) ---

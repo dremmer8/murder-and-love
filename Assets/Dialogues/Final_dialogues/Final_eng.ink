@@ -178,6 +178,7 @@ Drunk Man: A pretty lady at this hour? Are you looking for me? # vo:p_2_l_1
 Drunk Man: You’re lucky to have me here, you know. # vo:p_2_l_6
 Drunk Man: No one would dare to harass a beautiful young lady like yourself in front of a police officer!! # vo:p_2_l_7
 Drunk Cop: No villains can slip through my fingers. # vo:p_2_l_8
+~did_insult = true
 ~ ChangeCamera("l3")
 Thoughts: Shit. I thought he’s just an average drunk... # vo:p_2_l_9
 ~ ChangeCamera("Player")
@@ -505,7 +506,7 @@ Thoughts: I have to ask around to get some. # vo:p_5_l_3
 ~ TriggerAnimation("Mandy", "doRelax")
 
 ~ ChangeCamera("Player")
-* [Nothing] -> END
+
 * [Ask about detergent]
 You: Mrs Wong, there’s no heavy-duty laundry detergent left. # vo:p_6_l_1
 Mrs Wong: Is that so? I remember I put a lot of regular detergent there, isn’t that strong enough? # vo:p_6_l_2
@@ -998,7 +999,6 @@ J: We got each other. # vo:p_17_l_7
 ~ TriggerAnimation("Mandy", "doRelax")
 Mrs Wong: You get your change now? # vo:p_18_l_1
 ~ ChangeCamera("Player")
-* [Not yet] -> END
 * [Yes. (Pay)]
 ~ GiveAwayItem("change_coin_1")
 ~ GiveAwayItem("change_coin_2")
@@ -1477,10 +1477,10 @@ You: Someone broke in and threatened us. # vo:p_30_l_5
 You: And my boyfriend... My boyfriend wanted to solve it with a knife. # vo:p_30_l_6
 You: It all happened so fast... # vo:p_30_l_7
 Police Officer: Were you a part of this? # vo:p_30_l_8
-  ** [I gave it to him.]
+  * [I gave it to him.]
   You: He asked me to get a knife for him when the intruder broke in. # vo:p_30_l_9
   You: And then asked me to wash these clothes. # vo:p_30_l_10
-  ** [No, I’m not part of this.]
+  * [No, I’m not part of this.]
   You: I didn’t touch the knife. He asked me to wash those clothes, # vo:p_30_l_11
   You: I didn’t know what to do so I came here. # vo:p_30_l_12
   -

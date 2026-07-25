@@ -12,6 +12,7 @@ public enum WashingMachineId
 
 public class WashingMachineClothOperator : MonoBehaviour, IMinigameStepHintSource
 {
+    public const string HintLookAround = "LookAround";
     public const string HintOpenDoor = "OpenDoor";
     public const string HintClothes = "Clothes";
     public const string HintCloseDoor = "CloseDoor";
@@ -19,7 +20,7 @@ public class WashingMachineClothOperator : MonoBehaviour, IMinigameStepHintSourc
     public const string HintToken = "Token";
     public const string HintStart = "Start";
 
-    enum Step { OpenDoor, Clothes, CloseDoor, Detergent, Token, Start, Done }
+    enum Step { LookAround, OpenDoor, Clothes, CloseDoor, Detergent, Token, Start, Done }
 
     [SerializeField] Camera cam;
     [SerializeField] Animator animator;
@@ -33,6 +34,9 @@ public class WashingMachineClothOperator : MonoBehaviour, IMinigameStepHintSourc
     [SerializeField] WashingMachineId machineId = WashingMachineId.A;
     [SerializeField] MinigameActivator minigameActivator;
     [SerializeField] float exitDelayAfterStart = 1.5f;
+
+    [Tooltip("Seconds each of A and D must be held before the look-around tutorial advances to Open Door.")]
+    [SerializeField] float lookAroundPracticeSeconds = 0.75f;
 
     [Tooltip("Washer B only: seconds after last-cloth (and blackout SFX) before exit + blackout routine.")]
     [SerializeField] float exitDelayAfterLastCloth = 2f;
@@ -60,7 +64,7 @@ public class WashingMachineClothOperator : MonoBehaviour, IMinigameStepHintSourc
     public DialogueTrigger lastClothDialogue;
 
     int idx = -1, snapIdx = -1, done;
-    Step step = Step.OpenDoor;
+    Step step = Step.LookAround;
     float t, tVel, direction, directionVel, fullScaleY, targetScaleY, scaleYVel;
     Vector3 posVel;
     float totalLen;
@@ -71,6 +75,8 @@ public class WashingMachineClothOperator : MonoBehaviour, IMinigameStepHintSourc
     bool lastClothDialogueFired;
     bool completing;
     bool wasMinigameActive;
+    float lookLeftTime;
+    float lookRightTime;
     BakedLightingController _lighting;
 
     public WashingMachineId MachineId => machineId;
@@ -99,6 +105,9 @@ public class WashingMachineClothOperator : MonoBehaviour, IMinigameStepHintSourc
         if (clothSet) { fullScaleY = targetScaleY = clothSet.localScale.y; }
         if (!minigameActivator)
             minigameActivator = GetComponentInParent<MinigameActivator>();
+        // Washer B: player already practiced look-around on A.
+        if (machineId == WashingMachineId.B)
+            step = Step.OpenDoor;
         RebuildTrack();
     }
 
@@ -164,6 +173,7 @@ public class WashingMachineClothOperator : MonoBehaviour, IMinigameStepHintSourc
     void Update()
     {
         UpdateDirection();
+        UpdateLookAroundTutorial();
         UpdateSetScale();
         WatchMinigameExit();
         if (completing || step == Step.Done) return;
@@ -172,6 +182,22 @@ public class WashingMachineClothOperator : MonoBehaviour, IMinigameStepHintSourc
         if (idx < 0) return;
         if (Input.GetMouseButton(0)) Drag();
         else Release();
+    }
+
+    void UpdateLookAroundTutorial()
+    {
+        if (step != Step.LookAround)
+            return;
+        if (minigameActivator != null && !minigameActivator.IsActivated)
+            return;
+
+        if (Input.GetKey(KeyCode.A))
+            lookLeftTime += Time.deltaTime;
+        if (Input.GetKey(KeyCode.D))
+            lookRightTime += Time.deltaTime;
+
+        if (lookLeftTime >= lookAroundPracticeSeconds && lookRightTime >= lookAroundPracticeSeconds)
+            step = Step.OpenDoor;
     }
 
     void WatchMinigameExit()
@@ -516,6 +542,9 @@ public class WashingMachineClothOperator : MonoBehaviour, IMinigameStepHintSourc
 
         switch (step)
         {
+            case Step.LookAround:
+                stepId = HintLookAround;
+                return true;
             case Step.OpenDoor:
                 stepId = HintOpenDoor;
                 return true;

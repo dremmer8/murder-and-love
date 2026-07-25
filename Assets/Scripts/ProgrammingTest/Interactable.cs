@@ -46,6 +46,9 @@ public class Interactable : MonoBehaviour
     /// </summary>
     public bool CanInteract()
     {
+        if (GameStateManager.CurrentState != GameState.Gameplay)
+            return false;
+
         if (!PassesProgressionGate())
             return false;
 

@@ -8,13 +8,13 @@ using Ink.Runtime;
 
 /// <summary>
 /// Pager inbox for Jason conversations. Tab opens/closes (locks movement while open; look stays free).
-/// Space advances messages forward only. A/D scroll the visible window.
+/// A/D scroll the visible window. Pressing D again at the end of a message advances forward.
 /// Conversation stays until a new one replaces it. "no messages" when fully read.
 /// Prop screen shows "new message" until the player finishes reading the thread.
-/// Respond-support mode: after the inbound message, Space shows "start typing"; any key
-/// types a canned reply; finishing plays the completion ending and completes the knot.
+/// Respond-support mode: after the inbound message, D at end of scroll shows "start typing";
+/// any key types a canned reply; finishing plays the completion ending and completes the knot.
 /// First inbound thread runs a one-shot tutorial: long messages require A then D before
-/// Space works, and Tab cannot put the pager down until that step is done.
+/// advancing works, and Tab cannot put the pager down until that step is done.
 /// </summary>
 public class PagerTextController : MonoBehaviour
 {
@@ -60,7 +60,6 @@ public class PagerTextController : MonoBehaviour
 
     [Header("Input")]
     [SerializeField] private KeyCode toggleKey = KeyCode.Tab;
-    [SerializeField] private KeyCode advanceKey = KeyCode.Space;
     [SerializeField] private KeyCode scrollLeftKey = KeyCode.A;
     [SerializeField] private KeyCode scrollRightKey = KeyCode.D;
 
@@ -103,7 +102,7 @@ public class PagerTextController : MonoBehaviour
     public bool IsWaitingForChoice => _waitingForChoice && !_respondSupportMode;
     public bool IsRespondSupportMode => _respondSupportMode;
 
-    /// <summary>Respond-support: reading the inbound thread (A/D scroll, Space continues / starts the reply).</summary>
+    /// <summary>Respond-support: reading the inbound thread (A/D scroll; D at end continues / starts the reply).</summary>
     public bool IsRespondReadingInbound => _respondSupportMode && _respondPhase == RespondPhase.ReadingInbound;
 
     /// <summary>Respond-support: the "start typing" / typing phase (any key types the reply).</summary>
@@ -113,7 +112,7 @@ public class PagerTextController : MonoBehaviour
     /// <summary>True while the first-message tutorial is still gating input.</summary>
     public bool IsFirstOpenTutorialActive => _tutorialActive;
 
-    /// <summary>Space must wait until A and D have both been used on a long first message.</summary>
+    /// <summary>Advance (D at end of scroll) must wait until A and D have both been used on a long first message.</summary>
     public bool TutorialBlocksAdvance => _tutorialActive && RequiresTutorialScroll();
 
     /// <summary>Tab cannot put the pager down until the first-open scroll tutorial is finished.</summary>
@@ -175,7 +174,6 @@ public class PagerTextController : MonoBehaviour
         SyncActFromProgression();
 
         // During respond-support, Tab is the only way out of the open pager.
-        // Scroll swapped from arrows to A/D (see scrollLeftKey / scrollRightKey).
         if (Input.GetKeyDown(toggleKey))
         {
             if (_isOpen && TutorialBlocksLeave)
@@ -195,12 +193,6 @@ public class PagerTextController : MonoBehaviour
 
         if (Input.GetKeyDown(scrollRightKey))
             ScrollRight();
-
-        if (_waitingForChoice)
-            return;
-
-        if (Input.GetKeyDown(advanceKey) && !TutorialBlocksAdvance)
-            AdvanceMessage();
     }
 
     /// <summary>
@@ -352,7 +344,7 @@ public class PagerTextController : MonoBehaviour
         if (!_isOpen)
             return;
 
-        // First-open tutorial keeps the player in the pager until scroll (and Space unlock) are done.
+        // First-open tutorial keeps the player in the pager until scroll / advance practice is done.
         if (TutorialBlocksLeave)
             return;
 
@@ -428,12 +420,54 @@ public class PagerTextController : MonoBehaviour
     [ContextMenu("Scroll Right")]
     public void ScrollRight()
     {
+        int maxScroll = GetMaxScrollIndex();
+
+        // Already at the end of this message — D advances to the next one.
+        if (_scrollIndex >= maxScroll)
+        {
+            if (TutorialBlocksAdvance)
+                return;
+
+            TryAdvanceFromScrollEnd();
+            return;
+        }
+
         PokePager();
-        _scrollIndex = Mathf.Min(GetMaxScrollIndex(), _scrollIndex + visibleCharacterCount);
+        _scrollIndex = Mathf.Min(maxScroll, _scrollIndex + visibleCharacterCount);
         if (_tutorialActive)
             _tutorialScrolledRight = true;
         RefreshDisplay();
         TryFinishTutorialAfterScrollPractice();
+    }
+
+    /// <summary>
+    /// Called when D is pressed while already scrolled to the end of the current message.
+    /// </summary>
+    void TryAdvanceFromScrollEnd()
+    {
+        PokePager();
+
+        if (_respondSupportMode && _respondPhase == RespondPhase.ReadingInbound)
+        {
+            if (_messageIndex < _messages.Count - 1)
+            {
+                _messageIndex++;
+                _scrollIndex = 0;
+                RefreshDisplay();
+            }
+            else
+            {
+                EnterStartTypingPrompt();
+            }
+
+            CompleteFirstOpenTutorial();
+            return;
+        }
+
+        if (_waitingForChoice)
+            return;
+
+        AdvanceMessage();
     }
 
     /// <summary>Called by DialogueManager when the player picks a pager choice.</summary>
@@ -478,7 +512,7 @@ public class PagerTextController : MonoBehaviour
     }
 
     /// <summary>
-    /// Returns true when respond-support consumed this frame's input (skip normal advance/scroll).
+    /// Returns true when respond-support consumed this frame's input (skip normal scroll).
     /// </summary>
     bool HandleRespondSupportInput()
     {
@@ -494,23 +528,6 @@ public class PagerTextController : MonoBehaviour
                 if (Input.GetKeyDown(scrollRightKey))
                 {
                     ScrollRight();
-                    return true;
-                }
-
-                if (Input.GetKeyDown(advanceKey) && !TutorialBlocksAdvance)
-                {
-                    if (_messageIndex < _messages.Count - 1)
-                    {
-                        _messageIndex++;
-                        _scrollIndex = 0;
-                        RefreshDisplay();
-                    }
-                    else
-                    {
-                        EnterStartTypingPrompt();
-                    }
-
-                    CompleteFirstOpenTutorial();
                     return true;
                 }
 
@@ -725,8 +742,8 @@ public class PagerTextController : MonoBehaviour
     }
 
     /// <summary>
-    /// Long first message: once A and D have both been used, unlock Space and Tab.
-    /// Short first message: keep Tab locked until the player presses Space once.
+    /// Long first message: once A and D have both been used, unlock advance (D at end) and Tab.
+    /// Short first message: keep Tab locked until the player advances once with D.
     /// </summary>
     void TryFinishTutorialAfterScrollPractice()
     {
