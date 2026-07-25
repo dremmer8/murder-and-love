@@ -98,6 +98,9 @@ public class DialogueManager : MonoBehaviour
         if (activeMode != DialoguePresentationMode.Standard)
             return;
 
+        if (!dialogueIsPlaying)
+            return;
+
         if (GameStateManager.CurrentState != GameState.Dialogue)
             return;
 
@@ -447,14 +450,21 @@ public class DialogueManager : MonoBehaviour
     private void HandlePagerCompleted(string knotName)
     {
         string completed = string.IsNullOrEmpty(knotName) ? activeKnotName : knotName;
-        activeKnotName = "";
-        currentStory = null;
-        activeMode = DialoguePresentationMode.Standard;
-        HideChoiceButtons();
 
-        // Pager does not own the cursor — leave lock/visibility as-is.
-        if (GameStateManager.CurrentState == GameState.Dialogue)
-            GameStateManager.ChangeState(GameState.Gameplay);
+        // Pager threads often finish (or get suppressed by PlayEndingCutscene) while a
+        // Standard NPC dialogue already owns currentStory. Never tear that session down.
+        bool pagerOwnsSession = activeMode == DialoguePresentationMode.Pager;
+        if (pagerOwnsSession || !dialogueIsPlaying)
+        {
+            activeKnotName = "";
+            currentStory = null;
+            activeMode = DialoguePresentationMode.Standard;
+            HideChoiceButtons();
+
+            // Pager does not own the cursor — leave lock/visibility as-is.
+            if (GameStateManager.CurrentState == GameState.Dialogue)
+                GameStateManager.ChangeState(GameState.Gameplay);
+        }
 
         OnDialogueEnded?.Invoke(completed);
     }
@@ -600,16 +610,25 @@ public class DialogueManager : MonoBehaviour
             return;
         }
 
-        string text = currentStory.Continue();
-        var inkTags = new List<string>();
-        if (currentStory.currentTags != null)
-            inkTags.AddRange(currentStory.currentTags);
+        // Hold a local ref: Ink externals (e.g. PlayEndingCutscene → pager suppress) may
+        // clear or replace DialogueManager.currentStory before Continue() returns.
+        Story story = currentStory;
+        string text = story.Continue();
+        if (currentStory != story)
+            return;
 
-        while (string.IsNullOrWhiteSpace(text) && currentStory.canContinue)
+        var inkTags = new List<string>();
+        if (story.currentTags != null)
+            inkTags.AddRange(story.currentTags);
+
+        while (string.IsNullOrWhiteSpace(text) && story.canContinue)
         {
-            text = currentStory.Continue();
-            if (currentStory.currentTags != null)
-                inkTags.AddRange(currentStory.currentTags);
+            text = story.Continue();
+            if (currentStory != story)
+                return;
+
+            if (story.currentTags != null)
+                inkTags.AddRange(story.currentTags);
         }
 
         nextInputTime = Time.time + inputDelay;
@@ -638,7 +657,7 @@ public class DialogueManager : MonoBehaviour
 
         DisplayChoices();
 
-        if (string.IsNullOrWhiteSpace(text) && !currentStory.canContinue && currentStory.currentChoices.Count == 0)
+        if (string.IsNullOrWhiteSpace(text) && !story.canContinue && story.currentChoices.Count == 0)
             ExitStandardDialogue();
     }
 

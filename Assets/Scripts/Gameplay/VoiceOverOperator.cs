@@ -36,8 +36,13 @@ public class VoiceOverOperator : MonoBehaviour
     [SerializeField] LipSync lauLipSyncLate;
 
     [Header("MC audio only")]
-    [Tooltip("Plays You/Vivian lines. No LipSync.")]
+    [Tooltip("Plays You/Vivian lines during normal dialogue. No LipSync.")]
     [SerializeField] AudioSource mcAudioSource;
+
+    [Tooltip("Optional MC sources on the three ending cutscene cameras (player is inactive then).")]
+    [SerializeField] AudioSource mcAudioSourceEnding1;
+    [SerializeField] AudioSource mcAudioSourceEnding2;
+    [SerializeField] AudioSource mcAudioSourceEnding3;
 
     [Header("Model switch")]
     [Tooltip("Early LipSync while game_progression is below this; late from this value up.")]
@@ -47,7 +52,7 @@ public class VoiceOverOperator : MonoBehaviour
     [SerializeField] bool logMissingLines;
 
     LipSync _playingLipSync;
-    bool _mcPlaying;
+    AudioSource _playingMcSource;
 
     void Awake()
     {
@@ -59,8 +64,36 @@ public class VoiceOverOperator : MonoBehaviour
 
         Instance = this;
 
-        if (mcAudioSource != null)
-            mcAudioSource.playOnAwake = false;
+        // LipSync components often keep leftover editor test clips with PlayOnAwake.
+        // When PropProgression enables late models at progression 22, those would
+        // auto-play into internal monologues (which correctly have no VO).
+        SanitizePlaybackSource(mcAudioSource);
+        SanitizePlaybackSource(mcAudioSourceEnding1);
+        SanitizePlaybackSource(mcAudioSourceEnding2);
+        SanitizePlaybackSource(mcAudioSourceEnding3);
+        SanitizeLipSyncSource(mandyLipSyncEarly);
+        SanitizeLipSyncSource(mandyLipSyncLate);
+        SanitizeLipSyncSource(lauLipSyncEarly);
+        SanitizeLipSyncSource(lauLipSyncLate);
+    }
+
+    static void SanitizeLipSyncSource(LipSync lipSync)
+    {
+        if (lipSync == null)
+            return;
+
+        lipSync.PlayOnAwake = false;
+        SanitizePlaybackSource(lipSync.GetComponent<AudioSource>());
+    }
+
+    static void SanitizePlaybackSource(AudioSource source)
+    {
+        if (source == null)
+            return;
+
+        source.playOnAwake = false;
+        source.Stop();
+        source.clip = null;
     }
 
     void OnDestroy()
@@ -76,7 +109,29 @@ public class VoiceOverOperator : MonoBehaviour
 
     public void EndDialogue()
     {
+        // Ending cutscenes keep the last line's VO playing so credits can wait for it.
+        if (GameManager.Instance != null && GameManager.Instance.IsEndingCutscenePlaying)
+            return;
+
         StopPlayback();
+    }
+
+    /// <summary>
+    /// Seconds left on the active MC or LipSync VO clip (0 if nothing is playing).
+    /// </summary>
+    public float GetRemainingPlaybackSeconds()
+    {
+        if (_playingMcSource != null && _playingMcSource.isPlaying && _playingMcSource.clip != null)
+            return Mathf.Max(0f, _playingMcSource.clip.length - _playingMcSource.time);
+
+        if (_playingLipSync != null)
+        {
+            AudioSource lipSource = _playingLipSync.GetComponent<AudioSource>();
+            if (lipSource != null && lipSource.isPlaying && lipSource.clip != null)
+                return Mathf.Max(0f, lipSource.clip.length - lipSource.time);
+        }
+
+        return 0f;
     }
 
     /// <summary>
@@ -155,11 +210,11 @@ public class VoiceOverOperator : MonoBehaviour
             _playingLipSync = null;
         }
 
-        if (_mcPlaying && mcAudioSource != null)
+        if (_playingMcSource != null)
         {
-            mcAudioSource.Stop();
-            mcAudioSource.clip = null;
-            _mcPlaying = false;
+            _playingMcSource.Stop();
+            _playingMcSource.clip = null;
+            _playingMcSource = null;
         }
     }
 
@@ -216,12 +271,46 @@ public class VoiceOverOperator : MonoBehaviour
 
     void PlayMc(AudioClip clip)
     {
-        if (mcAudioSource == null || clip == null)
+        if (clip == null)
             return;
 
-        mcAudioSource.clip = clip;
-        mcAudioSource.Play();
-        _mcPlaying = true;
+        AudioSource source = ResolveMcAudioSource();
+        if (source == null)
+            return;
+
+        source.clip = clip;
+        source.Play();
+        _playingMcSource = source;
+    }
+
+    /// <summary>
+    /// Prefers the first hierarchy-active MC source. Ending-camera sources cover
+    /// cutscenes where the player object (and its main AudioSource) is disabled.
+    /// </summary>
+    AudioSource ResolveMcAudioSource()
+    {
+        if (IsUsable(mcAudioSource))
+            return mcAudioSource;
+        if (IsUsable(mcAudioSourceEnding1))
+            return mcAudioSourceEnding1;
+        if (IsUsable(mcAudioSourceEnding2))
+            return mcAudioSourceEnding2;
+        if (IsUsable(mcAudioSourceEnding3))
+            return mcAudioSourceEnding3;
+
+        // Last resort: assigned but inactive (still better than silence if Unity allows it).
+        if (mcAudioSource != null)
+            return mcAudioSource;
+        if (mcAudioSourceEnding1 != null)
+            return mcAudioSourceEnding1;
+        if (mcAudioSourceEnding2 != null)
+            return mcAudioSourceEnding2;
+        return mcAudioSourceEnding3;
+    }
+
+    static bool IsUsable(AudioSource source)
+    {
+        return source != null && source.isActiveAndEnabled && source.gameObject.activeInHierarchy;
     }
 
     void PlayLipSync(LipSync lipSync, VoiceLineLibrary.Entry entry)

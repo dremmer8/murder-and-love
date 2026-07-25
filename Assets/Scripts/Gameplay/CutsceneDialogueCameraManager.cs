@@ -25,9 +25,9 @@ public class CutsceneLookPhaseBinding
 /// <summary>
 /// Temporary dialogue cutscene cameras driven by Ink EXTERNAL ChangeCamera(cameraId).
 /// Only active during <see cref="DialoguePresentationMode.Standard"/> — ignored for
-/// Internal Monologue and Pager. Activating a camera disables the player, holds for a
-/// random duration, then jumps back to the player camera. Calling ChangeCamera again
-/// cancels the current hold and restarts.
+/// Internal Monologue and Pager. Activating a camera hides the player visual (not the
+/// player root), disables the player camera, holds for a random duration, then jumps
+/// back. Calling ChangeCamera again cancels the current hold and restarts.
 ///
 /// Also rotates the player toward Mandy/Lau look targets when a Standard dialogue starts
 /// without a DialogueTrigger pose mark.
@@ -35,6 +35,8 @@ public class CutsceneLookPhaseBinding
 public class CutsceneDialogueCameraManager : MonoBehaviour
 {
     public static CutsceneDialogueCameraManager Instance { get; private set; }
+
+    const string PlayerVisualChildName = "visual";
 
     [Header("Cameras")]
     [Tooltip("Dialogue cutscene cameras. Ink ChangeCamera(\"id\") matches each camera's GameObject name.")]
@@ -47,8 +49,11 @@ public class CutsceneDialogueCameraManager : MonoBehaviour
     [SerializeField] string playerCameraName = "Player";
 
     [Header("Player")]
-    [Tooltip("Player root deactivated while a cutscene camera is active. Separate from Face Player.")]
+    [Tooltip("Player root. Cutscenes hide the child named 'visual' so logic/camera stay alive.")]
     [SerializeField] GameObject playerObject;
+
+    [Tooltip("Optional visual override. Defaults to playerObject/visual.")]
+    [SerializeField] GameObject playerVisual;
 
     [Tooltip("PlayerController rotated toward Mandy/Lau look targets on dialogue start. Assign explicitly — not the cutscene Player Object.")]
     public PlayerController facePlayer;
@@ -257,13 +262,13 @@ public class CutsceneDialogueCameraManager : MonoBehaviour
             && dialogue.ActiveMode == DialoguePresentationMode.Standard;
     }
 
-    /// <summary>Cancel any hold timer, disable cutscene cams, and restore the player.</summary>
+    /// <summary>Cancel any hold timer, disable cutscene cams, and restore the player visual/camera.</summary>
     public void ReturnToPlayerCamera()
     {
         StopHoldRoutine();
         DisableAllCutsceneCameras();
         _activeCutsceneCamera = null;
-        SetPlayerActive(true);
+        SetPlayerVisualActive(true);
         RestorePlayerCamera();
     }
 
@@ -274,10 +279,12 @@ public class CutsceneDialogueCameraManager : MonoBehaviour
         EnsurePlayerRefs();
 
         DisableAllCutsceneCameras();
+        // Player root stays active; only hide visuals and mute the player cam/listener.
+        SetCameraEnabled(playerCamera, false);
         SetCameraEnabled(target, true);
         _activeCutsceneCamera = target;
 
-        SetPlayerActive(false);
+        SetPlayerVisualActive(false);
         _holdRoutine = StartCoroutine(HoldThenReturnRoutine());
     }
 
@@ -446,10 +453,34 @@ public class CutsceneDialogueCameraManager : MonoBehaviour
         }
     }
 
-    void SetPlayerActive(bool active)
+    void SetPlayerVisualActive(bool active)
     {
-        if (playerObject != null && playerObject.activeSelf != active)
-            playerObject.SetActive(active);
+        GameObject visual = ResolvePlayerVisual();
+        if (visual != null && visual.activeSelf != active)
+            visual.SetActive(active);
+    }
+
+    GameObject ResolvePlayerVisual()
+    {
+        if (playerVisual != null)
+            return playerVisual;
+
+        if (playerObject != null)
+        {
+            Transform child = playerObject.transform.Find(PlayerVisualChildName);
+            if (child != null)
+                return child.gameObject;
+        }
+
+        if (EnsureFacePlayer())
+        {
+            Transform root = facePlayer.transform.root;
+            Transform child = root.Find(PlayerVisualChildName);
+            if (child != null)
+                return child.gameObject;
+        }
+
+        return null;
     }
 
     void RestorePlayerCamera()
@@ -515,6 +546,11 @@ public class CutsceneDialogueCameraManager : MonoBehaviour
 
     void HandleDialogueEnded(string _)
     {
+        // Pager knot completion can fire while Standard dialogue is still active
+        // (inbox suppress during PlayEndingCutscene). Don't steal the cutscene cam.
+        if (IsStandardDialogueActive())
+            return;
+
         ClearDialogueFaceFocus();
         KillFaceTween(releasePoseDriven: true);
 

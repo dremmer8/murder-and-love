@@ -269,6 +269,11 @@ MonoBehaviour:
     Clip: {fileID: 8300000, guid: c5864f913d66fbd44b63395e8236abc0, type: 3}
     PhonemeXml: {fileID: 4900000, guid: 182c1c96565dff1469514fad819b5be0, type: 3}
   - Character: 0
+    Phase: 6
+    Line: 29
+    Clip: {fileID: 8300000, guid: c0f2476275281e94586ee027c3b1af3f, type: 3}
+    PhonemeXml: {fileID: 4900000, guid: 9f15d0835a8904140897b336517cc173, type: 3}
+  - Character: 0
     Phase: 8
     Line: 1
     Clip: {fileID: 8300000, guid: 7ccbb0ebbe75f9145b17058ad901b582, type: 3}
@@ -835,6 +840,11 @@ MonoBehaviour:
     PhonemeXml: {fileID: 4900000, guid: 6c2994354a1aab6428ff970e2c89421d, type: 3}
   - Character: 0
     Phase: 30
+    Line: 14
+    Clip: {fileID: 8300000, guid: 9944eb89d9c8945439933172a37270c4, type: 3}
+    PhonemeXml: {fileID: 4900000, guid: e6e4a836a78a7754483b5f17d11a1b10, type: 3}
+  - Character: 0
+    Phase: 30
     Line: 17
     Clip: {fileID: 8300000, guid: e24f04b63e0937742acaaeadb818f4c8, type: 3}
     PhonemeXml: {fileID: 4900000, guid: 9eff38ade6d03ba48ad78b8af8176e38, type: 3}
@@ -1308,6 +1318,11 @@ MonoBehaviour:
     Line: 9
     Clip: {fileID: 8300000, guid: cdc9bebc0af305840988890b1ccc9a3d, type: 3}
     PhonemeXml: {fileID: 4900000, guid: 3f5fbc01bdbe2064eb257af22a9834db, type: 3}
+  - Character: 1
+    Phase: 27
+    Line: 10
+    Clip: {fileID: 8300000, guid: 166538e867886084ba7c188afd772465, type: 3}
+    PhonemeXml: {fileID: 4900000, guid: 6bc54e71811034f45a5c0c55c183f8c9, type: 3}
   - Character: 1
     Phase: 27
     Line: 14

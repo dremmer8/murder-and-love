@@ -1005,8 +1005,6 @@ Mrs Wong: You get your change now? # vo:p_18_l_1
 ~ GiveAwayItem("change_coin_4")
 You: Yes, here. # vo:p_18_l_2
   ~ ChangeCamera("m6")
-~ TriggerAnimation("Mandy", "doGiveItem")
-~ UnhideItem("second_laundry_coin")
 Mrs Wong: Miss Lee, wait. # vo:p_18_l_3
 Mrs Wong: What happened with your arm? # vo:p_18_l_4
 ~ ChangeCamera("Player")
@@ -1033,6 +1031,9 @@ You: No Jason is not like that, it happened by accident. # vo:p_18_l_19
 You: I understand...I feel so sorry for you. # vo:p_18_l_20
 --
 Mrs Wong: If you have any trouble, please let me know, okay? # vo:p_18_l_21
+  ~ ChangeCamera("m6")
+~ TriggerAnimation("Mandy", "doGiveItem")
+~ UnhideItem("second_laundry_coin")
 Mrs Wong: Here you are. Washer Nr. 9. # vo:p_18_l_22
 ~ ChangeCamera("Player")
 -> END

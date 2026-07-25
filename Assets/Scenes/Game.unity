@@ -480,7 +480,7 @@ MonoBehaviour:
   maxStoryPhase: 0
   useForcedStoryPhase: 1
   forcedStoryPhase: 21
-  presentationMode: 2
+  presentationMode: 0
   forceCancelPrevious: 1
   isRespondSupportPager: 0
   playerPoseMark: {fileID: 0}
@@ -2730,6 +2730,8 @@ GameObject:
   - component: {fileID: 241872170}
   - component: {fileID: 241872169}
   - component: {fileID: 241872168}
+  - component: {fileID: 241872172}
+  - component: {fileID: 241872171}
   m_Layer: 0
   m_Name: cam (3)
   m_TagString: Untagged
@@ -2872,6 +2874,115 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
+--- !u!114 &241872171
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 241872166}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f7aa2ba1c441a2d41ac2fd48e6d1a157, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  multiplier: 4
+--- !u!82 &241872172
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 241872166}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_PlayOnAwake: 1
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!4 &242282680 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8021368186929355698, guid: 440be01638b24c34786e3b838f0b3a34, type: 3}
@@ -3957,7 +4068,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cfbe431e9a1665145a55b7f905d4bd8a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gameProgression: 0
+  gameProgression: 22
 --- !u!114 &339123857
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4553,7 +4664,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 339123853}
         m_TargetAssemblyTypeName: SceneChangeManager, Assembly-CSharp
-        m_MethodName: UI_ExitGame
+        m_MethodName: UI_RestartGame
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -8091,7 +8202,7 @@ GameObject:
   - component: {fileID: 706910999}
   - component: {fileID: 706910998}
   m_Layer: 5
-  m_Name: Restart
+  m_Name: Resume
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -8161,9 +8272,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 339123853}
-        m_TargetAssemblyTypeName: SceneChangeManager, Assembly-CSharp
-        m_MethodName: UI_RestartGame
+      - m_Target: {fileID: 1810612980}
+        m_TargetAssemblyTypeName: PauseMenu, Assembly-CSharp
+        m_MethodName: UI_ResumeGameplay
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -10908,6 +11019,8 @@ GameObject:
   - component: {fileID: 1032834348}
   - component: {fileID: 1032834347}
   - component: {fileID: 1032834346}
+  - component: {fileID: 1032834350}
+  - component: {fileID: 1032834349}
   m_Layer: 0
   m_Name: cam (1)
   m_TagString: Untagged
@@ -10943,7 +11056,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 948f4100a11a5c24981795d21301da5c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  volumeTrigger: {fileID: 1032834345}
+  volumeTrigger: {fileID: 241872167}
   volumeLayer:
     serializedVersion: 2
     m_Bits: 512
@@ -11050,6 +11163,115 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
+--- !u!114 &1032834349
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1032834344}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f7aa2ba1c441a2d41ac2fd48e6d1a157, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  multiplier: 4
+--- !u!82 &1032834350
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1032834344}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_PlayOnAwake: 1
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &1036680415
 GameObject:
   m_ObjectHideFlags: 0
@@ -11916,6 +12138,7 @@ MonoBehaviour:
   playerCamera: {fileID: 1589901554}
   playerCameraName: Player
   playerObject: {fileID: 170199785}
+  playerVisual: {fileID: 0}
   facePlayer: {fileID: 1753429734}
   holdDurationRange: {x: 10, y: 25}
   mandyTarget1: {fileID: 7452295624471642070}
@@ -11969,6 +12192,9 @@ MonoBehaviour:
   lauLipSyncEarly: {fileID: 3120241030030611839}
   lauLipSyncLate: {fileID: 116727325608719322}
   mcAudioSource: {fileID: 1753429736}
+  mcAudioSourceEnding1: {fileID: 241872172}
+  mcAudioSourceEnding2: {fileID: 1148576641}
+  mcAudioSourceEnding3: {fileID: 1032834350}
   modelSwitchProgression: 22
   logMissingLines: 1
 --- !u!1 &1085359288
@@ -12712,6 +12938,8 @@ GameObject:
   - component: {fileID: 1148576639}
   - component: {fileID: 1148576638}
   - component: {fileID: 1148576637}
+  - component: {fileID: 1148576641}
+  - component: {fileID: 1148576640}
   m_Layer: 0
   m_Name: cam (2)
   m_TagString: Untagged
@@ -12747,7 +12975,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 948f4100a11a5c24981795d21301da5c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  volumeTrigger: {fileID: 1148576636}
+  volumeTrigger: {fileID: 241872167}
   volumeLayer:
     serializedVersion: 2
     m_Bits: 512
@@ -12854,6 +13082,115 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
+--- !u!114 &1148576640
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1148576635}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f7aa2ba1c441a2d41ac2fd48e6d1a157, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  multiplier: 4
+--- !u!82 &1148576641
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1148576635}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_PlayOnAwake: 1
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!4 &1148901748 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: f20c71976b688ec4ea11ca95c88710d6, type: 3}
@@ -14755,7 +15092,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Restart
+  m_text: Resume
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: d9b5ff1ad5cedaa4eb069bb9319c5d96, type: 2}
   m_sharedMaterial: {fileID: 1288594600111423735, guid: d9b5ff1ad5cedaa4eb069bb9319c5d96, type: 2}
@@ -18784,7 +19121,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
   Loop: 0
@@ -19951,7 +20288,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Exit
+  m_text: Exit to menu
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: d9b5ff1ad5cedaa4eb069bb9319c5d96, type: 2}
   m_sharedMaterial: {fileID: 1288594600111423735, guid: d9b5ff1ad5cedaa4eb069bb9319c5d96, type: 2}
@@ -24768,8 +25105,8 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: 012089ac4727aaa4db44284283b5be5a, type: 3}
-  m_PlayOnAwake: 1
+  m_audioClip: {fileID: 0}
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
   Loop: 0
@@ -88799,11 +89136,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c6c9ae29e16d6c145a4158e367249d12, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  LipSyncIndex: 0
+  LipSyncIndex: 3
   LipSyncFiles:
   - {fileID: 4900000, guid: 836a09b6068f11f49bac5b60259e50b5, type: 3}
+  - {fileID: 4900000, guid: e6e4a836a78a7754483b5f17d11a1b10, type: 3}
+  - {fileID: 4900000, guid: 9f15d0835a8904140897b336517cc173, type: 3}
+  - {fileID: 4900000, guid: 6bc54e71811034f45a5c0c55c183f8c9, type: 3}
   AudioClips:
   - {fileID: 8300000, guid: 3909b642a04748745bbddfb0bba422b4, type: 3}
+  - {fileID: 8300000, guid: 9944eb89d9c8945439933172a37270c4, type: 3}
+  - {fileID: 8300000, guid: c0f2476275281e94586ee027c3b1af3f, type: 3}
+  - {fileID: 8300000, guid: 166538e867886084ba7c188afd772465, type: 3}
   BlendShapeIndexes: 000000000300000002000000080000000400000005000000060000000100000000000000
   FaceBones:
   - {fileID: 6659149358036473610}
@@ -88812,128 +89155,295 @@ MonoBehaviour:
   PlayAll: 0
   Repeat: 0
   Initialized: 1
-  NewAudioAdded: 1
+  NewAudioAdded: 0
   Skin: {fileID: 6659149358036473611}
   LipSyncs: []
   FaceShapes:
   - faceShapes:
     - start: 0
-      end: 0.14
+      end: 0.04
       shapeName: X
       strength: 1
       blendShapeIndex: -1
-    - start: 0.14
-      end: 0.19
+    - start: 0.04
+      end: 0.39
       shapeName: B
       strength: 1
       blendShapeIndex: -1
-    - start: 0.19
-      end: 0.38
+    - start: 0.39
+      end: 0.49
+      shapeName: D
+      strength: 1
+      blendShapeIndex: -1
+    - start: 0.49
+      end: 0.53
       shapeName: C
       strength: 1
       blendShapeIndex: -1
-    - start: 0.38
-      end: 0.66
-      shapeName: B
-      strength: 1
-      blendShapeIndex: -1
-    - start: 0.66
-      end: 0.74
+    - start: 0.53
+      end: 0.62
       shapeName: A
       strength: 1
       blendShapeIndex: -1
-    - start: 0.74
-      end: 0.86
-      shapeName: C
+    - start: 0.62
+      end: 0.76
+      shapeName: D
       strength: 1
       blendShapeIndex: -1
-    - start: 0.86
-      end: 1
+    - start: 0.76
+      end: 0.83
       shapeName: B
       strength: 1
       blendShapeIndex: -1
-    - start: 1
-      end: 1.08
+    - start: 0.83
+      end: 0.91
       shapeName: A
       strength: 1
       blendShapeIndex: -1
-    - start: 1.08
-      end: 1.18
-      shapeName: C
-      strength: 1
-      blendShapeIndex: -1
-    - start: 1.18
-      end: 1.94
+    - start: 0.91
+      end: 1.2
       shapeName: B
       strength: 1
       blendShapeIndex: -1
-    - start: 1.94
-      end: 2
+    - start: 1.2
+      end: 1.38
+      shapeName: C
+      strength: 1
+      blendShapeIndex: -1
+    - start: 1.38
+      end: 1.44
+      shapeName: B
+      strength: 1
+      blendShapeIndex: -1
+    - start: 1.44
+      end: 1.49
+      shapeName: E
+      strength: 1
+      blendShapeIndex: -1
+    - start: 1.49
+      end: 1.63
+      shapeName: B
+      strength: 1
+      blendShapeIndex: -1
+    - start: 1.63
+      end: 1.7
+      shapeName: G
+      strength: 1
+      blendShapeIndex: -1
+    - start: 1.7
+      end: 1.84
+      shapeName: E
+      strength: 1
+      blendShapeIndex: -1
+    - start: 1.84
+      end: 1.91
+      shapeName: C
+      strength: 1
+      blendShapeIndex: -1
+    - start: 1.91
+      end: 2.12
+      shapeName: A
+      strength: 1
+      blendShapeIndex: -1
+    - start: 2.12
+      end: 2.17
+      shapeName: D
+      strength: 1
+      blendShapeIndex: -1
+    - start: 2.17
+      end: 2.22
+      shapeName: B
+      strength: 1
+      blendShapeIndex: -1
+    - start: 2.22
+      end: 2.36
+      shapeName: G
+      strength: 1
+      blendShapeIndex: -1
+    - start: 2.36
+      end: 2.78
+      shapeName: B
+      strength: 1
+      blendShapeIndex: -1
+    - start: 2.78
+      end: 2.85
+      shapeName: E
+      strength: 1
+      blendShapeIndex: -1
+    - start: 2.85
+      end: 2.92
+      shapeName: B
+      strength: 1
+      blendShapeIndex: -1
+    - start: 2.92
+      end: 3.34
       shapeName: F
       strength: 1
       blendShapeIndex: -1
-    - start: 2
-      end: 2.07
+    - start: 3.34
+      end: 3.62
       shapeName: B
       strength: 1
       blendShapeIndex: -1
-    - start: 2.07
-      end: 2.14
-      shapeName: E
+    - start: 3.62
+      end: 3.76
+      shapeName: G
       strength: 1
       blendShapeIndex: -1
-    - start: 2.14
-      end: 2.28
+    - start: 3.76
+      end: 3.83
       shapeName: D
       strength: 1
       blendShapeIndex: -1
-    - start: 2.28
-      end: 2.35
-      shapeName: C
-      strength: 1
-      blendShapeIndex: -1
-    - start: 2.35
-      end: 2.42
+    - start: 3.83
+      end: 4.25
       shapeName: B
       strength: 1
       blendShapeIndex: -1
-    - start: 2.42
-      end: 2.56
-      shapeName: E
+    - start: 4.25
+      end: 4.38
+      shapeName: X
       strength: 1
       blendShapeIndex: -1
-    - start: 2.56
-      end: 2.84
-      shapeName: C
-      strength: 1
-      blendShapeIndex: -1
-    - start: 2.84
-      end: 2.91
+  - faceShapes:
+    - start: 0
+      end: 0.05
       shapeName: B
       strength: 1
       blendShapeIndex: -1
-    - start: 2.91
-      end: 3.05
+    - start: 0.05
+      end: 0.16
+      shapeName: G
+      strength: 1
+      blendShapeIndex: -1
+    - start: 0.16
+      end: 0.23
       shapeName: C
       strength: 1
       blendShapeIndex: -1
-    - start: 3.05
-      end: 3.12
-      shapeName: E
+    - start: 0.23
+      end: 0.37
+      shapeName: B
       strength: 1
       blendShapeIndex: -1
-    - start: 3.12
-      end: 3.19
+    - start: 0.37
+      end: 0.45
+      shapeName: A
+      strength: 1
+      blendShapeIndex: -1
+    - start: 0.45
+      end: 0.69
+      shapeName: B
+      strength: 1
+      blendShapeIndex: -1
+    - start: 0.69
+      end: 0.76
+      shapeName: F
+      strength: 1
+      blendShapeIndex: -1
+    - start: 0.76
+      end: 0.9
       shapeName: D
       strength: 1
       blendShapeIndex: -1
-    - start: 3.19
-      end: 3.33
+    - start: 0.9
+      end: 1.11
+      shapeName: C
+      strength: 1
+      blendShapeIndex: -1
+    - start: 1.11
+      end: 1.25
+      shapeName: X
+      strength: 1
+      blendShapeIndex: -1
+  - faceShapes:
+    - start: 0
+      end: 0.52
+      shapeName: X
+      strength: 1
+      blendShapeIndex: -1
+    - start: 0.52
+      end: 0.58
+      shapeName: B
+      strength: 1
+      blendShapeIndex: -1
+    - start: 0.58
+      end: 0.63
+      shapeName: D
+      strength: 1
+      blendShapeIndex: -1
+    - start: 0.63
+      end: 0.7
+      shapeName: B
+      strength: 1
+      blendShapeIndex: -1
+    - start: 0.7
+      end: 1.05
+      shapeName: C
+      strength: 1
+      blendShapeIndex: -1
+    - start: 1.05
+      end: 1.19
+      shapeName: B
+      strength: 1
+      blendShapeIndex: -1
+    - start: 1.19
+      end: 1.37
+      shapeName: X
+      strength: 1
+      blendShapeIndex: -1
+    - start: 1.37
+      end: 1.71
+      shapeName: B
+      strength: 1
+      blendShapeIndex: -1
+    - start: 1.71
+      end: 1.79
+      shapeName: A
+      strength: 1
+      blendShapeIndex: -1
+    - start: 1.79
+      end: 2.01
       shapeName: E
       strength: 1
       blendShapeIndex: -1
-    - start: 3.33
-      end: 3.65
+    - start: 2.01
+      end: 2.08
+      shapeName: C
+      strength: 1
+      blendShapeIndex: -1
+    - start: 2.08
+      end: 2.15
+      shapeName: B
+      strength: 1
+      blendShapeIndex: -1
+    - start: 2.15
+      end: 2.53
+      shapeName: X
+      strength: 1
+      blendShapeIndex: -1
+    - start: 2.53
+      end: 2.61
+      shapeName: B
+      strength: 1
+      blendShapeIndex: -1
+    - start: 2.61
+      end: 2.69
+      shapeName: A
+      strength: 1
+      blendShapeIndex: -1
+    - start: 2.69
+      end: 2.8
+      shapeName: B
+      strength: 1
+      blendShapeIndex: -1
+    - start: 2.8
+      end: 2.94
+      shapeName: E
+      strength: 1
+      blendShapeIndex: -1
+    - start: 2.94
+      end: 4.15
       shapeName: X
       strength: 1
       blendShapeIndex: -1
@@ -88991,7 +89501,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: 3909b642a04748745bbddfb0bba422b4, type: 3}
+  m_audioClip: {fileID: 8300000, guid: 166538e867886084ba7c188afd772465, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
@@ -100567,7 +101077,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
   Loop: 0

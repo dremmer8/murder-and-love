@@ -33,8 +33,8 @@ public class GameManager : MonoBehaviour
     [Tooltip("Shown after any ending cutscene (1–3) finishes.")]
     [SerializeField] private GameObject creditsObject;
 
-    [Tooltip("If the player finishes ending dialogue before the Timeline ends, wait this many seconds then cut to credits.")]
-    [SerializeField] private float endingEarlyCreditsDelay = 2f;
+    [Tooltip("After ending dialogue finishes, wait for remaining VO length, then this many seconds, then credits.")]
+    [SerializeField] private float endingPostVoiceCreditsDelay = 5f;
 
     [Header("Audio")]
     [Tooltip("SoundLibrary key for the looping ambience started when this scene begins.")]
@@ -43,6 +43,7 @@ public class GameManager : MonoBehaviour
     bool _waitingForIntroExit;
     bool _gameStarted;
     Coroutine _cutsceneRoutine;
+    bool _endingCutsceneActive;
     EventInstance _soundscapeInstance;
     EventInstance _musicOutroInstance;
 
@@ -50,6 +51,9 @@ public class GameManager : MonoBehaviour
     /// True while intro cinematic (0) or any ending cutscene (1–3) is running.
     /// </summary>
     public bool IsCutscenePlaying => _cutsceneRoutine != null;
+
+    /// <summary>True while escape / confession / completion ending cutscene (1–3) is running.</summary>
+    public bool IsEndingCutscenePlaying => _cutsceneRoutine != null && _endingCutsceneActive;
 
     /// <summary>True after the main-menu Start button has begun the game.</summary>
     public bool HasStartedFromMainMenu => _gameStarted;
@@ -214,13 +218,16 @@ public class GameManager : MonoBehaviour
 
     IEnumerator PlayCutsceneRoutine(int cinematicIndex)
     {
+        bool isEnding = cinematicIndex != IntroCinematicIndex;
+        _endingCutsceneActive = isEnding;
+
         for (int i = 0; i < (cinematics != null ? cinematics.Length : 0); i++)
         {
             if (i != cinematicIndex)
                 DeactivateCinematic(i);
         }
 
-        if (cinematicIndex != IntroCinematicIndex)
+        if (isEnding)
         {
             TryPlayMusicOutro();
 
@@ -248,14 +255,14 @@ public class GameManager : MonoBehaviour
 
         float duration = ResolveCinematicDuration(director);
 
-        if (cinematicIndex == IntroCinematicIndex)
+        if (!isEnding)
         {
             yield return new WaitForSeconds(duration);
         }
         else
         {
-            // Endings: play Timeline, but if dialogue finishes early, wait a short beat
-            // then cut to credits instead of holding the remaining Timeline.
+            // Endings: when dialogue finishes, let last VO play out + hold, then credits
+            // (skip remaining Timeline).
             yield return WaitForEndingCutscene(duration);
         }
 
@@ -263,57 +270,64 @@ public class GameManager : MonoBehaviour
             director.Stop();
 
         DeactivateCinematic(cinematicIndex);
+        _endingCutsceneActive = false;
         _cutsceneRoutine = null;
 
         // Intro Timeline may leave the player inactive (1-frame Activation clip + LeaveAsIs).
         // Always restore control after the intro cinematic; endings go to credits instead.
-        if (cinematicIndex == IntroCinematicIndex)
+        if (!isEnding)
         {
             if (playerObject != null)
                 playerObject.SetActive(true);
         }
         else
         {
+            VoiceOverOperator voice = VoiceOverOperator.Instance;
+            if (voice != null)
+                voice.StopPlayback();
+
             ShowCredits();
         }
     }
 
     /// <summary>
-    /// Waits for the ending Timeline duration, or ends early once Standard dialogue has
-    /// finished and <see cref="endingEarlyCreditsDelay"/> has elapsed.
-    /// If dialogue outlasts the Timeline, holds until dialogue ends.
+    /// Waits for ending dialogue to finish, then remaining VO length +
+    /// <see cref="endingPostVoiceCreditsDelay"/>, then returns so credits can show.
+    /// If no Standard dialogue runs, falls back to the Timeline duration.
     /// </summary>
     IEnumerator WaitForEndingCutscene(float duration)
     {
         float elapsed = 0f;
         bool dialogueWasActive = IsStandardDialoguePlaying();
-        float postDialogueElapsed = -1f;
-        float earlyDelay = Mathf.Max(0f, endingEarlyCreditsDelay);
 
-        while (elapsed < duration)
+        while (true)
         {
             if (IsStandardDialoguePlaying())
             {
                 dialogueWasActive = true;
-                postDialogueElapsed = -1f;
+                yield return null;
+                continue;
             }
-            else if (dialogueWasActive)
-            {
-                if (postDialogueElapsed < 0f)
-                    postDialogueElapsed = 0f;
 
-                postDialogueElapsed += Time.deltaTime;
-                if (postDialogueElapsed >= earlyDelay)
-                    yield break;
-            }
+            if (dialogueWasActive)
+                break;
+
+            // No ending dialogue yet (e.g. completion cinematic) — follow Timeline.
+            if (elapsed >= duration)
+                yield break;
 
             elapsed += Time.deltaTime;
             yield return null;
         }
 
-        // Timeline finished — hold last frame until any remaining dialogue is done.
-        while (IsStandardDialoguePlaying())
-            yield return null;
+        float remainingVo = 0f;
+        VoiceOverOperator voice = VoiceOverOperator.Instance;
+        if (voice != null)
+            remainingVo = voice.GetRemainingPlaybackSeconds();
+
+        float hold = Mathf.Max(0f, remainingVo) + Mathf.Max(0f, endingPostVoiceCreditsDelay);
+        if (hold > 0f)
+            yield return new WaitForSeconds(hold);
     }
 
     static bool IsStandardDialoguePlaying()
