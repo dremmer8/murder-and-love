@@ -189,6 +189,8 @@ public class WashingMachineClothOperator : MonoBehaviour, IMinigameStepHintSourc
     /// <summary>Stops mid-drag / snap so a floating held cloth does not keep updating.</summary>
     void AbortClothInteraction()
     {
+        // Grab unparents the cloth to scene root — hide it before clearing indices.
+        HideHeldCloth();
         completing = true;
         snapping = false;
         idx = -1;
@@ -197,8 +199,21 @@ public class WashingMachineClothOperator : MonoBehaviour, IMinigameStepHintSourc
         tVel = 0f;
     }
 
+    /// <summary>Hides the cloth currently mid-drag or mid-snap (often unparented / outside the cloth set).</summary>
+    void HideHeldCloth()
+    {
+        if (cloths == null) return;
+        if (idx >= 0 && idx < cloths.Length && cloths[idx])
+            cloths[idx].gameObject.SetActive(false);
+        if (snapIdx >= 0 && snapIdx < cloths.Length && cloths[snapIdx] && snapIdx != idx)
+            cloths[snapIdx].gameObject.SetActive(false);
+    }
+
     void HideAllTransferableClothes()
     {
+        // Held cloth may already be scene-root; hide it explicitly in case indices are still set.
+        HideHeldCloth();
+
         if (cloths != null)
         {
             for (int i = 0; i < cloths.Length; i++)
@@ -358,7 +373,9 @@ public class WashingMachineClothOperator : MonoBehaviour, IMinigameStepHintSourc
         if (exitDelayAfterLastCloth > 0f)
             yield return new WaitForSeconds(exitDelayAfterLastCloth);
 
-        completing = true;
+        // Last cloth is often still mid-drag (unparented) when blackout starts — drop + hide now.
+        AbortClothInteraction();
+        HideAllTransferableClothes();
 
         if (minigameActivator != null)
         {
