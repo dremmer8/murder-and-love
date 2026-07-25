@@ -2730,8 +2730,6 @@ GameObject:
   - component: {fileID: 241872170}
   - component: {fileID: 241872169}
   - component: {fileID: 241872168}
-  - component: {fileID: 241872172}
-  - component: {fileID: 241872171}
   m_Layer: 0
   m_Name: cam (3)
   m_TagString: Untagged
@@ -2753,6 +2751,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 458009160}
+  - {fileID: 241872181}
   m_Father: {fileID: 1942529167}
   m_LocalEulerAnglesHint: {x: 0, y: 46.465, z: 0}
 --- !u!114 &241872168
@@ -2880,7 +2879,7 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 241872166}
+  m_GameObject: {fileID: 241872180}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f7aa2ba1c441a2d41ac2fd48e6d1a157, type: 3}
@@ -2893,7 +2892,7 @@ AudioSource:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 241872166}
+  m_GameObject: {fileID: 241872180}
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
@@ -2983,6 +2982,39 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!1 &241872180
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 241872181}
+  - component: {fileID: 241872172}
+  - component: {fileID: 241872171}
+  m_Layer: 0
+  m_Name: McVoice
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &241872181
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 241872180}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 241872167}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &242282680 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8021368186929355698, guid: 440be01638b24c34786e3b838f0b3a34, type: 3}
@@ -4068,7 +4100,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cfbe431e9a1665145a55b7f905d4bd8a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gameProgression: 22
+  gameProgression: 0
 --- !u!114 &339123857
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4092,7 +4124,7 @@ MonoBehaviour:
   - {fileID: 1575166800}
   cinematicDuration: 10
   creditsObject: {fileID: 1697653117}
-  endingEarlyCreditsDelay: 2
+  endingPostVoiceCreditsDelay: 5
   soundscapeKey: soundscape
 --- !u!114 &339123858
 MonoBehaviour:
@@ -4207,7 +4239,6 @@ MonoBehaviour:
     - {fileID: 768471491}
     - {fileID: 561557987}
     - {fileID: 183583286}
-    - {fileID: 7935169511107728663}
     objectsToDeactivate:
     - {fileID: 1309415051}
     - {fileID: 428807631}
@@ -11019,8 +11050,6 @@ GameObject:
   - component: {fileID: 1032834348}
   - component: {fileID: 1032834347}
   - component: {fileID: 1032834346}
-  - component: {fileID: 1032834350}
-  - component: {fileID: 1032834349}
   m_Layer: 0
   m_Name: cam (1)
   m_TagString: Untagged
@@ -11042,6 +11071,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 722643957}
+  - {fileID: 1032834361}
   m_Father: {fileID: 1575166801}
   m_LocalEulerAnglesHint: {x: 0, y: 46.465, z: 0}
 --- !u!114 &1032834346
@@ -11169,7 +11199,7 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1032834344}
+  m_GameObject: {fileID: 1032834360}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f7aa2ba1c441a2d41ac2fd48e6d1a157, type: 3}
@@ -11182,7 +11212,7 @@ AudioSource:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1032834344}
+  m_GameObject: {fileID: 1032834360}
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
@@ -11272,6 +11302,39 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!1 &1032834360
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1032834361}
+  - component: {fileID: 1032834350}
+  - component: {fileID: 1032834349}
+  m_Layer: 0
+  m_Name: McVoice
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1032834361
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1032834360}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1032834345}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1036680415
 GameObject:
   m_ObjectHideFlags: 0
@@ -12938,8 +13001,6 @@ GameObject:
   - component: {fileID: 1148576639}
   - component: {fileID: 1148576638}
   - component: {fileID: 1148576637}
-  - component: {fileID: 1148576641}
-  - component: {fileID: 1148576640}
   m_Layer: 0
   m_Name: cam (2)
   m_TagString: Untagged
@@ -12961,6 +13022,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 759953905}
+  - {fileID: 1148576651}
   m_Father: {fileID: 684260230}
   m_LocalEulerAnglesHint: {x: 0, y: 46.465, z: 0}
 --- !u!114 &1148576637
@@ -13088,7 +13150,7 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1148576635}
+  m_GameObject: {fileID: 1148576650}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f7aa2ba1c441a2d41ac2fd48e6d1a157, type: 3}
@@ -13101,7 +13163,7 @@ AudioSource:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1148576635}
+  m_GameObject: {fileID: 1148576650}
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
@@ -13191,6 +13253,39 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!1 &1148576650
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1148576651}
+  - component: {fileID: 1148576641}
+  - component: {fileID: 1148576640}
+  m_Layer: 0
+  m_Name: McVoice
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1148576651
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1148576650}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1148576636}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &1148901748 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: f20c71976b688ec4ea11ca95c88710d6, type: 3}
@@ -18710,7 +18805,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Shunde Zhang - Narrative Design, Sound Design
+  m_text: 'Shunde Zhang - Narrative Design, Sound Design, Voice Over
 
 '
   m_isRightToLeft: 0
@@ -18940,7 +19035,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Mika Neumann - Music, Sound Design
+  m_text: 'Mika Neumann - Music, Sound Design, Voice Over
 
 '
   m_isRightToLeft: 0

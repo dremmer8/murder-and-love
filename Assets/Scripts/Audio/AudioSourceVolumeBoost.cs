@@ -3,7 +3,8 @@ using UnityEngine;
 /// <summary>
 /// Amplifies an <see cref="AudioSource"/> beyond Unity's 0–1 volume clamp
 /// by multiplying PCM samples in <see cref="OnAudioFilterRead"/>.
-/// Drop on the same GameObject as the AudioSource.
+/// Drop on the same GameObject as the AudioSource — not on a camera that also
+/// has an <see cref="AudioListener"/> (Unity warns and the filter is unreliable).
 /// </summary>
 [DisallowMultipleComponent]
 [RequireComponent(typeof(AudioSource))]
@@ -24,9 +25,27 @@ public class AudioSourceVolumeBoost : MonoBehaviour
         set => multiplier = Mathf.Clamp(value, MinMultiplier, MaxMultiplier);
     }
 
+    void Awake()
+    {
+        WarnIfSharingListener();
+    }
+
     void OnValidate()
     {
         multiplier = Mathf.Clamp(multiplier, MinMultiplier, MaxMultiplier);
+        WarnIfSharingListener();
+    }
+
+    void WarnIfSharingListener()
+    {
+        if (GetComponent<AudioListener>() == null)
+            return;
+
+        Debug.LogWarning(
+            $"{name}: AudioSourceVolumeBoost shares a GameObject with AudioListener. " +
+            "Move the AudioSource + VolumeBoost to a child object to avoid Unity's " +
+            "OnAudioFilterRead warning.",
+            this);
     }
 
     void OnAudioFilterRead(float[] data, int channels)

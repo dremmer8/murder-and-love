@@ -466,9 +466,12 @@ public class DialogueTrigger : MonoBehaviour
         if (nextDialogueTrigger == null)
             yield break;
 
-        // Escape / confession / completion cutscenes: don't chain into Jason's pager
-        // (Mandy smoking scene 1's nextDialogueTrigger) after an ending choice.
-        if (GameManager.Instance != null && GameManager.Instance.IsCutscenePlaying)
+        // Escape / confession: don't chain into Jason's pager after an ending choice.
+        // Completion ending still needs Standard dialogue (31 Jason_monologue) over the cutscene.
+        if (GameManager.Instance != null
+            && GameManager.Instance.IsCutscenePlaying
+            && (nextDialogueTrigger.PresentationMode == DialoguePresentationMode.Pager
+                || nextDialogueTrigger.IsRespondSupportPager))
             yield break;
 
         nextDialogueTrigger.TryStartDialogue();
