@@ -15,7 +15,8 @@ public class NamedAnimator
 /// <summary>
 /// Named animator registry for Ink EXTERNAL TriggerAnimation(targetId, animationName).
 /// Also drives outside-dialogue character loops: Mandy doIdle while game_progression &lt;
-/// idleUntilProgression, and Lau doStandLoop once game_progression reaches standLoopFromProgression.
+/// idleUntilProgression, Lau doSitDrink occasionally while sitting (same cutoff), and Lau
+/// doStandLoop once game_progression reaches standLoopFromProgression.
 /// </summary>
 public class DialogueAnimationTargets : MonoBehaviour
 {
@@ -24,8 +25,12 @@ public class DialogueAnimationTargets : MonoBehaviour
     public const string GiveItemTrigger = "doGiveItem";
     public const string IdleTrigger = "doIdle";
     public const string StandLoopTrigger = "doStandLoop";
+    public const string SitDrinkTrigger = "doSitDrink";
+    public const string SitLoopTrigger = "doSitLoop";
     public const string DefaultIdleTargetId = "Mandy";
     public const string DefaultStandLoopTargetId = "Lau";
+    public const string DefaultSitDrinkTargetId = "Lau";
+    public const string DefaultSitDrinkStateName = "L_sit_loop_idle_drink_1";
 
     [Header("Targets")]
     [SerializeField] List<NamedAnimator> animators = new();
@@ -36,6 +41,23 @@ public class DialogueAnimationTargets : MonoBehaviour
 
     [Tooltip("Stop auto-idle once game_progression reaches this value.")]
     [SerializeField] int idleUntilProgression = 22;
+
+    [Header("Sit drink (outside dialogue)")]
+    [Tooltip("Fire doSitDrink on this target occasionally while sitting (outside dialogue).")]
+    [SerializeField] string sitDrinkTargetId = DefaultSitDrinkTargetId;
+
+    [Tooltip("Stop auto sit-drink once game_progression reaches this value (sitting phase ends).")]
+    [SerializeField] int sitDrinkUntilProgression = 22;
+
+    [Tooltip("Random seconds between sit-drink attempts (min, max).")]
+    [SerializeField] Vector2 sitDrinkInterval = new(18f, 36f);
+
+    [Tooltip("Chance (0..1) that a sit-drink attempt actually fires the trigger.")]
+    [Range(0f, 1f)]
+    [SerializeField] float sitDrinkChance = 0.45f;
+
+    [Tooltip("Animator state name for the sit-drink clip (used to cancel mid-drink on dialogue).")]
+    [SerializeField] string sitDrinkStateName = DefaultSitDrinkStateName;
 
     [Header("Stand loop (outside dialogue)")]
     [Tooltip("Fire doStandLoop on this target when not in dialogue and progression has reached the threshold.")]
@@ -53,6 +75,8 @@ public class DialogueAnimationTargets : MonoBehaviour
 
     int _lastIdleProgression = int.MinValue;
     bool _subscribedToDialogue;
+    bool _wasDialoguePlaying;
+    float _sitDrinkTimer;
 
     void Awake()
     {
@@ -75,6 +99,7 @@ public class DialogueAnimationTargets : MonoBehaviour
     void Start()
     {
         SubscribeDialogue();
+        ScheduleNextSitDrink();
         TryApplyOutsideDialoguePoses();
     }
 
@@ -89,6 +114,14 @@ public class DialogueAnimationTargets : MonoBehaviour
 
         if (progression != _lastIdleProgression)
             TryApplyOutsideDialoguePoses();
+
+        DialogueManager dialogue = DialogueManager.GetInstance();
+        bool dialoguePlaying = dialogue != null && dialogue.dialogueIsPlaying;
+        if (dialoguePlaying && !_wasDialoguePlaying)
+            TryCancelSitDrinkForDialogue();
+        _wasDialoguePlaying = dialoguePlaying;
+
+        TryUpdateSitDrink(progression);
     }
 
     void SubscribeDialogue()
@@ -261,5 +294,80 @@ public class DialogueAnimationTargets : MonoBehaviour
             return;
 
         animator.SetTrigger(StandLoopTrigger);
+    }
+
+    void TryUpdateSitDrink(int progression)
+    {
+        if (progression >= sitDrinkUntilProgression)
+            return;
+
+        if (string.IsNullOrEmpty(sitDrinkTargetId))
+            return;
+
+        DialogueManager dialogue = DialogueManager.GetInstance();
+        if (dialogue != null && dialogue.dialogueIsPlaying)
+            return;
+
+        _sitDrinkTimer -= Time.deltaTime;
+        if (_sitDrinkTimer > 0f)
+            return;
+
+        if (UnityEngine.Random.value > sitDrinkChance)
+        {
+            ScheduleNextSitDrink();
+            return;
+        }
+
+        if (!TryGetAnimator(sitDrinkTargetId, out Animator animator)
+            || animator == null
+            || !animator.isActiveAndEnabled
+            || !animator.gameObject.activeInHierarchy)
+        {
+            ScheduleNextSitDrink();
+            return;
+        }
+
+        animator.SetTrigger(SitDrinkTrigger);
+        ScheduleNextSitDrink();
+    }
+
+    /// <summary>
+    /// If dialogue starts while the drink clip is playing, snap Lau back to sit loop.
+    /// </summary>
+    void TryCancelSitDrinkForDialogue()
+    {
+        if (string.IsNullOrEmpty(sitDrinkTargetId))
+            return;
+
+        if (!TryGetAnimator(sitDrinkTargetId, out Animator animator)
+            || animator == null
+            || !animator.isActiveAndEnabled
+            || !animator.gameObject.activeInHierarchy)
+            return;
+
+        if (!IsInOrEnteringState(animator, sitDrinkStateName))
+            return;
+
+        animator.ResetTrigger(SitDrinkTrigger);
+        animator.SetTrigger(SitLoopTrigger);
+    }
+
+    void ScheduleNextSitDrink()
+    {
+        float min = Mathf.Min(sitDrinkInterval.x, sitDrinkInterval.y);
+        float max = Mathf.Max(sitDrinkInterval.x, sitDrinkInterval.y);
+        _sitDrinkTimer = UnityEngine.Random.Range(min, max);
+    }
+
+    static bool IsInOrEnteringState(Animator animator, string stateName)
+    {
+        if (animator == null || string.IsNullOrEmpty(stateName))
+            return false;
+
+        if (animator.GetCurrentAnimatorStateInfo(0).IsName(stateName))
+            return true;
+
+        return animator.IsInTransition(0)
+            && animator.GetNextAnimatorStateInfo(0).IsName(stateName);
     }
 }

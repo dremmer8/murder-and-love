@@ -13,7 +13,8 @@ using UnityEngine;
 ///    to look at the player. It occasionally loses interest and lets the animation play
 ///    through, then re-engages. During Standard dialogue only the character currently
 ///    being spoken to (from CutsceneDialogueCameraManager phase look targets) hard-locks
-///    onto the player camera.
+///    onto the player camera. Look is suppressed while certain body states play
+///    (e.g. Lau sit-drink) so the clip owns the head.
 ///
 /// 3. Eyes — when the player is close the eyes track the camera, with a small amount of
 ///    gaze wander around the camera so the stare feels alive rather than robotic.
@@ -137,6 +138,10 @@ public class FaceAnimationOperator : MonoBehaviour
     [Tooltip("How quickly the eye wander offset drifts.")]
     [SerializeField] float eyeWanderSpeed = 0.6f;
 
+    [Header("Look suppress (animation)")]
+    [Tooltip("While this Animator state is current/next, head and eyes do not look at the player.")]
+    [SerializeField] string lookSuppressStateName = "L_sit_loop_idle_drink_1";
+
     [Header("Hero Blend Shape")]
     [Tooltip("Skinned mesh that owns the hero blend shape. Auto-finds under this transform if empty.")]
     [SerializeField] SkinnedMeshRenderer faceMesh;
@@ -201,6 +206,9 @@ public class FaceAnimationOperator : MonoBehaviour
     // Eye wander noise seed.
     Vector2 _wanderSeed;
 
+    Animator _animator;
+    bool _animatorResolved;
+
     void Awake()
     {
         _eyelidRest = CaptureLocalRotations(eyelidBones);
@@ -210,6 +218,7 @@ public class FaceAnimationOperator : MonoBehaviour
         _wanderSeed = new Vector2(Random.value * 100f, Random.value * 100f);
         ResolveHeroBlendShape();
         ScheduleNextHeroAttempt();
+        ResolveAnimator();
     }
 
     void LateUpdate()
@@ -393,7 +402,9 @@ public class FaceAnimationOperator : MonoBehaviour
         float headTarget = 0f;
         float eyeTarget = 0f;
 
-        if (lookTarget != null)
+        bool lookSuppressed = IsLookSuppressedByAnimation();
+
+        if (!lookSuppressed && lookTarget != null)
         {
             float distance = Vector3.Distance(GazeOrigin(), lookTarget.position);
 
@@ -404,8 +415,12 @@ public class FaceAnimationOperator : MonoBehaviour
             eyeTarget = eyeEngaged ? 1f : 0f;
         }
 
-        _lookWeight = Mathf.SmoothDamp(_lookWeight, headTarget, ref _lookWeightVel, lookWeightSmooth);
-        _eyeWeightCurrent = Mathf.SmoothDamp(_eyeWeightCurrent, eyeTarget, ref _eyeWeightVel, eyeWeightSmooth);
+        // Snap look off during suppress so drink pose isn't fighting a lingering turn.
+        float smooth = lookSuppressed ? Mathf.Min(lookWeightSmooth, 0.08f) : lookWeightSmooth;
+        float eyeSmooth = lookSuppressed ? Mathf.Min(eyeWeightSmooth, 0.08f) : eyeWeightSmooth;
+
+        _lookWeight = Mathf.SmoothDamp(_lookWeight, headTarget, ref _lookWeightVel, smooth);
+        _eyeWeightCurrent = Mathf.SmoothDamp(_eyeWeightCurrent, eyeTarget, ref _eyeWeightVel, eyeSmooth);
 
         if (lookTarget != null)
         {
@@ -658,6 +673,37 @@ public class FaceAnimationOperator : MonoBehaviour
 
         CutsceneDialogueCameraManager cams = CutsceneDialogueCameraManager.Instance;
         return cams != null && cams.IsDialogueFaceFocus(this);
+    }
+
+    /// <summary>
+    /// Drink (and similar) clips own the head — don't override with player look.
+    /// </summary>
+    bool IsLookSuppressedByAnimation()
+    {
+        if (string.IsNullOrEmpty(lookSuppressStateName))
+            return false;
+
+        ResolveAnimator();
+        if (_animator == null || !_animator.isActiveAndEnabled)
+            return false;
+
+        if (_animator.GetCurrentAnimatorStateInfo(0).IsName(lookSuppressStateName))
+            return true;
+
+        return _animator.IsInTransition(0)
+            && _animator.GetNextAnimatorStateInfo(0).IsName(lookSuppressStateName);
+    }
+
+    void ResolveAnimator()
+    {
+        if (_animatorResolved && _animator != null)
+            return;
+
+        _animator = GetComponentInChildren<Animator>(true);
+        if (_animator == null)
+            _animator = GetComponentInParent<Animator>();
+
+        _animatorResolved = true;
     }
 
     static Quaternion[] CaptureLocalRotations(Transform[] bones)

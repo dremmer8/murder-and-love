@@ -1,7 +1,8 @@
 // Ending cutscenes (GameManager): 1 = escapeEnding, 2 = confessionEnding, 3 = CompletionEnding
 EXTERNAL PlayEndingCutscene(cinematicIndex)
 
-// Unhide a scene item mid-dialogue (DialogueItemUnhide). Ids: first_laundry_coin, backroom_key, second_laundry_coin, police_lights
+// Unhide a scene item mid-dialogue (DialogueItemUnhide). Ids: first_laundry_coin, backroom_key, second_laundry_coin, police_lights.
+// Coin/key also flash Mandy hand props (Token_1Prop / KeyProp / Token_2Prop) for the give-item anim duration.
 EXTERNAL UnhideItem(itemId)
 
 // Give away a basket item mid-dialogue (DialogueItemGiveAway → BasketCollector.GiveBack).
@@ -11,7 +12,7 @@ EXTERNAL GiveAwayItem(itemId)
 // Swap baked lighting scenarios (BakedLightingController). 1 = blackout, 0 = lights on.
 EXTERNAL SetBlackout(blackout)
 
-// Mandy animator triggers: doRelax, doIdle, doTalk, doGiveItem (DialogueAnimationTargets).
+// Animator triggers (DialogueAnimationTargets): Mandy doRelax/doIdle/doTalk/doGiveItem; Lau doSitDrink/doPager/doStandLoop.
 EXTERNAL TriggerAnimation(targetId, animationName)
 
 // Dialogue cutscene camera (CutsceneDialogueCameraManager). Holds 10–25s then returns to player.
@@ -1468,6 +1469,7 @@ You: I’m just tired. # vo:p_30_l_2
 * [Report boyfriend’s murder]
 You: I want to report a murder. # vo:p_30_l_3
 Police Officer: Say that again, miss. What happened? # vo:p_30_l_4
+~ TriggerAnimation("Lau", "doPager")
 ~ PlayEndingCutscene(2)
 -> murder_confess
 = murder_confess

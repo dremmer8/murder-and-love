@@ -15,6 +15,12 @@ public class DialogueItemUnhideEntry
     [Tooltip("Seconds to wait after the Ink call (i.e. after the line starts) before unhiding.")]
     public float timeOffset = 0.5f;
 
+    [Tooltip("Optional hand-held prop on Mandy's skeleton. Active for the give-item anim, then hidden.")]
+    public GameObject handProp;
+
+    [Tooltip("How long the hand prop stays visible (match M_stand_give_item_1 length).")]
+    public float handPropDuration = 9.33f;
+
     [Tooltip("If true, this id only unhides once per play session.")]
     public bool playOnce = true;
 
@@ -23,6 +29,7 @@ public class DialogueItemUnhideEntry
 
 /// <summary>
 /// Ink EXTERNAL UnhideItem(itemId): after each entry's time offset, activates its target.
+/// Optional handProp activates immediately (give-item anim start) and hides after handPropDuration.
 /// Wire three entries for: first laundry coin, backroom key, second laundry coin.
 /// </summary>
 public class DialogueItemUnhide : MonoBehaviour
@@ -32,6 +39,7 @@ public class DialogueItemUnhide : MonoBehaviour
     [SerializeField] List<DialogueItemUnhideEntry> items = new();
 
     readonly Dictionary<string, Coroutine> _pending = new();
+    readonly Dictionary<string, Coroutine> _handPropHide = new();
 
     void Awake()
     {
@@ -42,6 +50,7 @@ public class DialogueItemUnhide : MonoBehaviour
         }
 
         Instance = this;
+        HideAllHandProps();
     }
 
     void OnDestroy()
@@ -71,16 +80,41 @@ public class DialogueItemUnhide : MonoBehaviour
         if (entry.playOnce && entry.fired)
             return;
 
-        if (entry.target == null)
+        if (entry.target == null && entry.handProp == null)
         {
-            Debug.LogWarning($"{name}: Entry '{itemId}' has no target GameObject.", this);
+            Debug.LogWarning($"{name}: Entry '{itemId}' has no target or handProp GameObject.", this);
             return;
         }
 
         if (_pending.TryGetValue(itemId, out Coroutine running) && running != null)
             StopCoroutine(running);
 
+        ShowHandProp(entry);
         _pending[itemId] = StartCoroutine(UnhideAfterDelay(entry));
+    }
+
+    void ShowHandProp(DialogueItemUnhideEntry entry)
+    {
+        if (entry.handProp == null)
+            return;
+
+        entry.handProp.SetActive(true);
+
+        if (_handPropHide.TryGetValue(entry.itemId, out Coroutine hiding) && hiding != null)
+            StopCoroutine(hiding);
+
+        _handPropHide[entry.itemId] = StartCoroutine(HideHandPropAfter(entry));
+    }
+
+    IEnumerator HideHandPropAfter(DialogueItemUnhideEntry entry)
+    {
+        float delay = Mathf.Max(0.1f, entry.handPropDuration);
+        yield return new WaitForSeconds(delay);
+
+        if (entry.handProp != null)
+            entry.handProp.SetActive(false);
+
+        _handPropHide.Remove(entry.itemId);
     }
 
     IEnumerator UnhideAfterDelay(DialogueItemUnhideEntry entry)
@@ -101,6 +135,19 @@ public class DialogueItemUnhide : MonoBehaviour
 
         entry.fired = true;
         _pending.Remove(entry.itemId);
+    }
+
+    void HideAllHandProps()
+    {
+        if (items == null)
+            return;
+
+        for (int i = 0; i < items.Count; i++)
+        {
+            DialogueItemUnhideEntry entry = items[i];
+            if (entry?.handProp != null)
+                entry.handProp.SetActive(false);
+        }
     }
 
     DialogueItemUnhideEntry FindEntry(string itemId)
