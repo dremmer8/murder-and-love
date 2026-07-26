@@ -843,7 +843,6 @@ Mrs Wong: Another one? Did all your clothes fall into a pit or something? # vo:p
      You: My flow is especially heavy today... # vo:p_15_l_13
      You: And I accidentally put my clothes on the bloodstained sheets. # vo:p_15_l_14
      -> Mandy_phase_3_fair
-* [Nothing]
 ~ ChangeCamera("Player")
 -> END
 
@@ -862,7 +861,7 @@ Mrs Wong: Hah, such a typical excuse. # vo:p_15_l_19
 ** [Defend Jason]
 You: He works very hard to earn money though. # vo:p_15_l_20
 --
-Mrs Wong: Hmm. I have to warn you, when a man stops getting involved in household, # vo:p_15_l_21
+Mrs Wong: Hmm. I have to warn you, when a man stops taking care of household, # vo:p_15_l_21
 Mrs Wong: it’s normally a sign that he will start neglecting your feelings. # vo:p_15_l_22
 Thoughts: It’s true that Jason always asks me to do housework... # vo:p_15_l_23
 Thoughts: But he works a lot to make money. # vo:p_15_l_24
@@ -885,7 +884,7 @@ Drunk Cop: You’re speaking a bit too loudly, aren’t you? # vo:p_15_l_34
    ~ ChangeCamera("l1")
    *** [We were talking about you]
    You: We were talking about you. # vo:p_15_l_35
-   Drunk Cop: I? I’m not useless, I’m the best cop in the whole precinct. # vo:p_15_l_36
+   Drunk Cop: Me? I’m not useless, I’m the best cop in the whole precinct. # vo:p_15_l_36
    *** [Not talking about you]
    You: We were not talking about you. # vo:p_15_l_37
    Drunk Cop: ... # vo:p_15_l_38
@@ -970,7 +969,7 @@ Thoughts: I just need to put it in...
     // Win: unlock Collect 5 coins (TaskManager storyPhase 17).
     ~ game_progression = 17
     ~ ChangeCamera("b3")
-    Thoughts: Finally... I should go back to Mrs Wong to buy the laundry coin. # vo:p_16_l_3
+    Thoughts: Finally... I should collect these coins to buy another laundry token. # vo:p_16_l_3
     ~ ChangeCamera("Player")
 }
 ~ ChangeCamera("Player")
@@ -1163,7 +1162,7 @@ Drunk Cop: Interesting, never heard of that before. I thought I knew everything 
 
 
     = LAU_story_phase_3_ending 
-    Drunk Cop: This red stain reminds me of the crime scene I witnessed today. # vo:p_19_l_46
+    Drunk Cop: This red stain reminds me of today's crime scene. # vo:p_19_l_46
     Drunk Cop: A middle-aged man stabbed his wife to death. # vo:p_19_l_47
     Drunk Cop: He refused to plead guilty, so we had no choice but to put him in jail. # vo:p_19_l_48
     Drunk Cop: Her shirt also has this red stain... # vo:p_19_l_49
@@ -1229,7 +1228,7 @@ Thoughts: the one who protected me and even killed someone to keep me safe? # vo
 ~ game_progression = 21
 ~ black_out_happened = true
 ~ SetBlackout(1)
-Drunk Cop: Ah, what the hell is this? # vo:p_21_l_1
+Drunk Cop: Damn, what the hell? # vo:p_21_l_1
 Mrs Wong: Not again... # vo:p_21_l_2
 Mrs Wong: Miss Lee, do me a favour, would you please check the circuit box in the back room? # vo:p_21_l_3
 ~ ChangeCamera("Player")
@@ -1251,8 +1250,8 @@ Thoughts: Why did this happen... # vo:p_22_l_1
 Thoughts: Is it my destiny that I can never wash away our crime? # vo:p_22_l_2
 Thoughts: Should I just give up? But I got nowhere to hide... # vo:p_22_l_3
 Thoughts: Should I go back? But I’ll always be living in the shadow of this murder. # vo:p_22_l_4
-Thoughts: Should I betray Jason and report the murder? No, I can’t betray him. # vo:p_22_l_5
-Thoughts: He will get angry, he will hate me. # vo:p_22_l_6
+Thoughts: Should I can ask Mrs. Wong for help? But Jason will hate me... # vo:p_22_l_5
+Thoughts: ...or I betray him and report his murder? # vo:p_22_l_6
 ~ ChangeCamera("Player")
 
     - 2: 
