@@ -4468,6 +4468,8 @@ MonoBehaviour:
   pagerController: {fileID: 1152900157}
   typewriter: {fileID: 0}
   inputDelay: 0.2
+  endingThoughtLineDuration: 5
+  endingUnvoicedLineDuration: 5
 --- !u!114 &339123856
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4480,7 +4482,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cfbe431e9a1665145a55b7f905d4bd8a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gameProgression: 0
+  gameProgression: 22
 --- !u!114 &339123857
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4504,7 +4506,10 @@ MonoBehaviour:
   - {fileID: 1575166800}
   cinematicDuration: 10
   creditsObject: {fileID: 1697653117}
-  endingPostVoiceCreditsDelay: 5
+  completionEpilogueDialogueTrigger: {fileID: 1453319768}
+  completionEpilogueStartDelay: 6
+  completionEpilogueLineDuration: 5
+  completionTimelineDuration: 57.583
   soundscapeKey: soundscape
 --- !u!114 &339123858
 MonoBehaviour:

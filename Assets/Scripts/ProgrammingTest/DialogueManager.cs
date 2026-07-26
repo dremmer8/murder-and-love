@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -24,6 +25,13 @@ public class DialogueManager : MonoBehaviour
     [Header("Standard Input")]
     [SerializeField] private float inputDelay = 0.2f;
 
+    [Header("Ending Cutscene Dialogue")]
+    [Tooltip("Seconds each Thoughts line stays on screen when no VO plays (ending cutscenes auto-advance).")]
+    [SerializeField] private float endingThoughtLineDuration = 5f;
+
+    [Tooltip("Fallback hold when a voiced line has no clip or playback (ending cutscenes only).")]
+    [SerializeField] private float endingUnvoicedLineDuration = 5f;
+
     private Story currentStory;
     private static DialogueManager instance;
 
@@ -33,8 +41,12 @@ public class DialogueManager : MonoBehaviour
     private DialoguePresentationMode activeMode = DialoguePresentationMode.Standard;
     private float advanceLockedUntil;
     private bool exitPendingAfterUnlock;
+    private Coroutine endingAutoAdvanceRoutine;
+    private bool completionEpilogueMode;
+    private float completionEpilogueLineDuration = 5f;
 
     public bool dialogueIsPlaying { get; private set; }
+    public bool IsCompletionEpilogueMode => completionEpilogueMode;
     public DialoguePresentationMode ActiveMode => activeMode;
 
     /// <summary>True while Space/click advance / dialogue exit is blocked (e.g. give-item anim).</summary>
@@ -114,6 +126,9 @@ public class DialogueManager : MonoBehaviour
         if (Time.time < nextInputTime)
             return;
 
+        if (IsEndingCutsceneAutoAdvanceActive() || completionEpilogueMode)
+            return;
+
         if (!isChoosing && (Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0)))
         {
             DialogueTypewriter writer = ResolveTypewriter();
@@ -125,6 +140,22 @@ public class DialogueManager : MonoBehaviour
 
             ContinueStandardStory();
         }
+    }
+
+    bool IsEndingCutsceneAutoAdvanceActive()
+    {
+        GameManager game = GameManager.Instance;
+        return game != null && game.IsEndingCutscenePlaying;
+    }
+
+    /// <summary>Post-completion-cutscene black-screen epilogue: fixed hold per line, no player input.</summary>
+    public void SetCompletionEpilogueMode(bool active, float lineDuration)
+    {
+        completionEpilogueMode = active;
+        completionEpilogueLineDuration = Mathf.Max(0f, lineDuration);
+
+        if (!active)
+            CancelEndingAutoAdvance();
     }
 
     /// <summary>
@@ -374,6 +405,7 @@ public class DialogueManager : MonoBehaviour
         isChoosing = false;
         exitPendingAfterUnlock = false;
         advanceLockedUntil = 0f;
+        CancelEndingAutoAdvance();
         activeMode = DialoguePresentationMode.Standard;
 
         if (dialoguePanel != null)
@@ -549,6 +581,7 @@ public class DialogueManager : MonoBehaviour
 
         exitPendingAfterUnlock = false;
         advanceLockedUntil = 0f;
+        CancelEndingAutoAdvance();
 
         if (GlobalVariableOperator.Instance != null)
         {
@@ -636,7 +669,17 @@ public class DialogueManager : MonoBehaviour
         if (!string.IsNullOrWhiteSpace(text))
         {
             string trimmed = text.Trim();
-            PlayVoiceOverForLine(trimmed, inkTags);
+
+            if (!completionEpilogueMode)
+                PlayVoiceOverForLine(trimmed, inkTags);
+
+            if (completionEpilogueMode || IsEndingCutsceneAutoAdvanceActive())
+            {
+                HideChoiceButtons();
+                ShowStandardLineImmediate(trimmed, writer);
+                ScheduleEndingAutoAdvance(trimmed, inkTags);
+                return;
+            }
 
             if (writer != null)
             {
@@ -670,6 +713,72 @@ public class DialogueManager : MonoBehaviour
 
         if (!currentStory.canContinue && currentStory.currentChoices.Count == 0)
             ExitStandardDialogue();
+    }
+
+    void ShowStandardLineImmediate(string trimmed, DialogueTypewriter writer)
+    {
+        ResolveTypewriter()?.Stop(clearText: false);
+
+        if (dialogueText == null)
+            return;
+
+        dialogueText.text = writer != null ? writer.ApplySpeakerColor(trimmed) : trimmed;
+        ThoughtLineHover.ApplyForLine(dialogueText, trimmed);
+    }
+
+    void ClearStandardLineDisplay()
+    {
+        ResolveTypewriter()?.Stop(clearText: true);
+
+        if (dialogueText == null)
+            return;
+
+        ThoughtLineHover.StopFor(dialogueText);
+        dialogueText.text = string.Empty;
+    }
+
+    void ScheduleEndingAutoAdvance(string trimmed, List<string> inkTags)
+    {
+        CancelEndingAutoAdvance();
+
+        float hold = completionEpilogueLineDuration;
+        if (!completionEpilogueMode)
+        {
+            VoiceOverOperator voice = VoiceOverOperator.Instance;
+            hold = voice != null
+                ? voice.ResolveLineHoldDuration(trimmed, inkTags, endingThoughtLineDuration, endingUnvoicedLineDuration)
+                : endingThoughtLineDuration;
+        }
+
+        endingAutoAdvanceRoutine = StartCoroutine(EndingAutoAdvanceRoutine(Mathf.Max(0f, hold)));
+    }
+
+    IEnumerator EndingAutoAdvanceRoutine(float delay)
+    {
+        if (delay > 0f)
+            yield return new WaitForSeconds(delay);
+
+        endingAutoAdvanceRoutine = null;
+
+        if (!dialogueIsPlaying || activeMode != DialoguePresentationMode.Standard || currentStory == null)
+            yield break;
+
+        if (isChoosing || IsAdvanceLocked)
+            yield break;
+
+        if (completionEpilogueMode)
+            ClearStandardLineDisplay();
+
+        ContinueStandardStory();
+    }
+
+    void CancelEndingAutoAdvance()
+    {
+        if (endingAutoAdvanceRoutine == null)
+            return;
+
+        StopCoroutine(endingAutoAdvanceRoutine);
+        endingAutoAdvanceRoutine = null;
     }
 
     private void DisplayChoices()

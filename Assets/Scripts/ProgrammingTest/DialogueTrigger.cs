@@ -471,12 +471,9 @@ public class DialogueTrigger : MonoBehaviour
         if (nextDialogueTrigger == null)
             yield break;
 
-        // Escape / confession: don't chain into Jason's pager after an ending choice.
-        // Completion ending still needs Standard dialogue (31 Jason_monologue) over the cutscene.
-        if (GameManager.Instance != null
-            && GameManager.Instance.IsCutscenePlaying
-            && (nextDialogueTrigger.PresentationMode == DialoguePresentationMode.Pager
-                || nextDialogueTrigger.IsRespondSupportPager))
+        // Defer chained dialogue until ending cutscenes finish. Completion phase 31 is
+        // started by GameManager after the Timeline + blackout.
+        if (GameManager.Instance != null && GameManager.Instance.IsCutscenePlaying)
             yield break;
 
         nextDialogueTrigger.TryStartDialogue();

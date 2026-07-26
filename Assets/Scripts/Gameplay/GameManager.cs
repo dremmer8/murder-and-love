@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using FMOD.Studio;
 using UnityEngine;
@@ -33,8 +34,18 @@ public class GameManager : MonoBehaviour
     [Tooltip("Shown after any ending cutscene (1–3) finishes.")]
     [SerializeField] private GameObject creditsObject;
 
-    [Tooltip("After ending dialogue finishes, wait for remaining VO length, then this many seconds, then credits.")]
-    [SerializeField] private float endingPostVoiceCreditsDelay = 5f;
+    [Header("Completion Ending")]
+    [Tooltip("Standard dialogue trigger for Boyfriend_ending_dialogue_final (story phase 31).")]
+    [SerializeField] private DialogueTrigger completionEpilogueDialogueTrigger;
+
+    [Tooltip("Seconds into the completion Timeline before phase-31 lines begin over the animation.")]
+    [SerializeField] private float completionEpilogueStartDelay = 6f;
+
+    [Tooltip("Seconds each line stays on screen during the completion epilogue.")]
+    [SerializeField] private float completionEpilogueLineDuration = 5f;
+
+    [Tooltip("Completion Timeline clip length when the asset reports infinite duration (post-extrapolation hold).")]
+    [SerializeField] private float completionTimelineDuration = 57.583f;
 
     [Header("Audio")]
     [Tooltip("SoundLibrary key for the looping ambience started when this scene begins.")]
@@ -258,76 +269,54 @@ public class GameManager : MonoBehaviour
         if (!isEnding)
         {
             yield return new WaitForSeconds(duration);
+
+            if (director != null && director.state == PlayState.Playing)
+                director.Stop();
+
+            DeactivateCinematic(cinematicIndex);
+            _cutsceneRoutine = null;
+
+            if (playerObject != null)
+                playerObject.SetActive(true);
+            yield break;
         }
-        else
+
+        if (cinematicIndex == CompletionEndingCinematicIndex)
         {
-            // Endings: when dialogue finishes, let last VO play out + hold, then credits
-            // (skip remaining Timeline).
-            yield return WaitForEndingCutscene(duration);
+            yield return PlayCompletionEndingRoutine(director, duration);
+            yield break;
         }
+
+        // Escape / confession: credits as soon as the cutscene dialogue ends.
+        yield return WaitForEndingDialogueToFinish();
 
         if (director != null && director.state == PlayState.Playing)
             director.Stop();
 
         DeactivateCinematic(cinematicIndex);
+        FinishEndingCutscene();
+    }
+
+    void FinishEndingCutscene()
+    {
         _endingCutsceneActive = false;
         _cutsceneRoutine = null;
 
-        // Intro Timeline may leave the player inactive (1-frame Activation clip + LeaveAsIs).
-        // Always restore control after the intro cinematic; endings go to credits instead.
-        if (!isEnding)
-        {
-            if (playerObject != null)
-                playerObject.SetActive(true);
-        }
-        else
-        {
-            VoiceOverOperator voice = VoiceOverOperator.Instance;
-            if (voice != null)
-                voice.StopPlayback();
+        DialogueManager dialogue = DialogueManager.GetInstance();
+        if (dialogue != null && dialogue.dialogueIsPlaying)
+            dialogue.AbortActivePresentation();
 
-            ShowCredits();
-        }
-    }
-
-    /// <summary>
-    /// Waits for ending dialogue to finish, then remaining VO length +
-    /// <see cref="endingPostVoiceCreditsDelay"/>, then returns so credits can show.
-    /// If no Standard dialogue runs, falls back to the Timeline duration.
-    /// </summary>
-    IEnumerator WaitForEndingCutscene(float duration)
-    {
-        float elapsed = 0f;
-        bool dialogueWasActive = IsStandardDialoguePlaying();
-
-        while (true)
-        {
-            if (IsStandardDialoguePlaying())
-            {
-                dialogueWasActive = true;
-                yield return null;
-                continue;
-            }
-
-            if (dialogueWasActive)
-                break;
-
-            // No ending dialogue yet (e.g. completion cinematic) — follow Timeline.
-            if (elapsed >= duration)
-                yield break;
-
-            elapsed += Time.deltaTime;
-            yield return null;
-        }
-
-        float remainingVo = 0f;
         VoiceOverOperator voice = VoiceOverOperator.Instance;
         if (voice != null)
-            remainingVo = voice.GetRemainingPlaybackSeconds();
+            voice.StopPlayback();
 
-        float hold = Mathf.Max(0f, remainingVo) + Mathf.Max(0f, endingPostVoiceCreditsDelay);
-        if (hold > 0f)
-            yield return new WaitForSeconds(hold);
+        ShowCredits();
+    }
+
+    IEnumerator WaitForEndingDialogueToFinish()
+    {
+        while (IsStandardDialoguePlaying())
+            yield return null;
     }
 
     static bool IsStandardDialoguePlaying()
@@ -336,6 +325,98 @@ public class GameManager : MonoBehaviour
         return dialogue != null
             && dialogue.dialogueIsPlaying
             && dialogue.ActiveMode == DialoguePresentationMode.Standard;
+    }
+
+    /// <summary>
+    /// Completion ending: animation plays fully; Jason lines overlay from 6s; credits when Timeline ends.
+    /// </summary>
+    IEnumerator PlayCompletionEndingRoutine(PlayableDirector director, float duration)
+    {
+        float timelineDuration = ResolveCompletionTimelineDuration(director, duration);
+        float elapsed = 0f;
+        bool epilogueStarted = false;
+        bool epilogueScheduled = completionEpilogueDialogueTrigger != null;
+
+        DialogueManager dialogue = DialogueManager.GetInstance();
+        void OnDialogueEnded(string _) { }
+
+        while (true)
+        {
+            elapsed += Time.deltaTime;
+            float timelineTime = GetTimelineTime(director, elapsed);
+
+            if (epilogueScheduled && !epilogueStarted && timelineTime >= completionEpilogueStartDelay)
+            {
+                epilogueStarted = TryBeginCompletionEpilogue(dialogue, OnDialogueEnded);
+                if (!epilogueStarted)
+                    epilogueScheduled = false;
+            }
+
+            if (timelineTime >= timelineDuration)
+                break;
+
+            yield return null;
+        }
+
+        StopCompletionEpilogue(dialogue, OnDialogueEnded, epilogueStarted);
+
+        if (director != null && director.state == PlayState.Playing)
+            director.Stop();
+
+        DeactivateCinematic(CompletionEndingCinematicIndex);
+        FinishEndingCutscene();
+    }
+
+    static float GetTimelineTime(PlayableDirector director, float fallbackElapsed)
+    {
+        if (director != null)
+            return (float)director.time;
+
+        return fallbackElapsed;
+    }
+
+    float ResolveCompletionTimelineDuration(PlayableDirector director, float resolvedFallback)
+    {
+        if (director?.playableAsset == null)
+            return completionTimelineDuration > 0f ? completionTimelineDuration : resolvedFallback;
+
+        double assetDuration = director.playableAsset.duration;
+        if (assetDuration > 0d && !double.IsInfinity(assetDuration) && !double.IsNaN(assetDuration))
+            return (float)assetDuration;
+
+        if (completionTimelineDuration > 0f)
+            return completionTimelineDuration;
+
+        return resolvedFallback;
+    }
+
+    bool TryBeginCompletionEpilogue(DialogueManager dialogue, Action<string> onEnded)
+    {
+        if (completionEpilogueDialogueTrigger == null || dialogue == null)
+            return false;
+
+        dialogue.OnDialogueEnded += onEnded;
+        dialogue.SetCompletionEpilogueMode(true, completionEpilogueLineDuration);
+
+        if (completionEpilogueDialogueTrigger.TryStartDialogue())
+            return true;
+
+        dialogue.SetCompletionEpilogueMode(false, 0f);
+        dialogue.OnDialogueEnded -= onEnded;
+        Debug.LogWarning($"{name}: Failed to start completion epilogue dialogue.", this);
+        return false;
+    }
+
+    void StopCompletionEpilogue(DialogueManager dialogue, Action<string> onEnded, bool epilogueStarted)
+    {
+        if (dialogue == null || !epilogueStarted)
+            return;
+
+        dialogue.OnDialogueEnded -= onEnded;
+        dialogue.SetCompletionEpilogueMode(false, 0f);
+
+        if (dialogue.dialogueIsPlaying)
+            dialogue.AbortActivePresentation();
     }
 
     PlayableDirector GetCinematicDirector(int index)

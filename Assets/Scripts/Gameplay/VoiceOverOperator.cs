@@ -117,6 +117,55 @@ public class VoiceOverOperator : MonoBehaviour
     }
 
     /// <summary>
+    /// Hold time for ending-cutscene auto-advance: active VO length, else library clip length,
+    /// else <paramref name="thoughtDuration"/> for Thoughts lines or
+    /// <paramref name="unvoicedFallback"/> for other unvoiced lines.
+    /// </summary>
+    public float ResolveLineHoldDuration(
+        string rawLine,
+        IReadOnlyList<string> inkTags,
+        float thoughtDuration,
+        float unvoicedFallback)
+    {
+        float remaining = GetRemainingPlaybackSeconds();
+        if (remaining > 0f)
+            return remaining;
+
+        if (TryResolveClipDuration(rawLine, inkTags, out float clipDuration))
+            return clipDuration;
+
+        if (TryParseSpeakerLine(rawLine, out string speaker, out _)
+            && string.Equals(speaker, "Thoughts", StringComparison.OrdinalIgnoreCase))
+            return Mathf.Max(0f, thoughtDuration);
+
+        return Mathf.Max(0f, unvoicedFallback);
+    }
+
+    bool TryResolveClipDuration(string rawLine, IReadOnlyList<string> inkTags, out float duration)
+    {
+        duration = 0f;
+        if (library == null)
+            return false;
+
+        if (!TryGetVoiceFileId(inkTags, out _, out int phase, out int line))
+            return false;
+
+        if (!TryParseSpeakerLine(rawLine, out string speaker, out _))
+            return false;
+
+        if (!TryMapSpeaker(speaker, out VoiceLineLibrary.VoiceCharacter character))
+            return false;
+
+        if (!library.TryGet(character, phase, line, out VoiceLineLibrary.Entry entry)
+            || entry == null
+            || entry.Clip == null)
+            return false;
+
+        duration = entry.Clip.length;
+        return duration > 0f;
+    }
+
+    /// <summary>
     /// Seconds left on the active MC or LipSync VO clip (0 if nothing is playing).
     /// </summary>
     public float GetRemainingPlaybackSeconds()
