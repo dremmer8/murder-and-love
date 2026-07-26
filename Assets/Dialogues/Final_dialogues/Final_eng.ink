@@ -18,6 +18,10 @@ EXTERNAL TriggerAnimation(targetId, animationName)
 // Dialogue cutscene camera (CutsceneDialogueCameraManager). Holds 10–25s then returns to player.
 EXTERNAL ChangeCamera(cameraId)
 
+// Pan player FPV toward a look target (Lau1, Lau2, Mandy1, Mandy2) and restore afterward.
+EXTERNAL LookAtTarget(targetId, duration)
+EXTERNAL RestoreLook(duration)
+
 // Play a SoundLibrary / FMOD one-shot by key (InkStoryCommands → SoundManager).
 EXTERNAL PlayAudioClip(soundKey)
 
@@ -189,7 +193,6 @@ Drunk Cop: ... # vo:p_2_l_11 -> clothes_question
 You: Sorry, but you don’t look like a police officer. # vo:p_2_l_12
 Drunk Cop: What, are cops not allowed to do their laundry at night, # vo:p_2_l_13
 Drunk Cop: after investigating a bloody crime scene? # vo:p_2_l_14
-~ ChangeCamera("l1")
 ** [Nevermind]
 You: Never mind what I said. # vo:p_2_l_15
 -> clothes_question
@@ -202,7 +205,6 @@ You: Never mind what I said. # vo:p_2_l_15
 }
 
 -(questions_clothes)
-~ ChangeCamera("Player")
 * {not boyfriend_needs_clothes} [Can’t sleep] 
 You: I can’t sleep. # vo:p_2_l_18
 Drunk Cop: But why would you come to a laundromat at 3am? # vo:p_2_l_19
@@ -445,7 +447,7 @@ Mrs Wong: Here you go. Machine Nr. 4. It’s the one on your left. # vo:p_3_l_62
  * * [Thank you.]
  You: Thank you, Mrs Wong. # vo:p_3_l_63
  * * [...]
- You: ... # vo:p_3_l_64
+ You: ... # vo:p_3_l_67
 -
     ~ ChangeCamera("Player")
     -> END
@@ -881,15 +883,17 @@ Mrs Wong: Now, he won’t even talk to me, unless he wants food or needs me to c
 Mrs Wong: And you can see Mr. Lau there, being drunk at 3am... # vo:p_15_l_32
 Mrs Wong: I have to say, some men really are useless... # vo:p_15_l_33
 Drunk Cop: You’re speaking a bit too loudly, aren’t you? # vo:p_15_l_34
-   ~ ChangeCamera("l1")
+   ~ LookAtTarget("Lau1", 0.75)
    *** [We were talking about you]
    You: We were talking about you. # vo:p_15_l_35
+   ~ ChangeCamera("l1")
    Drunk Cop: Me? I’m not useless, I’m the best cop in the whole precinct. # vo:p_15_l_36
    *** [Not talking about you]
+    ~ ChangeCamera("l1")
    You: We were not talking about you. # vo:p_15_l_37
    Drunk Cop: ... # vo:p_15_l_38
    ---
-   ~ ChangeCamera("Player")
+   ~ RestoreLook(0.75)
    Mrs Wong: Haha. # vo:p_15_l_39
 
 ->Mandy_phase_3_ending
@@ -1182,11 +1186,9 @@ Drunk Cop: Interesting, never heard of that before. I thought I knew everything 
     ~ ChangeCamera("Player")
     Drunk Cop: All right then... I hope you’re being honest. # vo:p_19_l_56
     Drunk Cop: You do know what happens if you lie to a police officer, don’t you? # vo:p_19_l_57
-    ~ ChangeCamera("Player")
     * [Silence]
     You: ... # vo:p_19_l_58
     Drunk Cop: Haha. I was just joking around. Go wash your clothes. # vo:p_19_l_59
-    ~ ChangeCamera("Player")
     -> END
     
     * [I won’t lie.]
@@ -1325,7 +1327,7 @@ You: I’m really sorry. # vo:p_26_l_3
 Mrs Wong: No need to apologize. Want a cigarette? # vo:p_26_l_4
 
 - (smoke_choice)
-   * [No, thanks.]
+   * [Thanks]
    You: No, thank you. # vo:p_26_l_5
    -
    Mrs Wong: Mind if we talk for a second? Just between us women. # vo:p_26_l_6
@@ -1336,7 +1338,7 @@ Mrs Wong: No need to apologize. Want a cigarette? # vo:p_26_l_4
       Mrs Wong: I’m just worried about you. # vo:p_26_l_9
       - -
       Mrs Wong: Someone’s been paging you all the time, right? Is that your boyfriend? # vo:p_26_l_10
-         *** [Yes. (Make an excuse)]
+         *** [Yes.]
          You: Yes, he just worried because it’s late. # vo:p_26_l_11
          *** [Deny]
          You: No... # vo:p_26_l_12
@@ -1425,11 +1427,10 @@ Thoughts: It’s time to live on my own. # vo:p_28_l_7
 Thoughts: I don’t need to listen to Jason anymore, # vo:p_28_l_8
 Thoughts: and I don’t need to obey him all the time. # vo:p_28_l_9
 Thoughts: I have to escape this life. And escape him. # vo:p_28_l_10
-You: So, how can I go to Tou San? # vo:p_28_l_11
+You: So, how can I go to Tou San? # vo:p_28_l_1
 Mrs Wong: There’s a ferry to go there every morning at 8:00. # vo:p_28_l_12
 Mrs Wong: You need to head to the harbor now. # vo:p_28_l_13
 Mrs Wong: So leave this man, start a new life. # vo:p_28_l_14
-* [Thank her]
 You: Thank you, Mrs Wong... # vo:p_28_l_15
 ~ TriggerAnimation("Mandy", "doTalk")
 Mrs Wong: You can just call me Mandy. # vo:p_28_l_16
@@ -1437,10 +1438,8 @@ Mandy: I’ll send a message to my cousin Cindy to pick you up. # vo:p_28_l_17
 Mandy: Also, Vivian... be independent. # vo:p_28_l_18
 Mandy: That’s the most precious thing a woman can have. # vo:p_28_l_19
 Mandy: Don’t rely on any men for your life and happiness. # vo:p_28_l_20
- ** [Promise]
 You: I promise you, Mandy. # vo:p_28_l_21
 Mandy: Goodbye, Vivian. # vo:p_28_l_22
-  *** [Goodbye. (Leave)]
 You: Goodbye, Mandy. # vo:p_28_l_23
 -
 ~ game_progression = 28

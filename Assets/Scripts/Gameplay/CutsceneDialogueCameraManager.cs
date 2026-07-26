@@ -30,7 +30,8 @@ public class CutsceneLookPhaseBinding
 /// back. Calling ChangeCamera again cancels the current hold and restarts.
 ///
 /// Also rotates the player toward Mandy/Lau look targets when a Standard dialogue starts
-/// without a DialogueTrigger pose mark.
+/// without a DialogueTrigger pose mark, and supports Ink LookAtTarget / RestoreLook for
+/// temporary first-person pans without swapping cutscene cameras.
 /// </summary>
 public class CutsceneDialogueCameraManager : MonoBehaviour
 {
@@ -95,6 +96,7 @@ public class CutsceneDialogueCameraManager : MonoBehaviour
     Tween _faceTween;
     bool _hasDialogueFaceFocus;
     CutsceneLookTarget _dialogueFaceTarget;
+    Quaternion? _savedLookRotation;
 
     public bool IsCutsceneCameraActive => _activeCutsceneCamera != null;
 
@@ -136,6 +138,8 @@ public class CutsceneDialogueCameraManager : MonoBehaviour
             return;
 
         story.BindExternalFunction("ChangeCamera", (string cameraId) => ChangeCamera(cameraId));
+        story.BindExternalFunction("LookAtTarget", (string targetId, float duration) => LookAtTarget(targetId, duration));
+        story.BindExternalFunction("RestoreLook", (float duration) => RestoreLook(duration));
     }
 
     /// <summary>
@@ -254,6 +258,44 @@ public class CutsceneDialogueCameraManager : MonoBehaviour
         ActivateCutsceneCamera(target);
     }
 
+    /// pan the player camera toward a target (Lau1, Lau2, Mandy1, Mandy2).
+    public void LookAtTarget(string targetId, float duration)
+    {
+        if (!IsStandardDialogueActive())
+            return;
+
+        if (string.IsNullOrWhiteSpace(targetId))
+        {
+            Debug.LogWarning($"{name}: LookAtTarget id is empty.", this);
+            return;
+        }
+
+        if (!TryParseLookTarget(targetId.Trim(), out Transform target) || target == null)
+        {
+            Debug.LogWarning($"{name}: No look target named '{targetId}'.", this);
+            return;
+        }
+
+        if (!_savedLookRotation.HasValue)
+            _savedLookRotation = GetPlayerWorldLookRotation();
+
+        FaceTarget(target, duration);
+    }
+
+    /// <summary>Ink EXTERNAL: pan back to the look direction saved by <see cref="LookAtTarget"/>.</summary>
+    public void RestoreLook(float duration)
+    {
+        if (!IsStandardDialogueActive())
+            return;
+
+        if (!_savedLookRotation.HasValue)
+            return;
+
+        Quaternion saved = _savedLookRotation.Value;
+        _savedLookRotation = null;
+        FaceToRotation(saved, duration);
+    }
+
     static bool IsStandardDialogueActive()
     {
         DialogueManager dialogue = DialogueManager.GetInstance();
@@ -262,7 +304,7 @@ public class CutsceneDialogueCameraManager : MonoBehaviour
             && dialogue.ActiveMode == DialoguePresentationMode.Standard;
     }
 
-    /// <summary>Cancel any hold timer, disable cutscene cams, and restore the player visual/camera.</summary>
+    /// Cancel any hold timer, disable cutscene cams, and restore the player visual/camera.
     public void ReturnToPlayerCamera()
     {
         StopHoldRoutine();
@@ -331,19 +373,33 @@ public class CutsceneDialogueCameraManager : MonoBehaviour
         }
     }
 
+    bool TryParseLookTarget(string targetId, out Transform target)
+    {
+        target = null;
+        if (!Enum.TryParse(targetId, ignoreCase: true, out CutsceneLookTarget id))
+            return false;
+
+        target = GetLookTarget(id);
+        return target != null;
+    }
+
     bool FaceTarget(Transform target, float duration)
+    {
+        Vector3 eye = GetFaceOriginPosition();
+        Vector3 to = target.position - eye;
+        if (to.sqrMagnitude < 0.0001f)
+            return false;
+
+        return FaceToRotation(Quaternion.LookRotation(to.normalized), duration);
+    }
+
+    bool FaceToRotation(Quaternion endRot, float duration)
     {
         if (!EnsureFacePlayer())
             return false;
 
         KillFaceTween(releasePoseDriven: false);
 
-        Vector3 eye = GetFaceOriginPosition();
-        Vector3 to = target.position - eye;
-        if (to.sqrMagnitude < 0.0001f)
-            return false;
-
-        Quaternion endRot = Quaternion.LookRotation(to.normalized);
         Vector3 pos = facePlayer.transform.position;
         Quaternion startRot = GetPlayerWorldLookRotation();
 
@@ -552,6 +608,7 @@ public class CutsceneDialogueCameraManager : MonoBehaviour
             return;
 
         ClearDialogueFaceFocus();
+        _savedLookRotation = null;
         KillFaceTween(releasePoseDriven: true);
 
         if (_activeCutsceneCamera != null || _holdRoutine != null)
