@@ -1,0 +1,125 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 70414af50e8ec444c976826d356bd2d1, type: 3}
+  m_Name: Game_20260726_234618
+  m_EditorClassIdentifier: 
+  lightingDataAsset: {fileID: 112000000, guid: 757608257ceeabb4eacb8d5349bc6d25, type: 2}
+  lightmapsMode: 1
+  lightmaps:
+  - lightmapColor: {fileID: 2800000, guid: 43d6a489bb982b44fa4d10839103ed6b, type: 3}
+    lightmapDir: {fileID: 2800000, guid: 7d78fb8059fd6474184e9f6db62fb6ca, type: 3}
+    shadowMask: {fileID: 0}
+  - lightmapColor: {fileID: 2800000, guid: c61f8aca659476d4d8753689b7fbba9c, type: 3}
+    lightmapDir: {fileID: 2800000, guid: d8d7df787029942449dc5dbabe48114e, type: 3}
+    shadowMask: {fileID: 0}
+  - lightmapColor: {fileID: 2800000, guid: f27b0a0affae3e140a7b5de984244052, type: 3}
+    lightmapDir: {fileID: 2800000, guid: 86348c726648a8546a4a36a15591f33a, type: 3}
+    shadowMask: {fileID: 0}
+  - lightmapColor: {fileID: 2800000, guid: 90fb2db471bb1334cbe51bc3230d95d4, type: 3}
+    lightmapDir: {fileID: 2800000, guid: fd3b54a5cd2535144925a1a6818a6c88, type: 3}
+    shadowMask: {fileID: 0}
+  - lightmapColor: {fileID: 2800000, guid: acf29c58fc4a7bc4b9ab82a0e10f8b08, type: 3}
+    lightmapDir: {fileID: 2800000, guid: b11e88e8e7132c2488eda48dbd9eeeba, type: 3}
+    shadowMask: {fileID: 0}
+  - lightmapColor: {fileID: 2800000, guid: 937ed99086d934d40acc22037a7141fe, type: 3}
+    lightmapDir: {fileID: 2800000, guid: 594bd4730e0d76b43a9651ea06b35bff, type: 3}
+    shadowMask: {fileID: 0}
+  - lightmapColor: {fileID: 2800000, guid: 561a79c82e127b1418b779df8f3505c7, type: 3}
+    lightmapDir: {fileID: 2800000, guid: 0049dfd2f43589746811d4cbe0ebefa3, type: 3}
+    shadowMask: {fileID: 0}
+  - lightmapColor: {fileID: 2800000, guid: 4678390a9032e674a84a0b1dad153274, type: 3}
+    lightmapDir: {fileID: 2800000, guid: e4ee050d8db473b4c94a796639d96f36, type: 3}
+    shadowMask: {fileID: 0}
+  - lightmapColor: {fileID: 2800000, guid: 4d1c9d7337c9e3f44ac88f63299441ef, type: 3}
+    lightmapDir: {fileID: 2800000, guid: c4e565f90ca4ee14bb5e612d7407921a, type: 3}
+    shadowMask: {fileID: 0}
+  - lightmapColor: {fileID: 2800000, guid: da1eca89e96ecf543b122bd3af95b921, type: 3}
+    lightmapDir: {fileID: 2800000, guid: 9164664a26a1d844e85fd5f0a3f9c5b1, type: 3}
+    shadowMask: {fileID: 0}
+  - lightmapColor: {fileID: 2800000, guid: 63941511ada0f4a4a97447ad9994e36f, type: 3}
+    lightmapDir: {fileID: 2800000, guid: 7c5e7dcd5dda7bf42bf5bcb20c6331e6, type: 3}
+    shadowMask: {fileID: 0}
+  - lightmapColor: {fileID: 2800000, guid: f0c359ac411f0b844a022ec8f11ec20b, type: 3}
+    lightmapDir: {fileID: 2800000, guid: 5bd2f391375be4443b0b2603433992e1, type: 3}
+    shadowMask: {fileID: 0}
+  - lightmapColor: {fileID: 2800000, guid: b22e277833e3f3146ae580782fbf1853, type: 3}
+    lightmapDir: {fileID: 2800000, guid: 9c493c4d486a5424c98dc0a43184e14c, type: 3}
+    shadowMask: {fileID: 0}
+  - lightmapColor: {fileID: 2800000, guid: 3b7b81edf36e71848bd9bb0b19038c83, type: 3}
+    lightmapDir: {fileID: 2800000, guid: 53fc709c1e88c00458185552e23c5d3a, type: 3}
+    shadowMask: {fileID: 0}
+  - lightmapColor: {fileID: 2800000, guid: 59691e7f32412254d98f4fb0b520ebb9, type: 3}
+    lightmapDir: {fileID: 2800000, guid: cef464bba1d8f494aa112e8a0989efd4, type: 3}
+    shadowMask: {fileID: 0}
+  - lightmapColor: {fileID: 2800000, guid: 1724e516694d9f542a739b90e2becd89, type: 3}
+    lightmapDir: {fileID: 2800000, guid: 091fdca55bbb2484292e62ae474401d4, type: 3}
+    shadowMask: {fileID: 0}
+  - lightmapColor: {fileID: 2800000, guid: 5f102e6bac06fac449cd1245489b01b7, type: 3}
+    lightmapDir: {fileID: 2800000, guid: c425521502538124eabf4b3bd51a9fa9, type: 3}
+    shadowMask: {fileID: 0}
+  - lightmapColor: {fileID: 2800000, guid: 0a5cfec5baac6584b9aa39e20e9e8d03, type: 3}
+    lightmapDir: {fileID: 2800000, guid: bfb3068f8b4d1b94d98b1f1f98101118, type: 3}
+    shadowMask: {fileID: 0}
+  - lightmapColor: {fileID: 2800000, guid: 3f3cf0f5d60c0864b94e360cc1783b25, type: 3}
+    lightmapDir: {fileID: 2800000, guid: 1123fe23e7275d3488d26780b4b2498b, type: 3}
+    shadowMask: {fileID: 0}
+  - lightmapColor: {fileID: 2800000, guid: 75512a1eb23c2bb4184667dfa62fbe9e, type: 3}
+    lightmapDir: {fileID: 2800000, guid: 2155e2d9c58b7944ba102cbc6090448d, type: 3}
+    shadowMask: {fileID: 0}
+  - lightmapColor: {fileID: 2800000, guid: d34a93e5d1da5254690f849794e6d7ec, type: 3}
+    lightmapDir: {fileID: 2800000, guid: 3ccca87f3ef1ac4429b6ceea20b71c45, type: 3}
+    shadowMask: {fileID: 0}
+  - lightmapColor: {fileID: 2800000, guid: 8df734358badc534293828e6fb8b6924, type: 3}
+    lightmapDir: {fileID: 2800000, guid: 8e3dd0339aeabc24c82c6c8b19931675, type: 3}
+    shadowMask: {fileID: 0}
+  - lightmapColor: {fileID: 2800000, guid: b52c45f856399a4438b5042ecf3a0c6b, type: 3}
+    lightmapDir: {fileID: 2800000, guid: bcc93450a13844d4990cb5f98da1f87c, type: 3}
+    shadowMask: {fileID: 0}
+  - lightmapColor: {fileID: 2800000, guid: 471f5ac687853664d87c0543c01890ed, type: 3}
+    lightmapDir: {fileID: 2800000, guid: 2b32be686585d1d4f8c398c684806ae5, type: 3}
+    shadowMask: {fileID: 0}
+  - lightmapColor: {fileID: 2800000, guid: 0c2597bf0f1f5664aa882bfbd02f89c5, type: 3}
+    lightmapDir: {fileID: 2800000, guid: 0d8356e239920b645b7ea749827ccf77, type: 3}
+    shadowMask: {fileID: 0}
+  - lightmapColor: {fileID: 2800000, guid: 465b1c3da796533438e074b5a9a691f7, type: 3}
+    lightmapDir: {fileID: 2800000, guid: 086a11948d6a8c845b0129e619b6a0f6, type: 3}
+    shadowMask: {fileID: 0}
+  - lightmapColor: {fileID: 2800000, guid: 70e2afba65620fa4db2aad2cb029f8a3, type: 3}
+    lightmapDir: {fileID: 2800000, guid: d96e49428aefbfa4081c61651c0bd27b, type: 3}
+    shadowMask: {fileID: 0}
+  - lightmapColor: {fileID: 2800000, guid: eaf73faabebe8cf4e9875633b454c5dd, type: 3}
+    lightmapDir: {fileID: 2800000, guid: 0a57d5bb16eaf8b45bd368135bb292e1, type: 3}
+    shadowMask: {fileID: 0}
+  - lightmapColor: {fileID: 2800000, guid: 536178d371d93c347bde6c0d19d7747a, type: 3}
+    lightmapDir: {fileID: 2800000, guid: 7e8957ac2f83c644a9dbefe82087b247, type: 3}
+    shadowMask: {fileID: 0}
+  bakedProbes: []
+  applyReflectionProbes: 0
+  reflectionProbes: []
+  applyAmbient: 1
+  ambientMode: 0
+  ambientSkyColor: {r: 0.212, g: 0.227, b: 0.259, a: 1}
+  ambientEquatorColor: {r: 0.114, g: 0.125, b: 0.133, a: 1}
+  ambientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}
+  ambientLight: {r: 0.212, g: 0.227, b: 0.259, a: 1}
+  ambientIntensity: 1
+  reflectionIntensity: 1
+  defaultReflectionMode: 0
+  defaultReflectionResolution: 128
+  customReflection: {fileID: 0}
+  applyFog: 0
+  fogEnabled: 1
+  fogColor: {r: 0.19213243, g: 0.2582071, b: 0.3962264, a: 1}
+  fogMode: 3
+  fogDensity: 0.09
+  fogStartDistance: 0
+  fogEndDistance: 300
