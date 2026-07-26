@@ -1414,7 +1414,7 @@ You: What is Tou San like? # vo:p_28_l_1
 Mrs Wong: My cousin said it’s a county town, not as bustling as here. # vo:p_28_l_2
 Mrs Wong: If you put in some effort, you can still find a good way to make a living there. # vo:p_28_l_3 -> final_choices_mandy
 + [Accept help and escape (Ending)]-> Mandy_escape_ending
-+ [Take time to think (You can come back later)]
++ [Take time to think]
 You: I don’t know... I need to think. # vo:p_28_l_4
 Mrs Wong: Take your time. I’ll stay here for a while. # vo:p_28_l_5
 Mrs Wong: you can come back to me whenever you’re ready. # vo:p_28_l_6
@@ -1510,7 +1510,7 @@ Police Officer: Were you a part of this? # vo:p_30_l_8
 // =============================================================================
 == Boyfriend_ending_dialogue_final ==
 ~ game_progression = 31
-You: I’m back. # vo:p_31_l_1
+You: I’m done. # vo:p_31_l_1
 Jason: I just got home, too. # vo:p_31_l_2
 Jason: I love you. # vo:p_31_l_3
 You: I love you, too. # vo:p_31_l_4
@@ -1520,5 +1520,4 @@ Jason: We’ve got us. # vo:p_31_l_7
 You: We’ve got us. # vo:p_31_l_8
 Jason: Now, try to forget about it. # vo:p_31_l_9
 Jason: Come into my arm, sweetheart. # vo:p_31_l_10
-~ ChangeCamera("Player")
 -> END
