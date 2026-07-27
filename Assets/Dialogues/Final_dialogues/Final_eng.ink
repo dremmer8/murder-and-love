@@ -480,7 +480,7 @@ You: Nothing. I got this. # vo:p_3_l_67
 == Thought_about_not_leaving_clothes ==
 ~ game_progression = 4
 ~ ChangeCamera("b2")
-Thoughts: I shouldn’t leave the clothes alone here. # vo:p_4_l_1
+Thoughts: This is the correct washer. # vo:p_4_l_1
 Thoughts: I saw some detergent on the table behind the chairs. # vo:p_4_l_2
 ~ ChangeCamera("Player")
 -> END
@@ -925,15 +925,15 @@ Thoughts: I should wash them quickly, Jason will get mad if I’m too slow... # 
 * [Ask Mrs Wong for paying]
 You: The second washer would cost 80 cents, too, right? # vo:p_15_l_49
 Mrs Wong: Yes. # vo:p_15_l_50
-Thoughts: (Damn, I’d completely forgotten. # vo:p_15_l_51
-Thoughts: (Blood had splattered on our money when it happened. # vo:p_15_l_52
+Thoughts: Damn, I’d completely forgotten. # vo:p_15_l_51
+Thoughts: Blood had splattered on our money when it happened. # vo:p_15_l_52
 ~ ChangeCamera("Player")
 ** [Wait, I need to get some change first.]
 You: Uhm, give me one second. I have to get some change. # vo:p_15_l_53
 Mrs Wong: Are you sure? I have change here. # vo:p_15_l_54
 ~ ChangeCamera("b6")
-Thoughts: (Mrs Wong can’t see the blood on the bill. # vo:p_15_l_55
-Thoughts: (I need to use the coin change machine. # vo:p_15_l_56
+Thoughts: Mrs Wong can’t see the blood on the bill. # vo:p_15_l_55
+Thoughts: I need to use the coin change machine. # vo:p_15_l_56
    ~ ChangeCamera("Player")
    *** [I got this.]
    You: No worries, I got this. # vo:p_15_l_57
@@ -1008,7 +1008,6 @@ Mrs Wong: You get your change now? # vo:p_18_l_1
 ~ GiveAwayItem("change_coin_3")
 ~ GiveAwayItem("change_coin_4")
 You: Yes, here. # vo:p_18_l_2
-  ~ ChangeCamera("m6")
 Mrs Wong: Miss Lee, wait. # vo:p_18_l_3
 Mrs Wong: What happened with your arm? # vo:p_18_l_4
 ~ ChangeCamera("Player")
@@ -1207,19 +1206,17 @@ Drunk Cop: Interesting, never heard of that before. I thought I knew everything 
 == Thought_washing_clothes_2 ==
 ~ game_progression = 20
 ~ ChangeCamera("b1")
-Thoughts: Before that person came in, Jason was holding me tightly. # vo:p_20_l_1
-Thoughts: He was wearing this. It was so warm and I felt so safe in his arm. # vo:p_20_l_2
+Thoughts: Before that person came in, Jason had a few drinks. # vo:p_20_l_1
+Thoughts: He was wearing this. # vo:p_20_l_2
 Thoughts: Why did we.. why did Jason do that. # vo:p_20_l_3
 ~ ChangeCamera("Player")
-Thoughts: I can’t forget the dead man’s open eyes... # vo:p_20_l_4
+Thoughts: I can’t forget the man’s eyes when Jason stabbed... # vo:p_20_l_4
 ~ ChangeCamera("b3")
 Thoughts: I can’t forget the smell of blood when Jason held me after it happened. # vo:p_20_l_5
-Thoughts: He rocked me back and forth, as if I were trapped in a cradle... # vo:p_20_l_6
-Thoughts: How long do I need to hide? # vo:p_20_l_7
-Thoughts: Maybe it’s okay to give up... # vo:p_20_l_8
-Thoughts: I suddenly felt a strange sense of relief. # vo:p_20_l_9
-Thoughts: But how could I possibly abandon the one I love so deeply, # vo:p_20_l_10
-Thoughts: the one who protected me and even killed someone to keep me safe? # vo:p_20_l_11
+Thoughts: How long do I need to hide? # vo:p_20_l_6
+Thoughts: I'm tired of keeping these lies... # vo:p_20_l_7
+Thoughts: But how could I possibly abandon the one I love so deeply, # vo:p_20_l_8
+Thoughts: the one who protected me and even killed someone to keep me safe? # vo:p_20_l_9
 ~ ChangeCamera("Player")
 -> END
 

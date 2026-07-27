@@ -459,6 +459,8 @@ public class GameManager : MonoBehaviour
 
     void ShowCredits()
     {
+        AnimationSoundboard.StopSiren();
+
         if (creditsObject == null)
             return;
 

@@ -147,6 +147,12 @@ public class DialogueItemUnhide : MonoBehaviour
                 slot.Attach(entry.target.transform);
         }
 
+        if (entry.itemId == "police_lights")
+        {
+            Vector3 sirenPosition = entry.target != null ? entry.target.transform.position : Vector3.zero;
+            AnimationSoundboard.StartSiren(sirenPosition);
+        }
+
         entry.fired = true;
     }
 

@@ -85,6 +85,14 @@ MonoBehaviour:
         Data3: -729012573
         Data4: 1562902150
       Path: event:/coinDrop
+  - Key: detergent
+    Event:
+      Guid:
+        Data1: -1832573815
+        Data2: 1336816550
+        Data3: 430377112
+        Data4: -1602387217
+      Path: event:/detergent
   - Key: detergentFailSound
     Event:
       Guid:
@@ -261,6 +269,14 @@ MonoBehaviour:
         Data3: 144794299
         Data4: -1197688617
       Path: event:/soundscape
+  - Key: siren
+    Event:
+      Guid:
+        Data1: -1956561368
+        Data2: 1175815459
+        Data3: -1994287226
+        Data4: 1661591789
+      Path: event:/siren
   - Key: startMachine
     Event:
       Guid:

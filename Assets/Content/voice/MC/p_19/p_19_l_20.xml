@@ -2,34 +2,40 @@
 <rhubarbResult>
   <metadata>
     <soundFile>D:/murder-and-love/Assets\Content/voice/MC/p_19/p_19_l_20.wav</soundFile>
-    <duration>2.93</duration>
+    <duration>3.58</duration>
   </metadata>
   <mouthCues>
     <mouthCue start="0.00" end="0.13">X</mouthCue>
-    <mouthCue start="0.13" end="0.30">B</mouthCue>
-    <mouthCue start="0.30" end="0.44">C</mouthCue>
-    <mouthCue start="0.44" end="0.51">E</mouthCue>
-    <mouthCue start="0.51" end="0.58">C</mouthCue>
-    <mouthCue start="0.58" end="0.65">B</mouthCue>
-    <mouthCue start="0.65" end="0.94">A</mouthCue>
-    <mouthCue start="0.94" end="0.99">C</mouthCue>
-    <mouthCue start="0.99" end="1.10">B</mouthCue>
-    <mouthCue start="1.10" end="1.17">G</mouthCue>
-    <mouthCue start="1.17" end="1.24">A</mouthCue>
-    <mouthCue start="1.24" end="1.30">C</mouthCue>
-    <mouthCue start="1.30" end="1.36">A</mouthCue>
-    <mouthCue start="1.36" end="1.49">C</mouthCue>
-    <mouthCue start="1.49" end="1.70">B</mouthCue>
-    <mouthCue start="1.70" end="1.77">D</mouthCue>
-    <mouthCue start="1.77" end="1.85">A</mouthCue>
-    <mouthCue start="1.85" end="1.92">B</mouthCue>
-    <mouthCue start="1.92" end="1.99">A</mouthCue>
-    <mouthCue start="1.99" end="2.04">B</mouthCue>
-    <mouthCue start="2.04" end="2.23">C</mouthCue>
-    <mouthCue start="2.23" end="2.37">B</mouthCue>
-    <mouthCue start="2.37" end="2.58">F</mouthCue>
-    <mouthCue start="2.58" end="2.65">G</mouthCue>
-    <mouthCue start="2.65" end="2.79">E</mouthCue>
-    <mouthCue start="2.79" end="2.93">X</mouthCue>
+    <mouthCue start="0.13" end="0.20">B</mouthCue>
+    <mouthCue start="0.20" end="0.41">F</mouthCue>
+    <mouthCue start="0.41" end="0.48">B</mouthCue>
+    <mouthCue start="0.48" end="0.55">C</mouthCue>
+    <mouthCue start="0.55" end="0.83">E</mouthCue>
+    <mouthCue start="0.83" end="1.06">C</mouthCue>
+    <mouthCue start="1.06" end="1.11">B</mouthCue>
+    <mouthCue start="1.11" end="1.30">G</mouthCue>
+    <mouthCue start="1.30" end="1.35">B</mouthCue>
+    <mouthCue start="1.35" end="1.40">A</mouthCue>
+    <mouthCue start="1.40" end="1.47">C</mouthCue>
+    <mouthCue start="1.47" end="1.53">A</mouthCue>
+    <mouthCue start="1.53" end="1.68">E</mouthCue>
+    <mouthCue start="1.68" end="1.75">B</mouthCue>
+    <mouthCue start="1.75" end="1.82">G</mouthCue>
+    <mouthCue start="1.82" end="1.89">B</mouthCue>
+    <mouthCue start="1.89" end="2.03">D</mouthCue>
+    <mouthCue start="2.03" end="2.10">B</mouthCue>
+    <mouthCue start="2.10" end="2.24">C</mouthCue>
+    <mouthCue start="2.24" end="2.52">B</mouthCue>
+    <mouthCue start="2.52" end="2.66">G</mouthCue>
+    <mouthCue start="2.66" end="2.73">B</mouthCue>
+    <mouthCue start="2.73" end="2.81">A</mouthCue>
+    <mouthCue start="2.81" end="2.86">B</mouthCue>
+    <mouthCue start="2.86" end="2.90">G</mouthCue>
+    <mouthCue start="2.90" end="2.97">B</mouthCue>
+    <mouthCue start="2.97" end="3.04">C</mouthCue>
+    <mouthCue start="3.04" end="3.12">A</mouthCue>
+    <mouthCue start="3.12" end="3.35">E</mouthCue>
+    <mouthCue start="3.35" end="3.56">B</mouthCue>
+    <mouthCue start="3.56" end="3.58">X</mouthCue>
   </mouthCues>
 </rhubarbResult>

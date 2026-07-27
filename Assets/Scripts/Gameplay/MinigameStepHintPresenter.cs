@@ -145,9 +145,12 @@ public class MinigameStepHintPresenter : MonoBehaviour
         if (visibilityChanged && hintRoot != null)
             hintRoot.SetActive(show);
 
-        // Material instances can reset when the GO is re-enabled — re-apply overlay.
+        // Material instances reset when the GO is re-enabled — force overlay re-apply.
         if (show && visibilityChanged)
+        {
+            _overlayConfigured = false;
             ConfigureVisibility();
+        }
     }
 
     void ApplyTransform(Transform anchor)
@@ -194,9 +197,16 @@ public class MinigameStepHintPresenter : MonoBehaviour
             renderer.sortingOrder = sortingOrder;
             renderer.shadowCastingMode = ShadowCastingMode.Off;
             renderer.receiveShadows = false;
+            // Occlusion culling can skip the draw even with ZTest Always.
+            renderer.allowOcclusionWhenDynamic = false;
         }
 
-        if (!alwaysOnTop || _overlayConfigured)
+        if (!alwaysOnTop)
+            return;
+
+        // Skip Shader.Find only when we already verified Overlay is on this material.
+        Material mat = hintLabel.fontMaterial;
+        if (_overlayConfigured && mat != null && IsOverlayShader(mat.shader))
             return;
 
         Shader overlay = Shader.Find(OverlayShaderName);
@@ -214,7 +224,6 @@ public class MinigameStepHintPresenter : MonoBehaviour
         }
 
         // fontMaterial returns a unique instance; swapping to Overlay keeps atlas/face props.
-        Material mat = hintLabel.fontMaterial;
         if (mat != null && mat.shader != overlay)
         {
             mat.shader = overlay;
@@ -222,6 +231,15 @@ public class MinigameStepHintPresenter : MonoBehaviour
         }
 
         _overlayConfigured = true;
+    }
+
+    static bool IsOverlayShader(Shader shader)
+    {
+        if (shader == null)
+            return false;
+
+        string n = shader.name;
+        return n == OverlayShaderName || n == OverlayShaderNameMobile;
     }
 
     Camera ResolveCamera()

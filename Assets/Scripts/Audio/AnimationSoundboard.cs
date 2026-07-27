@@ -1,4 +1,5 @@
 using System;
+using FMOD.Studio;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -9,6 +10,8 @@ using UnityEngine.Events;
 [DisallowMultipleComponent]
 public class AnimationSoundboard : MonoBehaviour
 {
+    static EventInstance s_SirenInstance;
+
     [SerializeField]
     [Tooltip("If true, one-shots follow this transform. If false, they play at this position once.")]
     bool m_AttachToThis = true;
@@ -63,6 +66,7 @@ public class AnimationSoundboard : MonoBehaviour
     public void PlayCloseDoorWashingMachine() => Play("CloseDoorWashingMachine");
     public void PlayClothLands() => Play("clothLands");
     public void PlayCoinDrop() => Play("coinDrop");
+    public void PlayDetergent() => Play("detergent");
     public void PlayDetergentFailSound() => Play("detergentFailSound");
     public void PlayGiveItem() => Play("giveItem");
     public void PlayMusicAccent3() => Play("musicAccent_3");
@@ -78,4 +82,30 @@ public class AnimationSoundboard : MonoBehaviour
     public void PlayStartMachine() => Play("startMachine");
     public void PlayStepSounds() => Play("stepSounds");
     public void PlaySwtichPressed() => Play("swtichPressed");
+
+    /// <summary>Starts the looping siren event.</summary>
+    public static void StartSiren(Vector3 worldPosition = default)
+    {
+        StopSiren();
+
+        var mgr = SoundManager.Instance;
+        if (mgr == null)
+        {
+            Debug.LogWarning("[AnimationSoundboard] No SoundManager — cannot start siren.");
+            return;
+        }
+
+        mgr.TryStartInstance("siren", out s_SirenInstance, worldPosition);
+    }
+
+    /// <summary>Stops the looping siren (e.g. when credits roll).</summary>
+    public static void StopSiren()
+    {
+        if (!s_SirenInstance.isValid())
+            return;
+
+        s_SirenInstance.stop(STOP_MODE.ALLOWFADEOUT);
+        s_SirenInstance.release();
+        s_SirenInstance.clearHandle();
+    }
 }

@@ -30,7 +30,7 @@ MonoBehaviour:
     knotName: Mandy_story_phase_3
     requiredProgression: 14
     maxProgression: 16
-    playOnce: 0
+    playOnce: 1
   - storyPhase: 18
     knotName: Mandy_story_phase_4
     requiredProgression: 16
