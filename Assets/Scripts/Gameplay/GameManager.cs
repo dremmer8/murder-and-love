@@ -34,6 +34,12 @@ public class GameManager : MonoBehaviour
     [Tooltip("Shown after any ending cutscene (1–3) finishes.")]
     [SerializeField] private GameObject creditsObject;
 
+    [Tooltip("Opened in the system browser after the credits delay.")]
+    [SerializeField] private string surveyUrl = "https://forms.gle/UcCQp4xbSwmSaTvLA";
+
+    [Tooltip("Seconds to wait after credits appear before opening the survey.")]
+    [SerializeField] private float surveyOpenDelay = 10f;
+
     [Header("Completion Ending")]
     [Tooltip("Standard dialogue trigger for Boyfriend_ending_dialogue_final (story phase 31).")]
     [SerializeField] private DialogueTrigger completionEpilogueDialogueTrigger;
@@ -55,6 +61,7 @@ public class GameManager : MonoBehaviour
     bool _gameStarted;
     Coroutine _cutsceneRoutine;
     bool _endingCutsceneActive;
+    bool _endingReached;
     EventInstance _soundscapeInstance;
     EventInstance _musicOutroInstance;
 
@@ -65,6 +72,12 @@ public class GameManager : MonoBehaviour
 
     /// <summary>True while escape / confession / completion ending cutscene (1–3) is running.</summary>
     public bool IsEndingCutscenePlaying => _cutsceneRoutine != null && _endingCutsceneActive;
+
+    /// <summary>
+    /// Sticky once any ending cutscene (1–3) begins. Stays true through credits so
+    /// Mandy→Jason pager chains cannot fire after <see cref="IsCutscenePlaying"/> clears.
+    /// </summary>
+    public bool HasReachedEnding => _endingReached;
 
     /// <summary>True after the main-menu Start button has begun the game.</summary>
     public bool HasStartedFromMainMenu => _gameStarted;
@@ -104,6 +117,7 @@ public class GameManager : MonoBehaviour
             return;
 
         _gameStarted = true;
+        GameAnalytics.StartSession();
 
         if (mainMenuCanvas != null)
             mainMenuCanvas.SetActive(false);
@@ -240,6 +254,9 @@ public class GameManager : MonoBehaviour
 
         if (isEnding)
         {
+            _endingReached = true;
+            GameAnalytics.RecordEndingReached(cinematicIndex);
+
             TryPlayMusicOutro();
 
             // Hide the player for ending cutscenes (escape / confession / completion).
@@ -310,6 +327,9 @@ public class GameManager : MonoBehaviour
         if (voice != null)
             voice.StopPlayback();
 
+        // Dialogue end schedules nextDialogueTrigger one frame later; by then IsCutscenePlaying
+        // is already false. Kill any Mandy→Jason pager that slips through before that check.
+        SuppressPagerDuringEnding();
         ShowCredits();
     }
 
@@ -465,6 +485,17 @@ public class GameManager : MonoBehaviour
             return;
 
         creditsObject.SetActive(true);
+        StartCoroutine(OpenSurveyAfterDelay());
+    }
+
+    IEnumerator OpenSurveyAfterDelay()
+    {
+        yield return new WaitForSeconds(surveyOpenDelay);
+
+        if (string.IsNullOrWhiteSpace(surveyUrl))
+            yield break;
+
+        Application.OpenURL(surveyUrl.Trim());
     }
 
     /// <summary>Start the looping soundscape if it is not already playing.</summary>

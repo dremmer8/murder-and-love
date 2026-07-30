@@ -77,6 +77,18 @@ public class MinigameActivator : MonoBehaviour
     /// <summary>The most recently activated minigame (null when none active). Used for context hints.</summary>
     public static MinigameActivator ActiveInstance { get; private set; }
 
+    /// <summary>
+    /// Clears active-count leftovers that can survive a scene reload if OnDestroy ordering races.
+    /// </summary>
+    public static void ResetPlaySessionStaticState()
+    {
+        s_ActiveCount = 0;
+        ActiveInstance = null;
+    }
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void ResetStaticStateOnDomainReload() => ResetPlaySessionStaticState();
+
     /// <summary>How-to-play hint text for this minigame (may be empty).</summary>
     public string ControlHints => controlHints;
 

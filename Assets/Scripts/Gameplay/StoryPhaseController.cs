@@ -175,13 +175,19 @@ public class StoryPhaseController : MonoBehaviour
         return Mathf.Clamp(target, MandySmokingProgressionMin, MandySmokingProgressionMax);
     }
 
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-    static void ResetMandySmokingGuardrailStaticState()
+    /// <summary>
+    /// Clears Mandy smoking play-once / resume statics that otherwise survive
+    /// <see cref="SceneChangeManager.RestartGame"/> (domain reload is not required).
+    /// </summary>
+    public static void ResetPlaySessionStaticState()
     {
         s_hasMandySmokingResume = false;
         s_mandySmokingResumeProgression = 0;
         s_mandySmokingCompletedKnots.Clear();
     }
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void ResetMandySmokingGuardrailStaticState() => ResetPlaySessionStaticState();
 
     /// <summary>
     /// Returns the knot whose <see cref="StoryPhaseEntry.storyPhase"/> matches

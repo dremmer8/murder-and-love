@@ -97,12 +97,14 @@ public class SceneChangeManager : MonoBehaviour
 
     public bool TryStartGame(LoadSceneMode mode = LoadSceneMode.Single)
     {
+        ResetPlaySessionStaticState();
         return TryLoadScene(m_GameSceneName, mode);
     }
 
     /// <summary> Async load of <see cref="GameSceneName"/>. </summary>
     public bool TryStartGameAsync(LoadSceneMode mode = LoadSceneMode.Single, System.Action onLoaded = null)
     {
+        ResetPlaySessionStaticState();
         return TryLoadSceneAsync(m_GameSceneName, mode, onLoaded);
     }
 
@@ -112,16 +114,32 @@ public class SceneChangeManager : MonoBehaviour
     /// </summary>
     public void RestartGame()
     {
+        GameAnalytics.RecordSessionStopped(GameAnalytics.StopReasonRestart);
+
         // Pause leaves timeScale at 0; reset so the next scene is not frozen.
         Time.timeScale = 1f;
-        if (GameStateManager.CurrentState == GameState.Paused)
-            GameStateManager.ChangeState(GameState.Gameplay);
+
+        // Statics survive scene reload (no domain unload). Clear play-session leftovers
+        // so Mandy play-once, blackout power, minigame count, and GameState don't leak.
+        ResetPlaySessionStaticState();
 
         // FMOD RuntimeManager survives scene loads — kill outro / loops before bootstrap.
         SoundManager.StopAllEvents();
+        AnimationSoundboard.StopSiren();
 
         if (!TryLoadScene(m_BootstrapSceneName))
             Debug.LogError($"[SceneChangeManager] Restart failed — bootstrap scene '{m_BootstrapSceneName}' missing from Build Settings.", this);
+    }
+
+    /// <summary>
+    /// Clears static gameplay state that otherwise persists across <see cref="RestartGame"/>.
+    /// </summary>
+    public static void ResetPlaySessionStaticState()
+    {
+        GameStateManager.ChangeState(GameState.Gameplay);
+        StoryPhaseController.ResetPlaySessionStaticState();
+        DoWorkTrigger.ResetPlaySessionStaticState();
+        MinigameActivator.ResetPlaySessionStaticState();
     }
 
     /// <summary> Bootstrap scene used by <see cref="RestartGame"/>. </summary>
@@ -135,6 +153,8 @@ public class SceneChangeManager : MonoBehaviour
     /// </summary>
     public void ExitGame()
     {
+        GameAnalytics.RecordSessionStopped(GameAnalytics.StopReasonQuit);
+
 #if UNITY_EDITOR
         EditorApplication.isPlaying = false;
 #else

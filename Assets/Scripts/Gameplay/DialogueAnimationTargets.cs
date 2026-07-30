@@ -16,7 +16,7 @@ public class NamedAnimator
 /// Named animator registry for Ink EXTERNAL TriggerAnimation(targetId, animationName).
 /// Also drives outside-dialogue character loops: Mandy doIdle while game_progression &lt;
 /// idleUntilProgression, Lau doSitDrink occasionally while sitting (same cutoff), and Lau
-/// doStandLoop once game_progression reaches standLoopFromProgression.
+/// doStandLoop once game_progression reaches standLoopFromProgression (leaning model from 22).
 /// </summary>
 public class DialogueAnimationTargets : MonoBehaviour
 {
@@ -63,8 +63,8 @@ public class DialogueAnimationTargets : MonoBehaviour
     [Tooltip("Fire doStandLoop on this target when not in dialogue and progression has reached the threshold.")]
     [SerializeField] string standLoopTargetId = DefaultStandLoopTargetId;
 
-    [Tooltip("Start auto stand-loop once game_progression reaches this value.")]
-    [SerializeField] int standLoopFromProgression = 26;
+    [Tooltip("Start auto stand-loop once game_progression reaches this value (leaning Lau activates at 22).")]
+    [SerializeField] int standLoopFromProgression = 22;
 
     [Header("Give item lock")]
     [Tooltip("Fallback lock duration if the give clip length cannot be read.")]

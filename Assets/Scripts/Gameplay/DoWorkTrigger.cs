@@ -100,6 +100,17 @@ public class DoWorkTrigger : MonoBehaviour
     }
 
     /// <summary>
+    /// Resets blackout power flag for a fresh play session. Instance list is rebuilt on scene load.
+    /// </summary>
+    public static void ResetPlaySessionStaticState()
+    {
+        s_PowerAvailable = true;
+    }
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void ResetStaticStateOnDomainReload() => ResetPlaySessionStaticState();
+
+    /// <summary>
     /// Global: permanently stop every machine (idle / still). Unlike blackout pause,
     /// desired state is cleared so power restore will not spin them again.
     /// </summary>

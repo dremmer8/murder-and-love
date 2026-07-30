@@ -471,9 +471,11 @@ public class DialogueTrigger : MonoBehaviour
         if (nextDialogueTrigger == null)
             yield break;
 
-        // Defer chained dialogue until ending cutscenes finish. Completion phase 31 is
-        // started by GameManager after the Timeline + blackout.
-        if (GameManager.Instance != null && GameManager.Instance.IsCutscenePlaying)
+        // Ending cutscenes go straight to credits — never resume Mandy→Jason pager (etc.).
+        // HasReachedEnding stays true after IsCutscenePlaying clears, closing the one-frame
+        // race where dialogue end queues this coroutine and credits finish the cutscene first.
+        if (GameManager.Instance != null
+            && (GameManager.Instance.HasReachedEnding || GameManager.Instance.IsCutscenePlaying))
             yield break;
 
         nextDialogueTrigger.TryStartDialogue();

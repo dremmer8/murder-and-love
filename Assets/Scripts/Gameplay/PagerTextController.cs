@@ -859,7 +859,11 @@ public class PagerTextController : MonoBehaviour
 
     static bool IsEndingCutscenePlaying()
     {
-        return GameManager.Instance != null && GameManager.Instance.IsCutscenePlaying;
+        if (GameManager.Instance == null)
+            return false;
+
+        // HasReachedEnding covers credits after the cutscene coroutine has already cleared.
+        return GameManager.Instance.IsCutscenePlaying || GameManager.Instance.HasReachedEnding;
     }
 
     void RefreshPropDisplay()
