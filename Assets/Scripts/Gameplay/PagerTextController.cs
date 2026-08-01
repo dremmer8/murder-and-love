@@ -142,13 +142,42 @@ public class PagerTextController : MonoBehaviour
         Instance = this;
     }
 
+    void OnEnable()
+    {
+        LocalizationService.LanguageChanged += OnLanguageChanged;
+    }
+
+    void OnDisable()
+    {
+        LocalizationService.LanguageChanged -= OnLanguageChanged;
+    }
+
     void OnDestroy()
     {
+        LocalizationService.LanguageChanged -= OnLanguageChanged;
         StopNewMessageSound();
 
         if (Instance == this)
             Instance = null;
     }
+
+    void OnLanguageChanged()
+    {
+        RefreshDisplay();
+        RefreshPropDisplay();
+    }
+
+    string LocEmptyInbox() =>
+        LocalizationService.Get(LocalizationKeys.PagerEmpty, emptyInboxText);
+
+    string LocUnreadProp() =>
+        LocalizationService.Get(LocalizationKeys.PagerNewMessage, unreadPropText);
+
+    string LocStartTyping() =>
+        LocalizationService.Get(LocalizationKeys.PagerStartTyping, startTypingText);
+
+    string LocRespondReply() =>
+        LocalizationService.Get(LocalizationKeys.PagerRespondReply, respondSupportReply);
 
     void Start()
     {
@@ -564,7 +593,7 @@ public class PagerTextController : MonoBehaviour
             _typedCharCount = 0;
         }
 
-        string reply = respondSupportReply ?? "";
+        string reply = LocRespondReply() ?? "";
         if (_typedCharCount >= reply.Length)
             return true;
 
@@ -871,7 +900,7 @@ public class PagerTextController : MonoBehaviour
         if (propScreenTexts == null || propScreenTexts.Count == 0)
             return;
 
-        string text = _hasUnreadMessage ? unreadPropText : blankPropText;
+        string text = _hasUnreadMessage ? LocUnreadProp() : blankPropText;
         for (int i = 0; i < propScreenTexts.Count; i++)
         {
             if (propScreenTexts[i] != null)
@@ -962,11 +991,11 @@ public class PagerTextController : MonoBehaviour
             switch (_respondPhase)
             {
                 case RespondPhase.StartTypingPrompt:
-                    return startTypingText;
+                    return LocStartTyping();
 
                 case RespondPhase.TypingReply:
                 case RespondPhase.Finished:
-                    string reply = respondSupportReply ?? "";
+                    string reply = LocRespondReply() ?? "";
                     return reply.Substring(0, Mathf.Clamp(_typedCharCount, 0, reply.Length));
 
                 case RespondPhase.ReadingInbound:
@@ -975,10 +1004,10 @@ public class PagerTextController : MonoBehaviour
         }
 
         if (!_hasConversation || _messages.Count == 0)
-            return emptyInboxText;
+            return LocEmptyInbox();
 
         if (_messageIndex >= _messages.Count)
-            return emptyInboxText;
+            return LocEmptyInbox();
 
         return _messages[_messageIndex];
     }
@@ -1007,7 +1036,7 @@ public class PagerTextController : MonoBehaviour
                 return;
             }
 
-            screenText.text = emptyInboxText;
+            screenText.text = LocEmptyInbox();
             return;
         }
 
@@ -1015,7 +1044,7 @@ public class PagerTextController : MonoBehaviour
         int length = Mathf.Min(visibleCharacterCount, message.Length - _scrollIndex);
         if (length <= 0)
         {
-            screenText.text = emptyInboxText;
+            screenText.text = LocEmptyInbox();
             return;
         }
 

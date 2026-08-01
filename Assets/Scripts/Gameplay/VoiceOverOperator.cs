@@ -25,6 +25,7 @@ public class VoiceOverOperator : MonoBehaviour
         RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
     [Header("Library")]
+    [Tooltip("Fallback when the active localization locale has no Voice Line Library assigned.")]
     [SerializeField] VoiceLineLibrary library;
 
     [Header("Mandy LipSync (lipsync + audio)")]
@@ -53,6 +54,7 @@ public class VoiceOverOperator : MonoBehaviour
 
     LipSync _playingLipSync;
     AudioSource _playingMcSource;
+    VoiceLineLibrary _sceneLibrary;
 
     void Awake()
     {
@@ -63,6 +65,8 @@ public class VoiceOverOperator : MonoBehaviour
         }
 
         Instance = this;
+        _sceneLibrary = library;
+        ApplyLocalizedLibrary();
 
         // LipSync components often keep leftover editor test clips with PlayOnAwake.
         // When PropProgression enables late models at progression 22, those would
@@ -75,6 +79,35 @@ public class VoiceOverOperator : MonoBehaviour
         SanitizeLipSyncSource(mandyLipSyncLate);
         SanitizeLipSyncSource(lauLipSyncEarly);
         SanitizeLipSyncSource(lauLipSyncLate);
+    }
+
+    void OnEnable()
+    {
+        LocalizationService.LanguageChanged += OnLanguageChanged;
+        ApplyLocalizedLibrary();
+    }
+
+    void OnDisable()
+    {
+        LocalizationService.LanguageChanged -= OnLanguageChanged;
+    }
+
+    void OnLanguageChanged()
+    {
+        ApplyLocalizedLibrary();
+    }
+
+    void ApplyLocalizedLibrary()
+    {
+        LocalizationService.EnsureInitialized();
+        VoiceLineLibrary localized = LocalizationService.CurrentVoiceLineLibrary;
+        VoiceLineLibrary next = localized != null ? localized : _sceneLibrary;
+        if (library == next)
+            return;
+
+        // Drop in-flight VO so a language switch cannot keep playing the old clip set.
+        StopPlayback();
+        library = next;
     }
 
     static void SanitizeLipSyncSource(LipSync lipSync)

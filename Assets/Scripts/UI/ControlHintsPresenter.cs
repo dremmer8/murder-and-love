@@ -82,10 +82,25 @@ public class ControlHintsPresenter : MonoBehaviour
 
     private void OnEnable()
     {
+        LocalizationService.LanguageChanged += OnLanguageChanged;
         // Start hidden; the first Update fills in the correct context.
         SetInteractHint(false, null);
         SetTopRightHint(false, null);
     }
+
+    private void OnDisable()
+    {
+        LocalizationService.LanguageChanged -= OnLanguageChanged;
+    }
+
+    void OnLanguageChanged()
+    {
+        // Force re-apply on next Update even if context text is unchanged in English.
+        _interactText = null;
+        _topRightText = null;
+    }
+
+    string Loc(string key, string fallback) => LocalizationService.Get(key, fallback);
 
     private void Update()
     {
@@ -123,13 +138,13 @@ public class ControlHintsPresenter : MonoBehaviour
         if (interaction.TryGetAimedDialogueTrigger(out DialogueTrigger dialogue)
             && dialogue != null && dialogue.CanStartFromLook())
         {
-            SetInteractHint(true, dialogueHintText);
+            SetInteractHint(true, Loc(LocalizationKeys.HintTalk, dialogueHintText));
             return;
         }
 
         if (interaction.TryGetAimedInteractable(out Interactable interactable) && interactable != null)
         {
-            SetInteractHint(true, interactableHintText);
+            SetInteractHint(true, Loc(LocalizationKeys.HintInteract, interactableHintText));
             return;
         }
 
@@ -147,7 +162,7 @@ public class ControlHintsPresenter : MonoBehaviour
         {
             if (pager.IsRespondTyping)
             {
-                SetTopRightHint(true, pagerRespondTypingHint);
+                SetTopRightHint(true, Loc(LocalizationKeys.HintPagerRespondTyping, pagerRespondTypingHint));
                 return;
             }
 
@@ -156,22 +171,22 @@ public class ControlHintsPresenter : MonoBehaviour
                 case PagerTextController.TutorialHintStep.Scroll:
                     SetTopRightHint(true,
                         pager.IsRespondReadingInbound
-                            ? pagerRespondTutorialScrollHint
-                            : pagerTutorialScrollHint);
+                            ? Loc(LocalizationKeys.HintPagerRespondTutorialScroll, pagerRespondTutorialScrollHint)
+                            : Loc(LocalizationKeys.HintPagerTutorialScroll, pagerTutorialScrollHint));
                     return;
 
                 case PagerTextController.TutorialHintStep.Advance:
                     SetTopRightHint(true,
                         pager.IsRespondReadingInbound
-                            ? pagerRespondTutorialAdvanceHint
-                            : pagerTutorialAdvanceHint);
+                            ? Loc(LocalizationKeys.HintPagerRespondTutorialAdvance, pagerRespondTutorialAdvanceHint)
+                            : Loc(LocalizationKeys.HintPagerTutorialAdvance, pagerTutorialAdvanceHint));
                     return;
             }
 
             if (pager.IsRespondReadingInbound)
-                SetTopRightHint(true, pagerRespondReadingHint);
+                SetTopRightHint(true, Loc(LocalizationKeys.HintPagerRespondReading, pagerRespondReadingHint));
             else
-                SetTopRightHint(true, pagerOpenHint);
+                SetTopRightHint(true, Loc(LocalizationKeys.HintPagerOpen, pagerOpenHint));
             return;
         }
 
@@ -195,7 +210,7 @@ public class ControlHintsPresenter : MonoBehaviour
             MinigameActivator active = MinigameActivator.ActiveInstance;
             string hint = active != null && !string.IsNullOrEmpty(active.ControlHints)
                 ? active.ControlHints
-                : minigameFallbackHint;
+                : Loc(LocalizationKeys.HintMinigameFallback, minigameFallbackHint);
             SetTopRightHint(true, hint);
             return;
         }
@@ -203,7 +218,8 @@ public class ControlHintsPresenter : MonoBehaviour
         // 4. Normal gameplay — offer the pager.
         bool showCheckPager = pager != null
             && (!onlyShowCheckPagerWhenConversation || pager.HasConversation);
-        SetTopRightHint(showCheckPager, showCheckPager ? checkPagerHint : null);
+        SetTopRightHint(showCheckPager,
+            showCheckPager ? Loc(LocalizationKeys.HintCheckPager, checkPagerHint) : null);
     }
 
     private bool TryGetDialogueControlHint(out string hint)
@@ -216,14 +232,18 @@ public class ControlHintsPresenter : MonoBehaviour
             && dialogue.ActiveMode == DialoguePresentationMode.Standard
             && GameStateManager.CurrentState == GameState.Dialogue)
         {
-            hint = dialogue.IsChoosing ? dialogueChoiceHint : dialogueProgressHint;
+            hint = dialogue.IsChoosing
+                ? Loc(LocalizationKeys.HintDialogueChoice, dialogueChoiceHint)
+                : Loc(LocalizationKeys.HintDialogueProgress, dialogueProgressHint);
             return true;
         }
 
         IntroSequencePresenter intro = ResolveIntroPresenter();
         if (intro != null && intro.IsActive)
         {
-            hint = intro.IsChoosing ? dialogueChoiceHint : dialogueProgressHint;
+            hint = intro.IsChoosing
+                ? Loc(LocalizationKeys.HintDialogueChoice, dialogueChoiceHint)
+                : Loc(LocalizationKeys.HintDialogueProgress, dialogueProgressHint);
             return true;
         }
 

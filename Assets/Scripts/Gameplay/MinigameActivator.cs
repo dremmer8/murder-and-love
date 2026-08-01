@@ -90,7 +90,21 @@ public class MinigameActivator : MonoBehaviour
     static void ResetStaticStateOnDomainReload() => ResetPlaySessionStaticState();
 
     /// <summary>How-to-play hint text for this minigame (may be empty).</summary>
-    public string ControlHints => controlHints;
+    public string ControlHints
+    {
+        get
+        {
+            if (string.IsNullOrEmpty(controlHints))
+                return controlHints;
+
+            return LocalizationService.Get(
+                LocalizationKeys.MinigameControls(gameObject.name),
+                controlHints);
+        }
+    }
+
+    /// <summary>Inspector / English fallback for control hints (export).</summary>
+    public string ControlHintsFallback => controlHints;
 
     /// <summary>World-space step hint catalogue for this minigame.</summary>
     public IReadOnlyList<MinigameStepHintEntry> StepHints => stepHints;
@@ -115,6 +129,21 @@ public class MinigameActivator : MonoBehaviour
         }
 
         return false;
+    }
+
+    /// <summary>Localized step hint text for <paramref name="stepId"/>, or empty.</summary>
+    public string GetLocalizedStepHintText(string stepId)
+    {
+        if (!TryGetStepHint(stepId, out MinigameStepHintEntry entry) || entry == null)
+            return "";
+
+        string fallback = entry.hintText ?? "";
+        if (string.IsNullOrEmpty(fallback))
+            return "";
+
+        return LocalizationService.Get(
+            LocalizationKeys.MinigameStep(gameObject.name, entry.stepId),
+            fallback);
     }
 
     void Awake()

@@ -84,9 +84,20 @@ public class TaskManager : MonoBehaviour
             _labelBaseColor = taskLabel.color;
     }
 
+    void OnEnable()
+    {
+        LocalizationService.LanguageChanged += OnLanguageChanged;
+    }
+
+    void OnDisable()
+    {
+        LocalizationService.LanguageChanged -= OnLanguageChanged;
+    }
+
     void OnDestroy()
     {
         KillTextTween();
+        LocalizationService.LanguageChanged -= OnLanguageChanged;
 
         if (Instance == this)
             Instance = null;
@@ -96,6 +107,11 @@ public class TaskManager : MonoBehaviour
     {
         Refresh(force: true);
         SyncCutsceneVisibility();
+    }
+
+    void OnLanguageChanged()
+    {
+        Refresh(force: true);
     }
 
     void Update()
@@ -167,16 +183,44 @@ public class TaskManager : MonoBehaviour
 
     /// <summary>
     /// Highest incomplete entry with <see cref="TaskPhaseEntry.storyPhase"/> &lt;= <paramref name="progression"/>,
-    /// or <see cref="fallbackText"/> when none match.
+    /// or localized <see cref="fallbackText"/> when none match.
     /// </summary>
     public string ResolveTaskText(int progression)
     {
-        TaskPhaseEntry best = FindActiveTask(progression);
-        if (best == null)
-            return fallbackText ?? "";
+        if (tasks == null || tasks.Count == 0)
+            return LocFallback();
 
-        return best.taskText ?? "";
+        TaskPhaseEntry best = null;
+        int bestIndex = -1;
+        for (int i = 0; i < tasks.Count; i++)
+        {
+            TaskPhaseEntry entry = tasks[i];
+            if (entry == null)
+                continue;
+
+            if (progression < entry.storyPhase)
+                continue;
+
+            if (IsCompletedByBasket(entry))
+                continue;
+
+            // Same phase: keep the earlier list entry (collect before go-to).
+            if (best == null || entry.storyPhase > best.storyPhase)
+            {
+                best = entry;
+                bestIndex = i;
+            }
+        }
+
+        if (best == null)
+            return LocFallback();
+
+        string fallback = best.taskText ?? "";
+        return LocalizationService.Get(LocalizationKeys.Task(bestIndex), fallback);
     }
+
+    string LocFallback() =>
+        LocalizationService.Get("task.fallback", fallbackText ?? "");
 
     /// <summary>
     /// Highest task milestone (<see cref="TaskPhaseEntry.storyPhase"/>) reached at

@@ -1625,6 +1625,7 @@ GameObject:
   - component: {fileID: 606039277}
   - component: {fileID: 606039276}
   - component: {fileID: 606039275}
+  - component: {fileID: 910001005}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -1632,6 +1633,19 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &910001005
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 606039274}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f50eb731a9ec4ef996d0482b0986cb47, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  root: {fileID: 0}
 --- !u!114 &606039275
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2707,6 +2721,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1497527389}
   - component: {fileID: 1497527390}
+  - component: {fileID: 910001001}
   m_Layer: 5
   m_Name: OptionsMenu
   m_TagString: Untagged
@@ -2750,6 +2765,22 @@ MonoBehaviour:
   m_MusicBusPath: bus:/Music
   m_SoundVolumeSlider: {fileID: 1306372302}
   m_MusicVolumeSlider: {fileID: 1054398012}
+--- !u!114 &910001001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1497527388}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd23057675434f2ba85091661169073a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_LanguageDropdown: {fileID: 0}
+  m_DropdownParent: {fileID: 63012556}
+  m_LanguageLabelKey: menu.language
+  m_LanguageLabelFallback: Language
 --- !u!1 &1513278629
 GameObject:
   m_ObjectHideFlags: 0

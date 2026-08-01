@@ -25,7 +25,21 @@ public class StoryPhaseController : MonoBehaviour
     readonly HashSet<string> _completedKnots = new();
 
     public StoryCharacterPhasesSO CharacterPhases => characterPhases;
-    public TextAsset InkFile => characterPhases != null ? characterPhases.InkFile : null;
+
+    /// <summary>
+    /// Active localization Ink when set; otherwise the catalogue asset on the character phases SO.
+    /// </summary>
+    public TextAsset InkFile
+    {
+        get
+        {
+            TextAsset localized = LocalizationService.CurrentInkAsset;
+            if (localized != null)
+                return localized;
+
+            return characterPhases != null ? characterPhases.InkFile : null;
+        }
+    }
 
     public IReadOnlyList<StoryPhaseEntry> Phases =>
         characterPhases != null ? characterPhases.Phases : System.Array.Empty<StoryPhaseEntry>();

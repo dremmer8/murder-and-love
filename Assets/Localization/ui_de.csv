@@ -1,0 +1,51 @@
+﻿key,text
+hint.check_pager,"[TAB] Pager prüfen
+[STRG] Ducken"
+hint.dialogue_choice,Zum Auswählen auf eine Option klicken
+hint.dialogue_progress,[LEERTASTE] Weiter
+hint.interact,[E] Interagieren
+hint.minigame_fallback,"A / D — umsehen
+Maus — greifen & platzieren"
+hint.pager_open,"A / D — scrollen
+[TAB] Pager weglegen"
+hint.pager_respond_reading,"A / D — scrollen
+[D] am Ende — weiter / antworten
+[TAB] Pager weglegen"
+hint.pager_respond_tutorial_advance,[D] am Ende — weiter / antworten
+hint.pager_respond_tutorial_scroll,[A] / [D] Nach links & rechts scrollen
+hint.pager_respond_typing,"[Beliebige Taste] Aufgabe abschließen
+[TAB] Pager weglegen"
+hint.pager_tutorial_advance,[D] am Ende — nächste Nachricht
+hint.pager_tutorial_scroll,[A] / [D] Nach links & rechts scrollen
+hint.talk,[E] Interagieren
+menu.back,Zurück
+menu.exit,Beenden
+menu.exit_to_menu,Zum Hauptmenü
+menu.language,Sprache
+menu.music,Musik
+menu.options,Optionen
+menu.play,Spielen
+menu.resume,Fortsetzen
+menu.sound,Ton
+minigame.CoinMachine.step.InsertBill,Einen Geldschein in den Schlitz stecken
+minigame.SwitchBoxMiniGame.step.CloseDoor,"Auf die Tür klicken, um sie zu schließen"
+minigame.SwitchBoxMiniGame.step.FlipSwitch,Den Hauptschalter umlegen
+minigame.SwitchBoxMiniGame.step.OpenDoor,"Auf die Tür klicken, um sie zu öffnen"
+pager.empty,keine Nachrichten
+pager.new_message,neue Nachricht
+pager.respond_reply,Ich bin fertig. Die Waschgänge sollten in ein paar Minuten beendet sein.
+pager.start_typing,Tippen beginnen
+task.0,Die Waschmünze einsammeln
+task.1,Zu Waschmaschine Nr. 4 gehen
+task.10,Eine weitere Waschmünze einsammeln
+task.11,Zu Waschmaschine Nr. 9 gehen
+task.12,In den Hinterraum gehen und das Licht reparieren
+task.13,Entscheiden
+task.2,Vollwaschmittel besorgen
+task.3,Den Schlüssel zum Hinterraum einsammeln
+task.4,Waschmittel aus dem Hinterraum holen
+task.5,Zu Waschmaschine Nr. 4 zurückkehren
+task.6,Eine weitere Waschmünze kaufen
+task.7,Wechselgeld besorgen
+task.8,5 Münzen einsammeln
+task.9,Mit 80 Cent eine weitere Waschmünze kaufen

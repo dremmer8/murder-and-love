@@ -104,10 +104,11 @@ public class MinigameStepHintPresenter : MonoBehaviour
             return false;
 
         Transform resolved = entry.ResolvedAnchor;
-        if (resolved == null || string.IsNullOrEmpty(entry.hintText))
+        string localized = active.GetLocalizedStepHintText(stepId);
+        if (resolved == null || string.IsNullOrEmpty(localized))
             return false;
 
-        text = entry.hintText;
+        text = localized;
         anchor = resolved;
         return true;
     }

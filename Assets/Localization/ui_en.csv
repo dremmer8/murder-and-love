@@ -1,0 +1,51 @@
+key,text
+hint.check_pager,"[TAB] Check pager
+[CTRL] Crouch"
+hint.dialogue_choice,Click an option to choose
+hint.dialogue_progress,[SPACE] Continue
+hint.interact,[E] Interact
+hint.minigame_fallback,"A / D — look around
+Mouse — grab & place"
+hint.pager_open,"A / D — scroll
+[TAB] Put down pager"
+hint.pager_respond_reading,"A / D — scroll
+[D] at end — continue / reply
+[TAB] Put down pager"
+hint.pager_respond_tutorial_advance,[D] at end — continue / reply
+hint.pager_respond_tutorial_scroll,[A] / [D] Scroll left & right
+hint.pager_respond_typing,"[Any key] Finsih the chore
+[TAB] Put down pager"
+hint.pager_tutorial_advance,[D] at end — next message
+hint.pager_tutorial_scroll,[A] / [D] Scroll left & right
+hint.talk,[E] Interact
+menu.back,Back
+menu.exit,Exit
+menu.exit_to_menu,Exit to menu
+menu.language,Language
+menu.music,Music
+menu.options,Options
+menu.play,Play
+menu.resume,Resume
+menu.sound,Sound
+minigame.CoinMachine.step.InsertBill,Insert a bill into the slot
+minigame.SwitchBoxMiniGame.step.CloseDoor,Click the door to close it
+minigame.SwitchBoxMiniGame.step.FlipSwitch,Flip the main switch
+minigame.SwitchBoxMiniGame.step.OpenDoor,Click the door to open it
+pager.empty,no messages
+pager.new_message,new message
+pager.respond_reply,I'm done. The wash cycles should be finished in a few minutes.
+pager.start_typing,start typing
+task.0,Collect the laundry coin
+task.1,Go to Washer Nr. 4
+task.10,Collect another laundry coin
+task.11,Go to Washer Nr. 9
+task.12,Go to the Backroom to Fix the Light
+task.13,Decide
+task.2,Get heavy-duty detergent
+task.3,Collect the backroom key
+task.4,Get Detergent from the Backroom
+task.5,Go back to Washer Nr. 4
+task.6,Buy another Laundry Coin
+task.7,Get Some Change
+task.8,Collect 5 coins
+task.9,Buy another Laundry Coin with 80 cents
