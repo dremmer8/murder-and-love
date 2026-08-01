@@ -8058,7 +8058,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: v 1.02
+  m_text: v 1.03
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: d9b5ff1ad5cedaa4eb069bb9319c5d96, type: 2}
   m_sharedMaterial: {fileID: 1288594600111423735, guid: d9b5ff1ad5cedaa4eb069bb9319c5d96, type: 2}
@@ -11934,7 +11934,7 @@ MonoBehaviour:
   faceCamera: 1
   targetCamera: {fileID: 0}
   alwaysOnTop: 1
-  pullTowardCamera: 0.08
+  pullTowardCamera: 0.35
   sortingOrder: 5000
 --- !u!1 &759953904
 GameObject:
@@ -21516,8 +21516,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 7
-  m_fontSizeBase: 7
+  m_fontSize: 5
+  m_fontSizeBase: 5
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -21620,7 +21620,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 5.9962, y: 0.7792}
+  m_SizeDelta: {x: 2.6612, y: 0.7792}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1373659228 stripped
 GameObject:

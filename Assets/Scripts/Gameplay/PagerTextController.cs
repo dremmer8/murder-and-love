@@ -102,6 +102,28 @@ public class PagerTextController : MonoBehaviour
     public bool IsWaitingForChoice => _waitingForChoice && !_respondSupportMode;
     public bool IsRespondSupportMode => _respondSupportMode;
 
+    /// <summary>
+    /// True pager + prop screen TMP labels (world-space). Used so localization can leave their custom font alone.
+    /// </summary>
+    public void CollectScreenLabels(List<TMP_Text> into)
+    {
+        if (into == null)
+            return;
+
+        if (screenText != null)
+            into.Add(screenText);
+
+        if (propScreenTexts == null)
+            return;
+
+        for (int i = 0; i < propScreenTexts.Count; i++)
+        {
+            TextMeshPro prop = propScreenTexts[i];
+            if (prop != null)
+                into.Add(prop);
+        }
+    }
+
     /// <summary>Respond-support: reading the inbound thread (A/D scroll; D at end continues / starts the reply).</summary>
     public bool IsRespondReadingInbound => _respondSupportMode && _respondPhase == RespondPhase.ReadingInbound;
 
@@ -205,6 +227,11 @@ public class PagerTextController : MonoBehaviour
         // During respond-support, Tab is the only way out of the open pager.
         if (Input.GetKeyDown(toggleKey))
         {
+            // Opening/closing the pager mid-minigame steals GameState and can abort
+            // thoughts tied to the minigame sequence (softlock).
+            if (MinigameActivator.IsAnyActive)
+                return;
+
             if (_isOpen && TutorialBlocksLeave)
                 return;
 
@@ -342,6 +369,9 @@ public class PagerTextController : MonoBehaviour
 
         // Don't fight other locking dialogue UIs.
         if (GameStateManager.CurrentState == GameState.Dialogue)
+            return;
+
+        if (MinigameActivator.IsAnyActive)
             return;
 
         StopNewMessageSound();

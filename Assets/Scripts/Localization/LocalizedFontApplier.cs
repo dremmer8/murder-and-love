@@ -4,19 +4,29 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// Swaps the TMP font and applies a relative font-size offset on every <see cref="TMP_Text"/>
-/// when the language changes — including dialogue, monologue, intro, pager, hints, and menus.
-/// Prefer placing on the Game scene Root; falls back to a runtime singleton if missing.
+/// Swaps the TMP font and applies a relative font-size offset on UI (<see cref="TextMeshProUGUI"/>)
+/// labels when the language changes — dialogue, monologue, intro, menus, HUD.
+/// <para>
+/// World-space <see cref="TextMeshPro"/> (pager screens, 3D hints, etc.) is left untouched:
+/// assigning <c>font</c> replaces the material with the font asset default and can make
+/// those meshes invisible (wrong shader / atlas).
+/// </para>
 /// </summary>
 [DefaultExecutionOrder(-45)]
 public class LocalizedFontApplier : MonoBehaviour
 {
     const float MinFontSize = 1f;
 
+    struct OriginalStyle
+    {
+        public TMP_FontAsset Font;
+        public Material SharedMaterial;
+        public float FontSize;
+    }
+
     static LocalizedFontApplier s_Instance;
 
-    readonly Dictionary<int, TMP_FontAsset> _originalFonts = new();
-    readonly Dictionary<int, float> _originalFontSizes = new();
+    readonly Dictionary<int, OriginalStyle> _originals = new();
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     static void Bootstrap()
@@ -24,7 +34,6 @@ public class LocalizedFontApplier : MonoBehaviour
         if (s_Instance != null)
             return;
 
-        // Prefer a scene-placed instance (visible in the Editor hierarchy).
         s_Instance = FindFirstObjectByType<LocalizedFontApplier>();
         if (s_Instance != null)
             return;
@@ -35,7 +44,7 @@ public class LocalizedFontApplier : MonoBehaviour
     }
 
     /// <summary>
-    /// Re-scan all TMP labels and apply the active locale font / size offset (or restore originals).
+    /// Re-scan UI TMP labels and apply the active locale font / size offset (or restore originals).
     /// Safe to call after spawning new UI at runtime.
     /// </summary>
     public static void ApplyNow()
@@ -112,17 +121,64 @@ public class LocalizedFontApplier : MonoBehaviour
     void ApplyTo(TMP_Text label, TMP_FontAsset font, float sizeOffset)
     {
         int id = label.GetInstanceID();
-        if (!_originalFonts.ContainsKey(id))
-            _originalFonts[id] = label.font;
-        if (!_originalFontSizes.ContainsKey(id))
-            _originalFontSizes[id] = label.fontSize;
+        CaptureOriginal(label, id);
+        OriginalStyle original = _originals[id];
 
-        TMP_FontAsset targetFont = font != null ? font : _originalFonts[id];
+        // World-space TMP (pager, 3D hints, …): never assign .font — it replaces the
+        // authored material with the font default and often makes the mesh invisible.
+        if (label is TextMeshPro)
+        {
+            RestoreOriginalFontAndMaterial(label, original);
+            return;
+        }
+
+        TMP_FontAsset targetFont = font != null ? font : original.Font;
         if (label.font != targetFont)
             label.font = targetFont;
 
-        float targetSize = Mathf.Max(MinFontSize, _originalFontSizes[id] + sizeOffset);
-        if (!Mathf.Approximately(label.fontSize, targetSize))
-            label.fontSize = targetSize;
+        // When using the scene font again, restore the authored material preset too.
+        if (font == null || targetFont == original.Font)
+            RestoreMaterial(label, original);
+
+        if (Mathf.Abs(sizeOffset) > 0.0001f)
+        {
+            float targetSize = Mathf.Max(MinFontSize, original.FontSize + sizeOffset);
+            if (!Mathf.Approximately(label.fontSize, targetSize))
+                label.fontSize = targetSize;
+        }
+        else if (!Mathf.Approximately(label.fontSize, original.FontSize))
+        {
+            label.fontSize = original.FontSize;
+        }
+    }
+
+    void CaptureOriginal(TMP_Text label, int id)
+    {
+        if (_originals.ContainsKey(id))
+            return;
+
+        _originals[id] = new OriginalStyle
+        {
+            Font = label.font,
+            SharedMaterial = label.fontSharedMaterial,
+            FontSize = label.fontSize
+        };
+    }
+
+    static void RestoreOriginalFontAndMaterial(TMP_Text label, OriginalStyle original)
+    {
+        if (label.font != original.Font)
+            label.font = original.Font;
+
+        RestoreMaterial(label, original);
+    }
+
+    static void RestoreMaterial(TMP_Text label, OriginalStyle original)
+    {
+        if (original.SharedMaterial == null)
+            return;
+
+        if (label.fontSharedMaterial != original.SharedMaterial)
+            label.fontSharedMaterial = original.SharedMaterial;
     }
 }

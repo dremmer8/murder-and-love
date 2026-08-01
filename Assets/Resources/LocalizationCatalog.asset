@@ -26,5 +26,5 @@ MonoBehaviour:
     inkStory: {fileID: 4900000, guid: 69e75138cee8a32409b9d05781355f91, type: 3}
     font: {fileID: 11400000, guid: 20d6bc5501a465246b295e5fdbac29ec, type: 2}
     fontSizeOffset: 2
-    voiceLineLibrary: {fileID: 0}
+    voiceLineLibrary: {fileID: 11400000, guid: 976abb6637474798be74cc8a55a4278c, type: 2}
   defaultLocaleId: en

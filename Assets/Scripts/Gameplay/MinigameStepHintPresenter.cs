@@ -45,7 +45,7 @@ public class MinigameStepHintPresenter : MonoBehaviour
     [SerializeField] bool alwaysOnTop = true;
 
     [Tooltip("Extra meters to pull the hint toward the camera so it sits in front of the anchor surface.")]
-    [SerializeField] float pullTowardCamera = 0.08f;
+    [SerializeField] float pullTowardCamera = 0.35f;
 
     [Tooltip("MeshRenderer sorting order while shown. Higher draws later / on top of other transparent objects.")]
     [SerializeField] int sortingOrder = 5000;
