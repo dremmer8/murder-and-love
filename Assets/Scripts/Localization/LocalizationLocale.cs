@@ -20,10 +20,10 @@ public class LocalizationLocale
     [Tooltip("Compiled Ink JSON TextAsset (same knot names as English).")]
     public TextAsset inkStory;
 
-    [Tooltip("TMP font for this language. Applied to every TMP_Text (menus, HUD, dialogue, monologue). Leave empty to keep each text's original scene font.")]
+    [Tooltip("TMP font for this language. Applied to every TMP_Text (menus, HUD, dialogue, monologue, world-space hints). Leave empty to keep each text's original scene font.")]
     public TMP_FontAsset font;
 
-    [Tooltip("Added to each TMP label's original fontSize (e.g. -2 shrinks, +1.5 grows). 0 = no change.")]
+    [Tooltip("Added to each UI label's original fontSize (e.g. -2 shrinks, +1.5 grows). 0 = no change. World-space text keeps its authored size.")]
     public float fontSizeOffset;
 
     [Tooltip("Voice-over clip library for this language. Applied to VoiceOverOperator at runtime. Leave empty to keep the scene-assigned library.")]

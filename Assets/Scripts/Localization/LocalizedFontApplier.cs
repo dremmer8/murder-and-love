@@ -4,12 +4,12 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// Swaps the TMP font and applies a relative font-size offset on UI (<see cref="TextMeshProUGUI"/>)
-/// labels when the language changes — dialogue, monologue, intro, menus, HUD.
+/// Swaps the TMP font on every label when the language changes — dialogue, monologue, intro, menus,
+/// HUD, and world-space text such as minigame step hints. The relative font-size offset is UI-only.
 /// <para>
-/// World-space <see cref="TextMeshPro"/> (pager screens, 3D hints, etc.) is left untouched:
-/// assigning <c>font</c> replaces the material with the font asset default and can make
-/// those meshes invisible (wrong shader / atlas).
+/// Assigning <c>font</c> resets the material to the font asset default, so the shader variant the
+/// label was rendering with (e.g. Distance Field Overlay) is re-applied afterwards. Labels whose font
+/// the catalogue lists under preserved fonts — the pager's pixel screen and friends — are skipped.
 /// </para>
 /// </summary>
 [DefaultExecutionOrder(-45)]
@@ -124,21 +124,25 @@ public class LocalizedFontApplier : MonoBehaviour
         CaptureOriginal(label, id);
         OriginalStyle original = _originals[id];
 
-        // World-space TMP (pager, 3D hints, …): never assign .font — it replaces the
-        // authored material with the font default and often makes the mesh invisible.
-        if (label is TextMeshPro)
+        if (LocalizationService.IsFontPreserved(original.Font))
         {
             RestoreOriginalFontAndMaterial(label, original);
+            if (!Mathf.Approximately(label.fontSize, original.FontSize))
+                label.fontSize = original.FontSize;
             return;
         }
 
         TMP_FontAsset targetFont = font != null ? font : original.Font;
-        if (label.font != targetFont)
-            label.font = targetFont;
+        ApplyFont(label, targetFont);
 
         // When using the scene font again, restore the authored material preset too.
         if (font == null || targetFont == original.Font)
             RestoreMaterial(label, original);
+
+        // The offset is authored in UI points; world-space labels are sized in metres, where the
+        // same number would be a huge jump, so they keep their authored size.
+        if (label is not TextMeshProUGUI)
+            return;
 
         if (Mathf.Abs(sizeOffset) > 0.0001f)
         {
@@ -160,9 +164,69 @@ public class LocalizedFontApplier : MonoBehaviour
         _originals[id] = new OriginalStyle
         {
             Font = label.font,
-            SharedMaterial = label.fontSharedMaterial,
+            SharedMaterial = ResolveUsableMaterial(label.font, label.fontSharedMaterial),
             FontSize = label.fontSize
         };
+    }
+
+    /// <summary>
+    /// A material preset only draws correctly with the font asset whose atlas it samples. Labels
+    /// that sit inactive at scan time have not run TMP's own font/material repair yet, so their
+    /// serialized preset may still belong to a font the label no longer uses — reinstating that
+    /// preset later would sample the wrong atlas and draw garbled, oversized glyphs.
+    /// </summary>
+    static Material ResolveUsableMaterial(TMP_FontAsset font, Material material)
+    {
+        if (font == null)
+            return material;
+
+        return SamplesAtlasOf(font, material) ? material : font.material;
+    }
+
+    static bool SamplesAtlasOf(TMP_FontAsset font, Material material)
+    {
+        if (font == null || material == null)
+            return false;
+
+        Texture atlas = font.atlasTexture;
+        if (atlas == null || !material.HasProperty(ShaderUtilities.ID_MainTex))
+            return false;
+
+        return material.GetTexture(ShaderUtilities.ID_MainTex) == atlas;
+    }
+
+    static void ApplyFont(TMP_Text label, TMP_FontAsset targetFont)
+    {
+        if (targetFont == null || label.font == targetFont)
+            return;
+
+        Material previous = label.fontSharedMaterial;
+        Shader previousShader = previous != null ? previous.shader : null;
+
+        label.font = targetFont;
+
+        KeepShaderVariant(label, previousShader);
+    }
+
+    /// <summary>
+    /// World-space hints render through the Overlay shader so meshes cannot occlude them; the font
+    /// asset's default material would silently drop that back to the plain Distance Field shader.
+    /// </summary>
+    static void KeepShaderVariant(TMP_Text label, Shader previousShader)
+    {
+        if (previousShader == null)
+            return;
+
+        Material applied = label.fontSharedMaterial;
+        if (applied == null || applied.shader == previousShader)
+            return;
+
+        Material instance = label.fontMaterial;
+        if (instance == null)
+            return;
+
+        instance.shader = previousShader;
+        label.fontMaterial = instance;
     }
 
     static void RestoreOriginalFontAndMaterial(TMP_Text label, OriginalStyle original)
@@ -175,10 +239,11 @@ public class LocalizedFontApplier : MonoBehaviour
 
     static void RestoreMaterial(TMP_Text label, OriginalStyle original)
     {
-        if (original.SharedMaterial == null)
+        Material target = ResolveUsableMaterial(label.font, original.SharedMaterial);
+        if (target == null)
             return;
 
-        if (label.fontSharedMaterial != original.SharedMaterial)
-            label.fontSharedMaterial = original.SharedMaterial;
+        if (label.fontSharedMaterial != target)
+            label.fontSharedMaterial = target;
     }
 }

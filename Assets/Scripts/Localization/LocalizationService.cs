@@ -44,6 +44,15 @@ public static class LocalizationService
     public static VoiceLineLibrary CurrentVoiceLineLibrary =>
         s_ActiveLocale != null ? s_ActiveLocale.voiceLineLibrary : null;
 
+    /// <summary>
+    /// True for fonts the catalogue marks as stylistic, which keep their authored font and size.
+    /// </summary>
+    public static bool IsFontPreserved(TMP_FontAsset font)
+    {
+        EnsureInitialized();
+        return s_Catalog != null && s_Catalog.IsFontPreserved(font);
+    }
+
     public static LocalizationCatalog Catalog
     {
         get

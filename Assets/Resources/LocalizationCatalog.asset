@@ -28,3 +28,5 @@ MonoBehaviour:
     fontSizeOffset: 2
     voiceLineLibrary: {fileID: 11400000, guid: 976abb6637474798be74cc8a55a4278c, type: 2}
   defaultLocaleId: en
+  preservedFonts:
+  - {fileID: 11400000, guid: c40eb5472994064469ef8e7e9b40c9c4, type: 2}
