@@ -6,6 +6,7 @@ hint.dialogue_progress,[SPACE] Continue
 hint.interact,[E] Interact
 hint.minigame_fallback,"A / D — look around
 Mouse — grab & place"
+hint.pager_first_ring,Press [TAB] to check pager
 hint.pager_open,"A / D — scroll
 [TAB] Put down pager"
 hint.pager_respond_reading,"A / D — scroll

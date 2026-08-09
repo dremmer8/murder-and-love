@@ -8,7 +8,8 @@ using Ink.Runtime;
 
 /// <summary>
 /// Pager inbox for Jason conversations. Tab opens/closes (locks movement while open; look stays free).
-/// A/D scroll the visible window. Pressing D again at the end of a message advances forward.
+/// A/D scroll the visible window. At the end of a message D advances to the next one; at the start
+/// of a message A steps back to the end of the previous one, within the current thread.
 /// Conversation stays until a new one replaces it. "no messages" when fully read.
 /// Prop screen shows "new message" until the player finishes reading the thread.
 /// Respond-support mode: after the inbound message, D at end of scroll shows "start typing";
@@ -19,6 +20,12 @@ using Ink.Runtime;
 public class PagerTextController : MonoBehaviour
 {
     public static PagerTextController Instance { get; private set; }
+
+    /// <summary>
+    /// Raised the very first time the pager rings in a run, so the HUD can teach the Tab control.
+    /// Static because listeners may be enabled before the pager instance exists.
+    /// </summary>
+    public static event Action FirstRing;
 
     enum RespondPhase
     {
@@ -78,6 +85,7 @@ public class PagerTextController : MonoBehaviour
     int _typedCharCount;
 
     // One-shot tutorial for the first pager conversation only.
+    bool _hasRungBefore;
     bool _hasCompletedFirstPagerTutorial;
     bool _tutorialActive;
     bool _tutorialScrolledLeft;
@@ -87,6 +95,13 @@ public class PagerTextController : MonoBehaviour
     string _knotName;
     Action<string> _onConversationComplete;
     EventInstance _newMessageInstance;
+
+    // Latin reference glyphs, in preference order, used to size one screen column.
+    static readonly char[] ReferenceColumnChars = { 'A', 'a', '0', 'M', ' ' };
+    const float AdvanceTolerance = 0.01f;
+
+    TMP_FontAsset _metricsFont;
+    float _halfWidthAdvance;
 
     const string ActParam = "act";
     const string CloseStateName = "close";
@@ -470,11 +485,31 @@ public class PagerTextController : MonoBehaviour
     public void ScrollLeft()
     {
         PokePager();
-        _scrollIndex = GetPreviousScrollIndex();
+
         if (_tutorialActive)
             _tutorialScrolledLeft = true;
+
+        if (_scrollIndex > 0)
+            _scrollIndex = GetPreviousScrollIndex();
+        else
+            TryGoBackFromScrollStart();
+
         RefreshDisplay();
         TryFinishTutorialAfterScrollPractice();
+    }
+
+    /// <summary>
+    /// Called when A is pressed while already at the start of the current message: steps back to
+    /// the last screen of the previous message in this thread. No-op on the first message.
+    /// </summary>
+    void TryGoBackFromScrollStart()
+    {
+        if (_messages.Count == 0 || _messageIndex <= 0)
+            return;
+
+        // Clamped because the read-through terminal view parks _messageIndex past the last message.
+        _messageIndex = Mathf.Min(_messageIndex, _messages.Count) - 1;
+        _scrollIndex = GetMaxScrollIndex();
     }
 
     [ContextMenu("Scroll Right")]
@@ -903,6 +938,12 @@ public class PagerTextController : MonoBehaviour
     {
         StopNewMessageSound();
 
+        if (!_hasRungBefore)
+        {
+            _hasRungBefore = true;
+            FirstRing?.Invoke();
+        }
+
         if (SoundManager.Instance == null)
             return;
 
@@ -1046,12 +1087,71 @@ public class PagerTextController : MonoBehaviour
     }
 
     /// <summary>
-    /// Screen columns taken by one character. Chinese/Japanese glyphs render at roughly double the
-    /// width of a Latin one, so a raw character count would overflow the truncating pager screen.
-    /// Punctuation shared with the Latin script (— ’ …) keeps its Latin width because the pager
-    /// screen never swaps to the locale font.
+    /// Width of one "Latin column" in font advance units, measured from the screen font so the page
+    /// budget matches what TMP actually lays out. Falls back to 1 unit when metrics are unavailable.
     /// </summary>
-    static int CharacterColumns(char c)
+    float HalfWidthAdvance
+    {
+        get
+        {
+            TMP_FontAsset font = screenText != null ? screenText.font : null;
+            if (font == _metricsFont && _halfWidthAdvance > 0f)
+                return _halfWidthAdvance;
+
+            _metricsFont = font;
+            _halfWidthAdvance = 0f;
+
+            for (int i = 0; i < ReferenceColumnChars.Length; i++)
+            {
+                if (TryGetAdvance(font, ReferenceColumnChars[i], out float advance))
+                {
+                    _halfWidthAdvance = advance;
+                    break;
+                }
+            }
+
+            if (_halfWidthAdvance <= 0f)
+                _halfWidthAdvance = 1f;
+
+            return _halfWidthAdvance;
+        }
+    }
+
+    static bool TryGetAdvance(TMP_FontAsset font, char c, out float advance)
+    {
+        advance = 0f;
+
+        if (font == null || font.characterLookupTable == null)
+            return false;
+
+        if (!font.characterLookupTable.TryGetValue(c, out TMP_Character character))
+            return false;
+
+        if (character == null || character.glyph == null)
+            return false;
+
+        advance = character.glyph.metrics.horizontalAdvance;
+        return advance > 0f;
+    }
+
+    /// <summary>
+    /// Advance width of one character on the pager screen. Real glyph metrics are used where the
+    /// screen font provides them, so full-width punctuation (— ’ …) is charged its true width
+    /// rather than a Latin one. Characters served by a fallback font use the range estimate below.
+    /// </summary>
+    float CharacterAdvance(char c)
+    {
+        if (TryGetAdvance(_metricsFont, c, out float advance))
+            return advance;
+
+        return (IsFullWidthEstimate(c) ? 2f : 1f) * HalfWidthAdvance;
+    }
+
+    /// <summary>
+    /// Fallback width estimate for glyphs missing from the screen font: Chinese/Japanese/Korean
+    /// render at roughly double the width of a Latin character.
+    /// </summary>
+    static bool IsFullWidthEstimate(char c)
     {
         bool fullWidth =
             (c >= '\u1100' && c <= '\u115F')
@@ -1067,7 +1167,7 @@ public class PagerTextController : MonoBehaviour
             || (c >= '\uFF00' && c <= '\uFF60')
             || (c >= '\uFFE0' && c <= '\uFFE6');
 
-        return fullWidth ? 2 : 1;
+        return fullWidth;
     }
 
     /// <summary>Characters from <paramref name="startIndex"/> that fit on one screen.</summary>
@@ -1076,18 +1176,21 @@ public class PagerTextController : MonoBehaviour
         if (string.IsNullOrEmpty(message) || startIndex < 0 || startIndex >= message.Length)
             return 0;
 
-        int columns = 0;
+        // Reading the unit first also refreshes the cached font used by CharacterAdvance.
+        float unit = HalfWidthAdvance;
+        float budget = visibleCharacterCount * unit;
+        float used = 0f;
         int count = 0;
 
         for (int i = startIndex; i < message.Length; i++)
         {
-            int nextColumns = columns + CharacterColumns(message[i]);
+            float next = used + CharacterAdvance(message[i]);
 
             // Always show at least one character, even if it alone exceeds the budget.
-            if (nextColumns > visibleCharacterCount && count > 0)
+            if (next > budget + unit * AdvanceTolerance && count > 0)
                 break;
 
-            columns = nextColumns;
+            used = next;
             count++;
         }
 

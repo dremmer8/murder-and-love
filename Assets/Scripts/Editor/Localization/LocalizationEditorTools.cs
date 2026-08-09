@@ -366,6 +366,7 @@ public static class LocalizationEditorTools
         Put(LocalizationKeys.HintInteract, "[E] Interact");
         Put(LocalizationKeys.HintTalk, "[E] Talk");
         Put(LocalizationKeys.HintCheckPager, "[TAB] Check pager");
+        Put(LocalizationKeys.HintPagerFirstRing, "Your pager is buzzing\nPress [TAB] to read it");
         Put(LocalizationKeys.HintMinigameFallback, "A / D — turn dial\nMouse — grab & place\n[ESC] Leave");
         Put(LocalizationKeys.HintPagerOpen, "A / D — scroll\n[D] at end — next message\n[TAB] Put down pager");
         Put(LocalizationKeys.HintPagerTutorialScroll, "[A] / [D] Scroll left & right");
@@ -409,6 +410,7 @@ public static class LocalizationEditorTools
             Put(LocalizationKeys.HintInteract, so.FindProperty("interactableHintText")?.stringValue);
             Put(LocalizationKeys.HintTalk, so.FindProperty("dialogueHintText")?.stringValue);
             Put(LocalizationKeys.HintCheckPager, so.FindProperty("checkPagerHint")?.stringValue);
+            Put(LocalizationKeys.HintPagerFirstRing, so.FindProperty("firstRingPromptText")?.stringValue);
             Put(LocalizationKeys.HintMinigameFallback, so.FindProperty("minigameFallbackHint")?.stringValue);
             Put(LocalizationKeys.HintPagerOpen, so.FindProperty("pagerOpenHint")?.stringValue);
             Put(LocalizationKeys.HintPagerTutorialScroll, so.FindProperty("pagerTutorialScrollHint")?.stringValue);

@@ -124,7 +124,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -362683268495924686, guid: 9d4d236b51d106040a1629127cb152c9, type: 2}
+  - {fileID: 9047964891422818200, guid: c40eb5472994064469ef8e7e9b40c9c4, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -168,8 +168,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Do the laundry
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 9d4d236b51d106040a1629127cb152c9, type: 2}
-  m_sharedMaterial: {fileID: -362683268495924686, guid: 9d4d236b51d106040a1629127cb152c9, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: c40eb5472994064469ef8e7e9b40c9c4, type: 2}
+  m_sharedMaterial: {fileID: 9047964891422818200, guid: c40eb5472994064469ef8e7e9b40c9c4, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -193,8 +193,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 0.17
-  m_fontSizeBase: 0.17
+  m_fontSize: 0.08
+  m_fontSizeBase: 0.08
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18

@@ -6,6 +6,7 @@ hint.dialogue_progress,[空格/点击] 继续
 hint.interact,[按E] 互动
 hint.minigame_fallback,"A / D — 环顾四周
  鼠标  — 拖拽"
+hint.pager_first_ring,按 [Tab键] 查看寻呼机
 hint.pager_open,"A / D — 滚动浏览
 [Tab键] 放下寻呼机 "
 hint.pager_respond_reading,"A / D — 滚动浏览

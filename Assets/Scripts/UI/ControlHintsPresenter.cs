@@ -1,3 +1,4 @@
+using System.Collections;
 using TMPro;
 using UnityEngine;
 
@@ -15,6 +16,9 @@ using UnityEngine;
 ///        • pager respond (reading) .. A/D scroll, D at end continue, Tab put down
 ///        • pager respond (typing) ... any key types the reply, Tab put down
 ///        • dialogue / intro ......... Space continue, or mouse to choose options
+///
+///   3. First ring prompt  — optional centred prompt faded in for a few seconds the first
+///      time the pager rings, teaching the Tab control.
 ///
 /// Each widget is a root GameObject (toggled on/off) plus a TMP label whose text this
 /// component sets. Position/style them however you like in your Canvas.
@@ -70,6 +74,18 @@ public class ControlHintsPresenter : MonoBehaviour
     [TextArea] [SerializeField] private string dialogueChoiceHint =
         "Mouse — choose options";
 
+    [Header("First Pager Ring Prompt")]
+    [Tooltip("Optional centred prompt faded in the first time the pager rings. Leave empty to skip it.")]
+    [SerializeField] private CanvasGroup firstRingPromptGroup;
+    [SerializeField] private TMP_Text firstRingPromptLabel;
+
+    [TextArea] [SerializeField] private string firstRingPromptText =
+        "Your pager is buzzing\nPress [TAB] to read it";
+
+    [Tooltip("Seconds the prompt stays fully visible, excluding the fades.")]
+    [SerializeField] private float firstRingPromptHoldDuration = 4f;
+    [SerializeField] private float firstRingPromptFadeDuration = 0.4f;
+
     [Header("References (optional — auto-resolved at runtime)")]
     [SerializeField] private InteractionSystem interactionSystem;
     [SerializeField] private IntroSequencePresenter introPresenter;
@@ -79,18 +95,23 @@ public class ControlHintsPresenter : MonoBehaviour
     private string _interactText;
     private bool _topRightShown;
     private string _topRightText;
+    private Coroutine _firstRingRoutine;
 
     private void OnEnable()
     {
         LocalizationService.LanguageChanged += OnLanguageChanged;
+        PagerTextController.FirstRing += OnPagerFirstRing;
         // Start hidden; the first Update fills in the correct context.
         SetInteractHint(false, null);
         SetTopRightHint(false, null);
+        HideFirstRingPrompt();
     }
 
     private void OnDisable()
     {
         LocalizationService.LanguageChanged -= OnLanguageChanged;
+        PagerTextController.FirstRing -= OnPagerFirstRing;
+        StopFirstRingPrompt();
     }
 
     void OnLanguageChanged()
@@ -248,6 +269,94 @@ public class ControlHintsPresenter : MonoBehaviour
         }
 
         return false;
+    }
+
+    // ------------------------------------------------------------------ First ring prompt
+
+    private void OnPagerFirstRing()
+    {
+        if (firstRingPromptGroup == null || !isActiveAndEnabled)
+            return;
+
+        if (GameManager.Instance != null && GameManager.Instance.IsCutscenePlaying)
+            return;
+
+        StopFirstRingPrompt();
+        _firstRingRoutine = StartCoroutine(FirstRingPromptRoutine());
+    }
+
+    private IEnumerator FirstRingPromptRoutine()
+    {
+        if (firstRingPromptLabel != null)
+            firstRingPromptLabel.text = Loc(LocalizationKeys.HintPagerFirstRing, firstRingPromptText);
+
+        firstRingPromptGroup.blocksRaycasts = false;
+        firstRingPromptGroup.interactable = false;
+        firstRingPromptGroup.alpha = 0f;
+        firstRingPromptGroup.gameObject.SetActive(true);
+
+        yield return FadeFirstRingPrompt(1f, firstRingPromptFadeDuration);
+
+        float held = 0f;
+        while (held < firstRingPromptHoldDuration && !ShouldDismissFirstRingPrompt())
+        {
+            held += Time.deltaTime;
+            yield return null;
+        }
+
+        yield return FadeFirstRingPrompt(0f, firstRingPromptFadeDuration);
+
+        HideFirstRingPrompt();
+        _firstRingRoutine = null;
+    }
+
+    /// <summary>The prompt has done its job once the player opens the pager, and must not sit over a cutscene.</summary>
+    private bool ShouldDismissFirstRingPrompt()
+    {
+        PagerTextController pager = PagerTextController.Instance;
+        if (pager != null && pager.IsOpen)
+            return true;
+
+        return GameManager.Instance != null && GameManager.Instance.IsCutscenePlaying;
+    }
+
+    private IEnumerator FadeFirstRingPrompt(float targetAlpha, float duration)
+    {
+        float startAlpha = firstRingPromptGroup.alpha;
+        if (duration <= 0f)
+        {
+            firstRingPromptGroup.alpha = targetAlpha;
+            yield break;
+        }
+
+        float elapsed = 0f;
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            firstRingPromptGroup.alpha = Mathf.Lerp(startAlpha, targetAlpha, elapsed / duration);
+            yield return null;
+        }
+
+        firstRingPromptGroup.alpha = targetAlpha;
+    }
+
+    private void StopFirstRingPrompt()
+    {
+        if (_firstRingRoutine == null)
+            return;
+
+        StopCoroutine(_firstRingRoutine);
+        _firstRingRoutine = null;
+        HideFirstRingPrompt();
+    }
+
+    private void HideFirstRingPrompt()
+    {
+        if (firstRingPromptGroup == null)
+            return;
+
+        firstRingPromptGroup.alpha = 0f;
+        firstRingPromptGroup.gameObject.SetActive(false);
     }
 
     // ------------------------------------------------------------------ Widget helpers

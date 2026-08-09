@@ -6,6 +6,7 @@ public static class LocalizationKeys
     public const string HintInteract = "hint.interact";
     public const string HintTalk = "hint.talk";
     public const string HintCheckPager = "hint.check_pager";
+    public const string HintPagerFirstRing = "hint.pager_first_ring";
     public const string HintMinigameFallback = "hint.minigame_fallback";
     public const string HintPagerOpen = "hint.pager_open";
     public const string HintPagerTutorialScroll = "hint.pager_tutorial_scroll";

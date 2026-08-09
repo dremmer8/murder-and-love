@@ -6,6 +6,8 @@ hint.dialogue_progress,[LEERTASTE] Weiter
 hint.interact,[E] Interagieren
 hint.minigame_fallback,"A / D — umsehen
 Maus — greifen & platzieren"
+hint.pager_first_ring,"Dein Pager brummt
+Drücke [TAB], um ihn zu lesen"
 hint.pager_open,"A / D — scrollen
 [TAB] Pager weglegen"
 hint.pager_respond_reading,"A / D — scrollen
