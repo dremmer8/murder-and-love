@@ -199,7 +199,7 @@ public class DialogueTypewriter : MonoBehaviour
         if (string.IsNullOrEmpty(raw))
             return string.Empty;
 
-        int colon = raw.IndexOf(':');
+        int colon = LocalizedSpeakerNames.IndexOfSeparator(raw);
         if (colon <= 0 || colon > m_MaxSpeakerNameLength)
             return raw;
 
@@ -238,10 +238,7 @@ public class DialogueTypewriter : MonoBehaviour
 
     static string NormalizeSpeakerName(string name)
     {
-        string trimmed = name.Trim();
-        if (trimmed.EndsWith(":"))
-            trimmed = trimmed.Substring(0, trimmed.Length - 1).TrimEnd();
-        return trimmed;
+        return LocalizedSpeakerNames.Canonicalize(name);
     }
 
     TextMeshProUGUI ResolveTarget(DialogueTextChannel channel)

@@ -14,8 +14,22 @@ public class LanguageOptionsController : MonoBehaviour
     [SerializeField] string m_LanguageLabelKey = LocalizationKeys.MenuLanguage;
     [SerializeField] string m_LanguageLabelFallback = "Language";
 
+    [SerializeField]
+    [Tooltip("Font size of the language names, in the closed dropdown and in the open list. " +
+             "The locale's own fontSizeOffset still applies on top of this.")]
+    float m_OptionFontSize = 12f;
+
+    [SerializeField]
+    [Tooltip("The dropdown never shrinks below this, however short the language names are.")]
+    float m_MinDropdownWidth = 160f;
+
+    [SerializeField]
+    [Tooltip("Slack added on top of the widest language name and the dropdown's own caption inset.")]
+    float m_DropdownWidthPadding = 8f;
+
     readonly List<string> m_LocaleIds = new();
     TMP_Text m_Label;
+    RectTransform m_RowRect;
     bool m_BuiltRuntimeUi;
 
     void Awake()
@@ -52,6 +66,10 @@ public class LanguageOptionsController : MonoBehaviour
         RefreshOptions();
         SyncDropdownToCurrent();
         ApplyLabel();
+
+        // Option widths depend on the locale font, and the applier may not have run yet.
+        LocalizedFontApplier.ApplyNow();
+        ResizeToFitOptions();
     }
 
     void OnDropdownChanged(int index)
@@ -84,6 +102,75 @@ public class LanguageOptionsController : MonoBehaviour
         m_LanguageDropdown.ClearOptions();
         m_LanguageDropdown.AddOptions(options);
         m_LanguageDropdown.interactable = m_LocaleIds.Count > 0;
+
+        ResizeToFitOptions();
+    }
+
+    /// <summary>
+    /// Keeps every language name on one line: wrapping is off, and the dropdown is widened
+    /// to the longest name in the current font. A wrapped name would otherwise grow past the
+    /// fixed item height and overlap the entry below it.
+    /// </summary>
+    void ResizeToFitOptions()
+    {
+        if (m_LanguageDropdown == null)
+            return;
+
+        TMP_Text caption = m_LanguageDropdown.captionText;
+        DisableWrapping(caption);
+        DisableWrapping(m_LanguageDropdown.itemText);
+
+        if (m_RowRect == null || caption == null)
+            return;
+
+        // GetPreferredValues(string) leaves the measured string on the component.
+        string shownText = caption.text;
+        float widest = 0f;
+        List<TMP_Dropdown.OptionData> options = m_LanguageDropdown.options;
+        for (int i = 0; i < options.Count; i++)
+        {
+            if (options[i] == null || string.IsNullOrEmpty(options[i].text))
+                continue;
+
+            widest = Mathf.Max(widest, caption.GetPreferredValues(options[i].text).x);
+        }
+
+        caption.text = shownText;
+
+        if (widest <= 0f)
+            return;
+
+        // Space the caption gives up to the arrow and its own left inset.
+        RectTransform captionRect = caption.rectTransform;
+        float chrome = captionRect.offsetMin.x - captionRect.offsetMax.x;
+
+        float width = Mathf.Max(m_MinDropdownWidth, widest + chrome + m_DropdownWidthPadding);
+        m_RowRect.sizeDelta = new Vector2(width, m_RowRect.sizeDelta.y);
+    }
+
+    static void DisableWrapping(TMP_Text label)
+    {
+        if (label != null)
+            label.enableWordWrapping = false;
+    }
+
+    /// <summary>
+    /// Sizes the caption and the list-item template. Items are cloned from the template when the
+    /// list opens, so both language names pick this up.
+    /// </summary>
+    void ApplyOptionFontSize()
+    {
+        if (m_LanguageDropdown == null || m_OptionFontSize <= 0f)
+            return;
+
+        SetFontSize(m_LanguageDropdown.captionText);
+        SetFontSize(m_LanguageDropdown.itemText);
+
+        void SetFontSize(TMP_Text label)
+        {
+            if (label != null)
+                label.fontSize = m_OptionFontSize;
+        }
     }
 
     void SyncDropdownToCurrent()
@@ -139,9 +226,12 @@ public class LanguageOptionsController : MonoBehaviour
         rowRt.SetParent(parent, false);
         rowRt.anchorMin = new Vector2(0f, 1f);
         rowRt.anchorMax = new Vector2(0f, 1f);
-        rowRt.pivot = new Vector2(0.5f, 0.5f);
-        rowRt.anchoredPosition = new Vector2(50f, -77f);
-        rowRt.sizeDelta = new Vector2(160f, 28f);
+        // Left pivot: widening for a long language name grows to the right and leaves the
+        // "Language" label, which is anchored to this edge, where it is.
+        rowRt.pivot = new Vector2(0f, 0.5f);
+        rowRt.anchoredPosition = new Vector2(-30f, -77f);
+        rowRt.sizeDelta = new Vector2(m_MinDropdownWidth, 28f);
+        m_RowRect = rowRt;
 
         // Label
         var labelGo = new GameObject("Label", typeof(RectTransform));
@@ -171,6 +261,10 @@ public class LanguageOptionsController : MonoBehaviour
 
         m_LanguageDropdown = dropdownGo.GetComponent<TMP_Dropdown>();
         m_BuiltRuntimeUi = true;
+
+        // Must happen before the font pass below: LocalizedFontApplier records whatever size a
+        // label has on its first pass and treats that as the base for the locale offset.
+        ApplyOptionFontSize();
 
         // Keep dropdown readable on dark pause panels.
         Image[] images = dropdownGo.GetComponentsInChildren<Image>(true);

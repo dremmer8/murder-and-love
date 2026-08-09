@@ -44,6 +44,7 @@ public class PagerTextController : MonoBehaviour
 
     [Header("Screen")]
     [SerializeField] private TextMeshPro screenText;
+    [Tooltip("Screen width measured in Latin character widths. Full-width (CJK) glyphs take two.")]
     [SerializeField] private int visibleCharacterCount = 16;
     [SerializeField] private string emptyInboxText = "no messages";
 
@@ -469,7 +470,7 @@ public class PagerTextController : MonoBehaviour
     public void ScrollLeft()
     {
         PokePager();
-        _scrollIndex = Mathf.Max(0, _scrollIndex - visibleCharacterCount);
+        _scrollIndex = GetPreviousScrollIndex();
         if (_tutorialActive)
             _tutorialScrolledLeft = true;
         RefreshDisplay();
@@ -492,7 +493,8 @@ public class PagerTextController : MonoBehaviour
         }
 
         PokePager();
-        _scrollIndex = Mathf.Min(maxScroll, _scrollIndex + visibleCharacterCount);
+        int pageLength = Mathf.Max(1, CountCharsThatFit(GetCurrentDisplaySource(), _scrollIndex));
+        _scrollIndex = Mathf.Min(maxScroll, _scrollIndex + pageLength);
         if (_tutorialActive)
             _tutorialScrolledRight = true;
         RefreshDisplay();
@@ -628,7 +630,8 @@ public class PagerTextController : MonoBehaviour
             return true;
 
         _typedCharCount++;
-        _scrollIndex = Mathf.Max(0, _typedCharCount - visibleCharacterCount);
+        // The display source is the typed prefix, so its last page keeps the caret on screen.
+        _scrollIndex = GetMaxScrollIndex();
         RefreshDisplay();
         PokePager();
 
@@ -1042,13 +1045,89 @@ public class PagerTextController : MonoBehaviour
         return _messages[_messageIndex];
     }
 
-    int GetMaxScrollIndex()
+    /// <summary>
+    /// Screen columns taken by one character. Chinese/Japanese glyphs render at roughly double the
+    /// width of a Latin one, so a raw character count would overflow the truncating pager screen.
+    /// Punctuation shared with the Latin script (— ’ …) keeps its Latin width because the pager
+    /// screen never swaps to the locale font.
+    /// </summary>
+    static int CharacterColumns(char c)
     {
-        string message = GetCurrentDisplaySource();
-        if (string.IsNullOrEmpty(message))
+        bool fullWidth =
+            (c >= '\u1100' && c <= '\u115F')
+            || (c >= '\u2E80' && c <= '\u303E')
+            || (c >= '\u3041' && c <= '\u33FF')
+            || (c >= '\u3400' && c <= '\u4DBF')
+            || (c >= '\u4E00' && c <= '\u9FFF')
+            || (c >= '\uA000' && c <= '\uA4CF')
+            || (c >= '\uAC00' && c <= '\uD7A3')
+            || (c >= '\uF900' && c <= '\uFAFF')
+            || (c >= '\uFE10' && c <= '\uFE19')
+            || (c >= '\uFE30' && c <= '\uFE6F')
+            || (c >= '\uFF00' && c <= '\uFF60')
+            || (c >= '\uFFE0' && c <= '\uFFE6');
+
+        return fullWidth ? 2 : 1;
+    }
+
+    /// <summary>Characters from <paramref name="startIndex"/> that fit on one screen.</summary>
+    int CountCharsThatFit(string message, int startIndex)
+    {
+        if (string.IsNullOrEmpty(message) || startIndex < 0 || startIndex >= message.Length)
             return 0;
 
-        return Mathf.Max(0, message.Length - visibleCharacterCount);
+        int columns = 0;
+        int count = 0;
+
+        for (int i = startIndex; i < message.Length; i++)
+        {
+            int nextColumns = columns + CharacterColumns(message[i]);
+
+            // Always show at least one character, even if it alone exceeds the budget.
+            if (nextColumns > visibleCharacterCount && count > 0)
+                break;
+
+            columns = nextColumns;
+            count++;
+        }
+
+        return count;
+    }
+
+    /// <summary>Index of the last page, walking forward so pages line up in both directions.</summary>
+    int GetMaxScrollIndex()
+    {
+        return GetPageStartBefore(GetCurrentDisplaySource(), int.MaxValue);
+    }
+
+    int GetPreviousScrollIndex()
+    {
+        return GetPageStartBefore(GetCurrentDisplaySource(), _scrollIndex);
+    }
+
+    /// <summary>
+    /// Last page start strictly before <paramref name="limit"/>, or the final page when the whole
+    /// message is walked. Pages are measured from index 0 so scrolling back lands on the same
+    /// boundaries scrolling forward produced.
+    /// </summary>
+    int GetPageStartBefore(string message, int limit)
+    {
+        if (string.IsNullOrEmpty(message) || limit <= 0)
+            return 0;
+
+        int start = 0;
+        while (true)
+        {
+            int pageLength = CountCharsThatFit(message, start);
+            if (pageLength <= 0)
+                return start;
+
+            int next = start + pageLength;
+            if (next >= message.Length || next >= limit)
+                return start;
+
+            start = next;
+        }
     }
 
     void RefreshDisplay()
@@ -1071,7 +1150,7 @@ public class PagerTextController : MonoBehaviour
         }
 
         _scrollIndex = Mathf.Clamp(_scrollIndex, 0, GetMaxScrollIndex());
-        int length = Mathf.Min(visibleCharacterCount, message.Length - _scrollIndex);
+        int length = CountCharsThatFit(message, _scrollIndex);
         if (length <= 0)
         {
             screenText.text = LocEmptyInbox();

@@ -457,7 +457,7 @@ public class IntroSequencePresenter : MonoBehaviour
         string following = PullNextText();
         if (!string.IsNullOrEmpty(following))
         {
-            if (IsSentenceGlue(following) && row?.textBit != null)
+            if ((IsChoiceEcho(following, chosenText) || IsSentenceGlue(following)) && row?.textBit != null)
             {
                 string spacer = string.IsNullOrEmpty(row.textBit.text) || following[0] == '.'
                     ? ""
@@ -492,6 +492,20 @@ public class IntroSequencePresenter : MonoBehaviour
         }
 
         Finish(invokeCallback: true);
+    }
+
+    /// <summary>
+    /// Ink echoes the text of a non-bracketed choice as the next line, and that echo always
+    /// completes the sentence the options were attached to. Checked before
+    /// <see cref="IsSentenceGlue"/> because scripts without letter case (e.g. Chinese) cannot
+    /// be classified by capitalisation.
+    /// </summary>
+    private static bool IsChoiceEcho(string following, string chosenText)
+    {
+        if (string.IsNullOrWhiteSpace(chosenText))
+            return false;
+
+        return following.StartsWith(chosenText.Trim(), StringComparison.Ordinal);
     }
 
     /// <summary>

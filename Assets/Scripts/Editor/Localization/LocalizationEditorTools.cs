@@ -19,6 +19,9 @@ public static class LocalizationEditorTools
     const string EnglishCsvPath = LocalizationFolder + "/ui_en.csv";
     const string DefaultInkPath = "Assets/Dialogues/Final_dialogues/Final_eng.json";
     const string GameScenePath = "Assets/Scenes/Game.unity";
+    const string ChineseInkPath = "Assets/Dialogues/Final_dialogues/Final_zh.ink";
+    const string ChineseCsvPath = LocalizationFolder + "/ui_zh.csv";
+    const string ChineseFontCharsPath = "Assets/Content/Prototype/Font/HuiwenZH/used_chars.txt";
 
     [MenuItem("Tools/Localization/Export UI Strings CSV")]
     public static void ExportUiStringsCsv()
@@ -206,6 +209,57 @@ public static class LocalizationEditorTools
         Selection.activeObject = catalog;
 
         static string destCsvPreview(string localeId) => $"{LocalizationFolder}/ui_{localeId}.csv";
+    }
+
+    [MenuItem("Tools/Localization/Export Chinese Font Character List")]
+    public static void ExportChineseFontCharacterList()
+    {
+        var chars = new SortedSet<char>();
+        AddAsciiFontChars(chars);
+
+        if (File.Exists(Path.Combine(Directory.GetCurrentDirectory(), ChineseInkPath)))
+            AddFileChars(chars, ChineseInkPath);
+        else
+            Debug.LogWarning($"[Localization] Missing Ink at {ChineseInkPath}");
+
+        if (File.Exists(Path.Combine(Directory.GetCurrentDirectory(), ChineseCsvPath)))
+            AddFileChars(chars, ChineseCsvPath);
+        else
+            Debug.LogWarning($"[Localization] Missing CSV at {ChineseCsvPath}");
+
+        string directory = Path.GetDirectoryName(ChineseFontCharsPath);
+        if (!string.IsNullOrEmpty(directory) && !Directory.Exists(Path.Combine(Directory.GetCurrentDirectory(), directory)))
+            Directory.CreateDirectory(Path.Combine(Directory.GetCurrentDirectory(), directory));
+
+        var builder = new StringBuilder(chars.Count);
+        foreach (char c in chars)
+            builder.Append(c);
+
+        File.WriteAllText(
+            Path.Combine(Directory.GetCurrentDirectory(), ChineseFontCharsPath),
+            builder.ToString(),
+            new UTF8Encoding(false));
+        AssetDatabase.ImportAsset(ChineseFontCharsPath);
+
+        Debug.Log($"[Localization] Exported {chars.Count} unique characters to {ChineseFontCharsPath}. Use Font Asset Creator → Characters from File.");
+        EditorUtility.RevealInFinder(Path.Combine(Directory.GetCurrentDirectory(), ChineseFontCharsPath));
+    }
+
+    static void AddAsciiFontChars(ISet<char> chars)
+    {
+        for (char c = ' '; c <= '~'; c++)
+            chars.Add(c);
+    }
+
+    static void AddFileChars(ISet<char> chars, string assetPath)
+    {
+        string text = File.ReadAllText(Path.Combine(Directory.GetCurrentDirectory(), assetPath), Encoding.UTF8);
+        for (int i = 0; i < text.Length; i++)
+        {
+            char c = text[i];
+            if (!char.IsControl(c) || c == '\n' || c == '\r')
+                chars.Add(c);
+        }
     }
 
     [MenuItem("Tools/Localization/Add LocalizedTmpText To Selection")]

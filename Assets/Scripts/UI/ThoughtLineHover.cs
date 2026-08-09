@@ -8,8 +8,6 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public class ThoughtLineHover : MonoBehaviour
 {
-    const string ThoughtsSpeaker = "Thoughts";
-
     [Header("Motion")]
     [SerializeField]
     [Tooltip("Vertical bob amplitude in UI units (anchored Y).")]
@@ -137,15 +135,11 @@ public class ThoughtLineHover : MonoBehaviour
         if (string.IsNullOrWhiteSpace(rawLine))
             return false;
 
-        int colon = rawLine.IndexOf(':');
+        int colon = LocalizedSpeakerNames.IndexOfSeparator(rawLine);
         if (colon <= 0)
             return false;
 
-        string speaker = rawLine.Substring(0, colon).Trim();
-        if (speaker.EndsWith(":"))
-            speaker = speaker.Substring(0, speaker.Length - 1).TrimEnd();
-
-        return string.Equals(speaker, ThoughtsSpeaker, System.StringComparison.OrdinalIgnoreCase);
+        return LocalizedSpeakerNames.IsThoughts(rawLine.Substring(0, colon));
     }
 
     static ThoughtLineHover ResolveForText(TextMeshProUGUI textField, bool createIfMissing = true)

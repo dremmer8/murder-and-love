@@ -86,6 +86,7 @@ public class PauseMenu : MonoBehaviour
         if (!m_IsPaused)
             return;
 
+        MainMenuController.ClearMainMenuOptionsContext();
         SetRootsVisible(false, true);
     }
 

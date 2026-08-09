@@ -4,12 +4,13 @@ using UnityEngine;
 /// <summary>
 /// Demo helper: starts background music from <see cref="SoundManager"/> keys on Start,
 /// and exposes a parameterless method for UI buttons to fire a one-shot SFX key.
-/// Music is started at most once per application run; it is not restarted when this
-/// component or scene is loaded again.
+/// Music runs as a single instance shared across the session; a second component does not
+/// start a competing track while one is already playing.
 /// </summary>
 public class UniversalAudioDemo : MonoBehaviour
 {
     static EventInstance s_GlobalMusicInstance;
+    static UniversalAudioDemo s_MusicOwner;
     static bool s_MusicWasStartedGlobally;
     static bool s_QuitCleanupDone;
 
@@ -17,8 +18,12 @@ public class UniversalAudioDemo : MonoBehaviour
     [SerializeField] bool m_PlayMusicOnStart = true;
 
     [SerializeField]
-    [Tooltip("SoundLibrary key for music — only the first successful start in the session runs; not started again on later scenes or duplicate objects.")]
+    [Tooltip("SoundLibrary key for music — skipped while a track started by another component is still playing, so duplicate objects do not stack tracks.")]
     string m_MusicEventKey = "Music_Main";
+
+    [SerializeField]
+    [Tooltip("Stop the music this component started once it is destroyed, so a menu track does not keep playing under the next scene.")]
+    bool m_StopMusicOnDestroy = true;
 
     [Header("UI button sound")]
     [SerializeField]
@@ -27,7 +32,7 @@ public class UniversalAudioDemo : MonoBehaviour
 
     void Start()
     {
-        if (s_MusicWasStartedGlobally)
+        if (s_MusicWasStartedGlobally && s_GlobalMusicInstance.isValid())
             return;
 
         if (!m_PlayMusicOnStart || string.IsNullOrWhiteSpace(m_MusicEventKey))
@@ -47,6 +52,7 @@ public class UniversalAudioDemo : MonoBehaviour
             return;
 
         s_GlobalMusicInstance = instance;
+        s_MusicOwner = this;
         s_MusicWasStartedGlobally = true;
     }
 
@@ -55,19 +61,26 @@ public class UniversalAudioDemo : MonoBehaviour
         ReleaseGlobalMusicIfNeeded();
     }
 
+    void OnDestroy()
+    {
+        if (s_MusicOwner != this)
+            return;
+
+        s_MusicOwner = null;
+
+        if (m_StopMusicOnDestroy)
+            ResetGlobalMusicTracking();
+    }
+
     /// <summary>
     /// Clears the session music handle after a bus-wide stop (e.g. game restart)
     /// so a later scene can start music again.
     /// </summary>
     public static void ResetGlobalMusicTracking()
     {
-        if (s_GlobalMusicInstance.isValid())
-        {
-            s_GlobalMusicInstance.stop(STOP_MODE.ALLOWFADEOUT);
-            s_GlobalMusicInstance.release();
-            s_GlobalMusicInstance.clearHandle();
-        }
+        StopAndReleaseGlobalMusic();
 
+        s_MusicOwner = null;
         s_MusicWasStartedGlobally = false;
         s_QuitCleanupDone = false;
     }
@@ -78,7 +91,11 @@ public class UniversalAudioDemo : MonoBehaviour
             return;
 
         s_QuitCleanupDone = true;
+        StopAndReleaseGlobalMusic();
+    }
 
+    static void StopAndReleaseGlobalMusic()
+    {
         if (!s_GlobalMusicInstance.isValid())
             return;
 

@@ -142,8 +142,8 @@ He tore through our home, destroyed what we’d built, searching for anything of
 -
 
 // change page
-Silence returned to the night. Blood seeped deep into the carpet. One issue resolved. An even worse one arose. Covered in blood was
 ~ ChangeCamera("Player")
+Silence returned to the night. Blood seeped deep into the carpet. One issue resolved. An even worse one arose. Covered in blood was
 * his shirt.
 * our bed sheet.
 * my favorite dress.
@@ -1362,12 +1362,12 @@ You: Mrs Wong, I’ve done something bad... # vo:p_27_l_1
   - 1:
   You: Mrs Wong, nothing happened. # vo:p_27_l_2
   Mrs Wong: Then I must have been overthinking it. # vo:p_27_l_3
-  Mrs Wong: I’m going to have a smoke here for a bit. # vo:p_27_l_4
+  Mrs Wong: I’ll stay here for a bit. # vo:p_27_l_4
   Mrs Wong: If you want to come talk to me later, feel free to stop by again. # vo:p_27_l_5
   - else: 
   You: Nothing. # vo:p_27_l_6
   Mrs Wong: Okay. # vo:p_27_l_7
-  Mrs Wong: I’m going to have a smoke here for a bit. # vo:p_27_l_8
+  Mrs Wong: I’ll stay here for a bit. # vo:p_27_l_8
   Mrs Wong: If you want to come talk to me later, feel free to stop by again. # vo:p_27_l_9
   }
 -> END

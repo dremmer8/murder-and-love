@@ -13,9 +13,9 @@ hint.pager_respond_reading,"A / D — scroll
 [TAB] Put down pager"
 hint.pager_respond_tutorial_advance,[D] at end — continue / reply
 hint.pager_respond_tutorial_scroll,[A] / [D] Scroll left & right
-hint.pager_respond_typing,"[Any key] Finsih the chore
+hint.pager_respond_typing,"[Any key] Finish the chore (Ending)
 [TAB] Put down pager"
-hint.pager_tutorial_advance,[D] at end — next message
+hint.pager_tutorial_advance,[D] — scroll to the next message
 hint.pager_tutorial_scroll,[A] / [D] Scroll left & right
 hint.talk,[E] Interact
 menu.back,Back
@@ -28,12 +28,33 @@ menu.play,Play
 menu.resume,Resume
 menu.sound,Sound
 minigame.CoinMachine.step.InsertBill,Insert a bill into the slot
-minigame.SwitchBoxMiniGame.step.CloseDoor,Click the door to close it
+minigame.SwitchBoxMiniGame.step.CloseDoor,Click the lid to close it
 minigame.SwitchBoxMiniGame.step.FlipSwitch,Flip the main switch
-minigame.SwitchBoxMiniGame.step.OpenDoor,Click the door to open it
+minigame.SwitchBoxMiniGame.step.OpenDoor,Click the lid to open it
+minigame.WashingMachineMiniGame.step.CloseDoor,Click the door to close it
+minigame.WashingMachineMiniGame.step.Clothes,Drag clothes from the basket into the washer
+minigame.WashingMachineMiniGame.step.Detergent,Open the tray and add detergent
+minigame.WashingMachineMiniGame.step.LookAround,Press A and D to look around
+minigame.WashingMachineMiniGame.step.OpenDoor,Click the door to open it
+minigame.WashingMachineMiniGame.step.Start,Press the start button
+minigame.WashingMachineMiniGame.step.Token,Insert a token into the slot
+minigame.WashingMachineMiniGame_4.step.CloseDoor,Click the door to close it
+minigame.WashingMachineMiniGame_4.step.Clothes,Drag clothes from the basket into the washer
+minigame.WashingMachineMiniGame_4.step.Detergent,Open the tray and add detergent
+minigame.WashingMachineMiniGame_4.step.LookAround,Press A and D to look around
+minigame.WashingMachineMiniGame_4.step.OpenDoor,Click the door to open it
+minigame.WashingMachineMiniGame_4.step.Start,Press the start button
+minigame.WashingMachineMiniGame_4.step.Token,Insert a token into the slot
+minigame.WashingMachineMiniGame_9.step.CloseDoor,Click the door to close it
+minigame.WashingMachineMiniGame_9.step.Clothes,Drag clothes from the basket into the washer
+minigame.WashingMachineMiniGame_9.step.Detergent,Open the tray and add detergent
+minigame.WashingMachineMiniGame_9.step.LookAround,Press A and D to look around
+minigame.WashingMachineMiniGame_9.step.OpenDoor,Click the door to open it
+minigame.WashingMachineMiniGame_9.step.Start,Press the start button
+minigame.WashingMachineMiniGame_9.step.Token,Insert a token into the slot
 pager.empty,no messages
 pager.new_message,new message
-pager.respond_reply,I'm done. The wash cycles should be finished in a few minutes.
+pager.respond_reply,I'm done. I will come home now.
 pager.start_typing,start typing
 task.0,Collect the laundry coin
 task.1,Go to Washer Nr. 4

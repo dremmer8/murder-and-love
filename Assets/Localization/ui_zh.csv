@@ -1,0 +1,72 @@
+key,text
+hint.check_pager,"[Tab键] 查看寻呼机 
+[控制键] 蹲下 "
+hint.dialogue_choice,点击选项进行选择
+hint.dialogue_progress,[空格/点击] 继续
+hint.interact,[按E] 互动
+hint.minigame_fallback,"A / D — 环顾四周
+ 鼠标  — 拖拽"
+hint.pager_open,"A / D — 滚动浏览
+[Tab键] 放下寻呼机 "
+hint.pager_respond_reading,"A / D — 滚动浏览
+[D]  — 滚动浏览
+[Tab键] 放下寻呼机"
+hint.pager_respond_tutorial_advance,[D]  — 继续 / 回复
+hint.pager_respond_tutorial_scroll,[A] / [D] 左右滚动 
+hint.pager_respond_typing,"[任意键] 完成家务（结局）
+[按tab] 放下寻呼机 "
+hint.pager_tutorial_advance,按 [D] — 下一条消息
+hint.pager_tutorial_scroll,A / D — 滚动浏览 
+hint.talk,[E] 互动
+menu.back,返回 
+menu.exit,退出 
+menu.exit_to_menu,返回主菜单 
+menu.language,语言 
+menu.music,音乐 
+menu.options,设置
+menu.play,开始游戏 
+menu.resume,继续游戏 
+menu.sound,音效 
+minigame.CoinMachine.step.InsertBill,将纸币塞入投币口 
+minigame.SwitchBoxMiniGame.step.CloseDoor,点击箱门将其关闭 
+minigame.SwitchBoxMiniGame.step.FlipSwitch,扳动主开关 
+minigame.SwitchBoxMiniGame.step.OpenDoor,点击箱门将其打开 
+minigame.WashingMachineMiniGame.step.CloseDoor,点击机门将其关闭
+minigame.WashingMachineMiniGame.step.Clothes,将衣物从篮子拖入洗衣机
+minigame.WashingMachineMiniGame.step.Detergent,打开抽屉并倒入洗衣液
+minigame.WashingMachineMiniGame.step.LookAround,按 A 和 D 环顾四周
+minigame.WashingMachineMiniGame.step.OpenDoor,点击洗衣机门将其打开
+minigame.WashingMachineMiniGame.step.Start,按下启动按钮
+minigame.WashingMachineMiniGame.step.Token,将洗衣币投入投币口
+minigame.WashingMachineMiniGame_4.step.CloseDoor,点击机门将其关闭
+minigame.WashingMachineMiniGame_4.step.Clothes,将衣物从篮子拖入洗衣机
+minigame.WashingMachineMiniGame_4.step.Detergent,打开抽屉并倒入洗衣液
+minigame.WashingMachineMiniGame_4.step.LookAround,按 A 和 D 环顾四周
+minigame.WashingMachineMiniGame_4.step.OpenDoor,点击洗衣机门将其打开
+minigame.WashingMachineMiniGame_4.step.Start,按下启动按钮
+minigame.WashingMachineMiniGame_4.step.Token,将洗衣币投入投币口
+minigame.WashingMachineMiniGame_9.step.CloseDoor,点击机门将其关闭
+minigame.WashingMachineMiniGame_9.step.Clothes,将衣物从篮子拖入洗衣机
+minigame.WashingMachineMiniGame_9.step.Detergent,打开抽屉并倒入洗衣液
+minigame.WashingMachineMiniGame_9.step.LookAround,按 A 和 D 环顾四周
+minigame.WashingMachineMiniGame_9.step.OpenDoor,点击洗衣机门将其打开
+minigame.WashingMachineMiniGame_9.step.Start,按下启动按钮
+minigame.WashingMachineMiniGame_9.step.Token,将洗衣币投入投币口
+pager.empty,无新消息
+pager.new_message,新消息 
+pager.respond_reply,我完成任务了。我马上就回家。
+pager.start_typing,开始输入
+task.0,拿洗衣币
+task.1,去 4 号洗衣机 
+task.10,拿第二枚洗衣币 
+task.11,去 9 号洗衣机 
+task.12,前往后室打开电闸 
+task.13,抉择
+task.2,获取强效洗衣液 
+task.3,拿后室钥匙 
+task.4,从后室拿取洗衣液 
+task.5,返回 4 号洗衣机
+task.6,购买另一枚洗衣币 
+task.7,换取一些零钱
+task.8,拿 5 枚硬币
+task.9,购买另一枚洗衣币 

@@ -168,7 +168,7 @@ public class VoiceOverOperator : MonoBehaviour
             return clipDuration;
 
         if (TryParseSpeakerLine(rawLine, out string speaker, out _)
-            && string.Equals(speaker, "Thoughts", StringComparison.OrdinalIgnoreCase))
+            && LocalizedSpeakerNames.IsThoughts(speaker))
             return Mathf.Max(0f, thoughtDuration);
 
         return Mathf.Max(0f, unvoicedFallback);
@@ -450,11 +450,11 @@ public class VoiceOverOperator : MonoBehaviour
         // Strip ink tags that might still be present in editor previews.
         line = Regex.Replace(line, @"\s*#\s*\S+", "").Trim();
 
-        int colon = line.IndexOf(':');
+        int colon = LocalizedSpeakerNames.IndexOfSeparator(line);
         if (colon <= 0 || colon > 40)
             return false;
 
-        speaker = line.Substring(0, colon).Trim();
+        speaker = LocalizedSpeakerNames.Canonicalize(line.Substring(0, colon));
         if (speaker.Length == 0 || !HasLetter(speaker))
             return false;
 
@@ -469,7 +469,7 @@ public class VoiceOverOperator : MonoBehaviour
         if (string.IsNullOrWhiteSpace(speaker))
             return false;
 
-        switch (speaker.Trim().ToLowerInvariant())
+        switch (LocalizedSpeakerNames.Canonicalize(speaker).ToLowerInvariant())
         {
             case "you":
             case "vivian":

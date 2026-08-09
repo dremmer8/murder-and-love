@@ -3133,22 +3133,10 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 98726895}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 1
-        m_CallState: 2
-      - m_Target: {fileID: 1497527388}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
+      - m_Target: {fileID: 910001011}
+        m_TargetAssemblyTypeName: OptionsMenuNavigator, Assembly-CSharp
+        m_MethodName: UI_Close
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -9254,7 +9242,6 @@ GameObject:
   - component: {fileID: 606039277}
   - component: {fileID: 606039276}
   - component: {fileID: 606039275}
-  - component: {fileID: 910001002}
   m_Layer: 5
   m_Name: CanvasMain
   m_TagString: Untagged
@@ -12997,7 +12984,6 @@ GameObject:
   - component: {fileID: 803132322}
   - component: {fileID: 803132321}
   - component: {fileID: 803132320}
-  - component: {fileID: 910001003}
   m_Layer: 5
   m_Name: CanvasPauseMenu
   m_TagString: Untagged
@@ -14791,33 +14777,10 @@ MonoBehaviour:
   m_DropdownParent: {fileID: 63012556}
   m_LanguageLabelKey: menu.language
   m_LanguageLabelFallback: Language
---- !u!114 &910001002
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 606039274}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f50eb731a9ec4ef996d0482b0986cb47, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  root: {fileID: 0}
---- !u!114 &910001003
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 803132319}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f50eb731a9ec4ef996d0482b0986cb47, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  root: {fileID: 0}
---- !u!114 &910001004
+  m_OptionFontSize: 12
+  m_MinDropdownWidth: 160
+  m_DropdownWidthPadding: 8
+--- !u!114 &910001010
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -14826,10 +14789,27 @@ MonoBehaviour:
   m_GameObject: {fileID: 1753828396}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f50eb731a9ec4ef996d0482b0986cb47, type: 3}
+  m_Script: {fileID: 11500000, guid: f8e3a1c24d5b6e7091823a4b5c6d7e8f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  root: {fileID: 0}
+  m_MainMenuButtonsRoot: {fileID: 584303825}
+  m_OptionsRoot: {fileID: 1497527388}
+  m_OptionsCanvas: {fileID: 606039277}
+  m_OptionsCanvasSortOrder: 5
+--- !u!114 &910001011
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1497527388}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e7d2b0a13c4d5e60817293a4b5c6d7e8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_MainMenu: {fileID: 910001010}
+  m_PauseMenu: {fileID: 1810612980}
 --- !u!114 &910002001
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -20693,10 +20673,10 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 98726895}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
+      - m_Target: {fileID: 1810612980}
+        m_TargetAssemblyTypeName: PauseMenu, Assembly-CSharp
+        m_MethodName: UI_OpenOptionsFromPause
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -20704,18 +20684,6 @@ MonoBehaviour:
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 1497527388}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 1
         m_CallState: 2
 --- !u!114 &1327648682
 MonoBehaviour:
@@ -23066,6 +23034,7 @@ GameObject:
   - component: {fileID: 1497527389}
   - component: {fileID: 1497527390}
   - component: {fileID: 910001001}
+  - component: {fileID: 910001011}
   m_Layer: 5
   m_Name: OptionsMenu
   m_TagString: Untagged
@@ -25266,7 +25235,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1630435301
 RectTransform:
   m_ObjectHideFlags: 0
@@ -25282,9 +25251,9 @@ RectTransform:
   - {fileID: 71078741}
   m_Father: {fileID: 1739617488}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 50, y: -48.333332}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1630435302
@@ -25367,10 +25336,10 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 584303825}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
+      - m_Target: {fileID: 910001010}
+        m_TargetAssemblyTypeName: MainMenuController, Assembly-CSharp
+        m_MethodName: UI_OpenOptions
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -25378,18 +25347,6 @@ MonoBehaviour:
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 1497527388}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 1
         m_CallState: 2
 --- !u!114 &1630435305
 MonoBehaviour:
@@ -26989,7 +26946,7 @@ GameObject:
   - component: {fileID: 1753828399}
   - component: {fileID: 1753828398}
   - component: {fileID: 1753828397}
-  - component: {fileID: 910001004}
+  - component: {fileID: 910001010}
   m_Layer: 5
   m_Name: CanvasMainMenu
   m_TagString: Untagged
@@ -34387,9 +34344,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Lam Tong City, at 3 a.m
+  m_text: "Lam Tong City, at 3 a.m \u6797\u5858\u5E02\uFF0C\u5348\u591C3\u70B9"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: d9b5ff1ad5cedaa4eb069bb9319c5d96, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: e50be7254a0d30f4f8ff8f674c5cdb4e, type: 2}
   m_sharedMaterial: {fileID: 1288594600111423735, guid: d9b5ff1ad5cedaa4eb069bb9319c5d96, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
@@ -34453,7 +34410,7 @@ MonoBehaviour:
   m_margin: {x: 0, y: 0, z: 0, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
-  m_hasFontAssetChanged: 0
+  m_hasFontAssetChanged: 1
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
 --- !u!114 &179719149794393795
@@ -35256,15 +35213,31 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8146809057659770016, guid: 24d806c07e389d646ae2c9475c35b794, type: 3}
       propertyPath: m_text
-      value: no messages
+      value: No message
       objectReference: {fileID: 0}
     - target: {fileID: 8146809057659770016, guid: 24d806c07e389d646ae2c9475c35b794, type: 3}
       propertyPath: m_fontSize
-      value: 0.08
+      value: 0.13
+      objectReference: {fileID: 0}
+    - target: {fileID: 8146809057659770016, guid: 24d806c07e389d646ae2c9475c35b794, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: c40eb5472994064469ef8e7e9b40c9c4, type: 2}
+    - target: {fileID: 8146809057659770016, guid: 24d806c07e389d646ae2c9475c35b794, type: 3}
+      propertyPath: m_wordSpacing
+      value: -10
       objectReference: {fileID: 0}
     - target: {fileID: 8146809057659770016, guid: 24d806c07e389d646ae2c9475c35b794, type: 3}
       propertyPath: m_fontSizeBase
-      value: 0.08
+      value: 0.13
+      objectReference: {fileID: 0}
+    - target: {fileID: 8146809057659770016, guid: 24d806c07e389d646ae2c9475c35b794, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: 9047964891422818200, guid: c40eb5472994064469ef8e7e9b40c9c4, type: 2}
+    - target: {fileID: 8146809057659770016, guid: 24d806c07e389d646ae2c9475c35b794, type: 3}
+      propertyPath: m_hasFontAssetChanged
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8252031932406315406, guid: 24d806c07e389d646ae2c9475c35b794, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
@@ -35274,6 +35247,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 352c2e9aa2da9f74fb7acdb4210e0f78, type: 2}
+    - target: {fileID: 8455393652175309410, guid: 24d806c07e389d646ae2c9475c35b794, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 9047964891422818200, guid: c40eb5472994064469ef8e7e9b40c9c4, type: 2}
     - target: {fileID: 8612553634604835946, guid: 24d806c07e389d646ae2c9475c35b794, type: 3}
       propertyPath: m_IsActive
       value: 1

@@ -17,14 +17,14 @@ MonoBehaviour:
     displayName: English
     uiCsv: {fileID: 4900000, guid: 6042e4e3edee4796bfdcb86db0d04c82, type: 3}
     inkStory: {fileID: 4900000, guid: 69e75138cee8a32409b9d05781355f91, type: 3}
-    font: {fileID: 11400000, guid: d9b5ff1ad5cedaa4eb069bb9319c5d96, type: 2}
-    fontSizeOffset: 0
+    font: {fileID: 11400000, guid: e50be7254a0d30f4f8ff8f674c5cdb4e, type: 2}
+    fontSizeOffset: 2
     voiceLineLibrary: {fileID: 11400000, guid: 976abb6637474798be74cc8a55a4278c, type: 2}
-  - id: de
-    displayName: Deutch
-    uiCsv: {fileID: 4900000, guid: 976f5f3552bcf6f498aeddc93558c39d, type: 3}
-    inkStory: {fileID: 4900000, guid: 69e75138cee8a32409b9d05781355f91, type: 3}
-    font: {fileID: 11400000, guid: 20d6bc5501a465246b295e5fdbac29ec, type: 2}
+  - id: zh
+    displayName: "\u7B80\u4F53\u4E2D\u6587"
+    uiCsv: {fileID: 4900000, guid: 96f55a55a326c67499ab854cde0543af, type: 3}
+    inkStory: {fileID: 4900000, guid: a29bebaaedf673740a86e15f83c74bf5, type: 3}
+    font: {fileID: 11400000, guid: e50be7254a0d30f4f8ff8f674c5cdb4e, type: 2}
     fontSizeOffset: 2
     voiceLineLibrary: {fileID: 11400000, guid: 976abb6637474798be74cc8a55a4278c, type: 2}
   defaultLocaleId: en

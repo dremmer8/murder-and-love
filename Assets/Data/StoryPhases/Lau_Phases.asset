@@ -20,12 +20,12 @@ MonoBehaviour:
     knotName: LAU_story_phase_1
     requiredProgression: 2
     maxProgression: 4
-    playOnce: 0
+    playOnce: 1
   - storyPhase: 7
     knotName: LAU_story_phase_2
     requiredProgression: 5
     maxProgression: 11
-    playOnce: 0
+    playOnce: 1
   - storyPhase: 19
     knotName: LAU_story_phase_3
     requiredProgression: 18
