@@ -6373,7 +6373,7 @@ MonoBehaviour:
 
 '
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: e50be7254a0d30f4f8ff8f674c5cdb4e, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: d9b5ff1ad5cedaa4eb069bb9319c5d96, type: 2}
   m_sharedMaterial: {fileID: 2827842678646124287, guid: e50be7254a0d30f4f8ff8f674c5cdb4e, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
@@ -13996,7 +13996,7 @@ MonoBehaviour:
       m_Calls: []
   m_text: Run Zan - Game Writing, Management of Voice Over
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: e50be7254a0d30f4f8ff8f674c5cdb4e, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: d9b5ff1ad5cedaa4eb069bb9319c5d96, type: 2}
   m_sharedMaterial: {fileID: 2827842678646124287, guid: e50be7254a0d30f4f8ff8f674c5cdb4e, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
@@ -15478,9 +15478,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\xD6mer Tuna \xD6cal - Code\n"
+  m_text: "\xD6mer Tuna \xD6cal - Game programmer\n"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: e50be7254a0d30f4f8ff8f674c5cdb4e, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: d9b5ff1ad5cedaa4eb069bb9319c5d96, type: 2}
   m_sharedMaterial: {fileID: 2827842678646124287, guid: e50be7254a0d30f4f8ff8f674c5cdb4e, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
@@ -16030,7 +16030,7 @@ MonoBehaviour:
   m_fontColor32:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+  m_fontColor: {r: 0.6792453, g: 0.06664292, b: 0.06664292, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -19397,11 +19397,11 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Aki - The Dog
+  m_text: 'Aki - Emotional Support Dog
 
 '
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: e50be7254a0d30f4f8ff8f674c5cdb4e, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: d9b5ff1ad5cedaa4eb069bb9319c5d96, type: 2}
   m_sharedMaterial: {fileID: 2827842678646124287, guid: e50be7254a0d30f4f8ff8f674c5cdb4e, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
@@ -20078,7 +20078,7 @@ MonoBehaviour:
 
 '
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: e50be7254a0d30f4f8ff8f674c5cdb4e, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: d9b5ff1ad5cedaa4eb069bb9319c5d96, type: 2}
   m_sharedMaterial: {fileID: 2827842678646124287, guid: e50be7254a0d30f4f8ff8f674c5cdb4e, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
@@ -22045,9 +22045,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Pavel Arkhipov - Project Lead, Game Design Code
+  m_text: Pavel Arkhipov - Project Lead, Game Design, Programming
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: e50be7254a0d30f4f8ff8f674c5cdb4e, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: d9b5ff1ad5cedaa4eb069bb9319c5d96, type: 2}
   m_sharedMaterial: {fileID: 2827842678646124287, guid: e50be7254a0d30f4f8ff8f674c5cdb4e, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
@@ -23549,7 +23549,7 @@ MonoBehaviour:
 
 '
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: e50be7254a0d30f4f8ff8f674c5cdb4e, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: d9b5ff1ad5cedaa4eb069bb9319c5d96, type: 2}
   m_sharedMaterial: {fileID: 2827842678646124287, guid: e50be7254a0d30f4f8ff8f674c5cdb4e, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
@@ -24445,11 +24445,11 @@ MonoBehaviour:
   interactKey: 0
   recheckWhileInside: 1
   requiredStayDuration: 0
-  minStoryPhase: 0
-  useMaxStoryPhase: 0
-  maxStoryPhase: 0
-  useForcedStoryPhase: 0
-  forcedStoryPhase: 1
+  minStoryPhase: 5
+  useMaxStoryPhase: 1
+  maxStoryPhase: 11
+  useForcedStoryPhase: 1
+  forcedStoryPhase: 7
   presentationMode: 0
   forceCancelPrevious: 0
   isRespondSupportPager: 0
@@ -26341,6 +26341,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1697653118}
+  - component: {fileID: 1697653119}
   m_Layer: 5
   m_Name: Credits
   m_TagString: Untagged
@@ -26371,6 +26372,18 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1697653119
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1697653117}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b3f7c1d9e4a5426d8c0b2f7a1e6d3948, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1699228606
 GameObject:
   m_ObjectHideFlags: 0
@@ -26432,7 +26445,7 @@ MonoBehaviour:
 
 '
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: e50be7254a0d30f4f8ff8f674c5cdb4e, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: d9b5ff1ad5cedaa4eb069bb9319c5d96, type: 2}
   m_sharedMaterial: {fileID: 2827842678646124287, guid: e50be7254a0d30f4f8ff8f674c5cdb4e, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
@@ -26814,7 +26827,7 @@ MonoBehaviour:
 
 '
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: e50be7254a0d30f4f8ff8f674c5cdb4e, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: d9b5ff1ad5cedaa4eb069bb9319c5d96, type: 2}
   m_sharedMaterial: {fileID: 2827842678646124287, guid: e50be7254a0d30f4f8ff8f674c5cdb4e, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
@@ -27484,7 +27497,7 @@ MonoBehaviour:
 
 '
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: e50be7254a0d30f4f8ff8f674c5cdb4e, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: d9b5ff1ad5cedaa4eb069bb9319c5d96, type: 2}
   m_sharedMaterial: {fileID: 2827842678646124287, guid: e50be7254a0d30f4f8ff8f674c5cdb4e, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
@@ -28093,7 +28106,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff7690d6943d30c4097de0453588a032, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  activationMode: 1
+  activationMode: 2
   interactKey: 0
   recheckWhileInside: 0
   requiredStayDuration: 0
@@ -89111,6 +89124,8 @@ MonoBehaviour:
     hintText: Click the door to close it
     anchor: {fileID: 0}
     anchorCollider: {fileID: 8173991814832717677}
+  dialogueOnExit: {fileID: 0}
+  dialogueOnExitDelay: 0
 --- !u!1 &4610137962743174616
 GameObject:
   m_ObjectHideFlags: 0
@@ -94374,6 +94389,8 @@ MonoBehaviour:
   autoEndDelay: 4.36
   controlHints: 
   stepHints: []
+  dialogueOnExit: {fileID: 1829389208}
+  dialogueOnExitDelay: 0
 --- !u!65 &5841222070183260355
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -99741,6 +99758,8 @@ MonoBehaviour:
     hintText: Insert a bill into the slot
     anchor: {fileID: 242282680}
     anchorCollider: {fileID: 0}
+  dialogueOnExit: {fileID: 0}
+  dialogueOnExitDelay: 0
 --- !u!4 &6780551180285557193 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8311203784212813538, guid: 440be01638b24c34786e3b838f0b3a34, type: 3}

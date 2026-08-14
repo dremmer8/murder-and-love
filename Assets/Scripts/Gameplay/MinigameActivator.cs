@@ -59,10 +59,18 @@ public class MinigameActivator : MonoBehaviour
     [Tooltip("World-space step hints driven by MinigameStepHintPresenter. Step ids must match IMinigameStepHintSource on this hierarchy.")]
     [SerializeField] List<MinigameStepHintEntry> stepHints = new();
 
+    [Header("Exit Dialogue")]
+    [Tooltip("Fired once this minigame exits. Set the trigger to External Event so nothing else can start it.")]
+    [SerializeField] DialogueTrigger dialogueOnExit;
+
+    [Tooltip("Extra seconds to wait after the exit camera transition before starting Dialogue On Exit.")]
+    [SerializeField] float dialogueOnExitDelay;
+
     bool _activated;
     bool _interactionLocked;
     Coroutine _visibilityRoutine;
     Coroutine _autoEndRoutine;
+    Coroutine _exitDialogueRoutine;
 
     static int s_ActiveCount;
 
@@ -169,6 +177,7 @@ public class MinigameActivator : MonoBehaviour
 
         StopAutoEndTimer();
         StopVisibilityRoutine();
+        StopExitDialogueRoutine();
 
         if (_activated)
             SetActivated(false);
@@ -237,6 +246,7 @@ public class MinigameActivator : MonoBehaviour
             ApplyVisibilityForExit();
 
         SetActivated(false);
+        StartExitDialogue();
     }
 
     void SetActivated(bool value)
@@ -390,6 +400,39 @@ public class MinigameActivator : MonoBehaviour
 
         _autoEndRoutine = null;
         Exit();
+    }
+
+    void StartExitDialogue()
+    {
+        if (dialogueOnExit == null)
+            return;
+
+        StopExitDialogueRoutine();
+        _exitDialogueRoutine = StartCoroutine(StartExitDialogueWhenSettled());
+    }
+
+    void StopExitDialogueRoutine()
+    {
+        if (_exitDialogueRoutine == null)
+            return;
+
+        StopCoroutine(_exitDialogueRoutine);
+        _exitDialogueRoutine = null;
+    }
+
+    IEnumerator StartExitDialogueWhenSettled()
+    {
+        // Starting mid-transition would fight the camera on its way back to the player.
+        while (CameraManager.Instance != null && CameraManager.Instance.IsTransitioning)
+            yield return null;
+
+        if (dialogueOnExitDelay > 0f)
+            yield return new WaitForSeconds(dialogueOnExitDelay);
+
+        _exitDialogueRoutine = null;
+
+        if (dialogueOnExit != null)
+            dialogueOnExit.TryStartDialogue();
     }
 
     static void SetActiveList(List<GameObject> list, bool active)

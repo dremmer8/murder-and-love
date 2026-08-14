@@ -9,7 +9,8 @@ using UnityEngine.SceneManagement;
 /// <para>
 /// Assigning <c>font</c> resets the material to the font asset default, so the shader variant the
 /// label was rendering with (e.g. Distance Field Overlay) is re-applied afterwards. Labels whose font
-/// the catalogue lists under preserved fonts — the pager's pixel screen and friends — are skipped.
+/// the catalogue lists under preserved fonts — the pager's pixel screen and friends — are skipped, as
+/// are labels under a <see cref="KeepAuthoredFont"/> marker.
 /// </para>
 /// </summary>
 [DefaultExecutionOrder(-45)]
@@ -124,7 +125,7 @@ public class LocalizedFontApplier : MonoBehaviour
         CaptureOriginal(label, id);
         OriginalStyle original = _originals[id];
 
-        if (LocalizationService.IsFontPreserved(original.Font))
+        if (LocalizationService.IsFontPreserved(original.Font) || KeepsAuthoredFont(label))
         {
             RestoreOriginalFontAndMaterial(label, original);
             if (!Mathf.Approximately(label.fontSize, original.FontSize))
@@ -154,6 +155,15 @@ public class LocalizedFontApplier : MonoBehaviour
         {
             label.fontSize = original.FontSize;
         }
+    }
+
+    /// <summary>
+    /// The marker sits on a parent so one component covers a whole screen; the search includes
+    /// inactive objects because screens such as the credits are scanned while still hidden.
+    /// </summary>
+    static bool KeepsAuthoredFont(TMP_Text label)
+    {
+        return label.GetComponentInParent<KeepAuthoredFont>(true) != null;
     }
 
     void CaptureOriginal(TMP_Text label, int id)

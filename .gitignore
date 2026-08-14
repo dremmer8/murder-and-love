@@ -37,6 +37,9 @@
 # Visual Studio cache directory
 .vs/
 
+# Visual Studio workload manifest regenerated whenever the project is opened
+.vsconfig
+
 # Gradle cache directory
 .gradle/
 

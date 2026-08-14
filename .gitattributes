@@ -11,3 +11,7 @@
 # Line endings: prefer Unity/FMOD binary assets stay binary (no CRLF “corruption”)
 *.bank binary
 *.strings.bank binary
+
+# macOS .bundle contents (incl. Info.plist) must keep LF, or FMOD prompts to
+# "Repair FMOD Libraries" on every editor launch.
+Assets/Plugins/FMOD/platforms/mac/** -text
