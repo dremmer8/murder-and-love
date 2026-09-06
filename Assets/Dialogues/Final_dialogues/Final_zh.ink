@@ -752,7 +752,7 @@ VAR knows_backroom = false
 杰：别忘了 —— 用强力洗衣液。 # vo:p_10_l_3
 杰：我收拾好了。在开往码头。 # vo:p_10_l_4
 杰：你清洗快点！！！ # vo:p_10_l_5
-杰：晚点再聊。 # vo:p_10_l_6
+杰：晚点再说。 # vo:p_10_l_6
 ~ ChangeCamera("Player")
 -> END
 
@@ -884,13 +884,13 @@ VAR knows_backroom = false
 王太太：我不得不说，有些男人真的是没用... # vo:p_15_l_33
 醉警：你们说话声音是不是太大了点，嗯？ # vo:p_15_l_34
    ~ LookAtTarget("Lau1", 0.75)
-   *** [我们刚才在聊你]
-   你：我们刚才在聊你。 # vo:p_15_l_35
+   *** [我们刚才在说你]
+   你：我们刚才在说你。 # vo:p_15_l_35
    ~ ChangeCamera("l1")
    醉警：我？我才不没用，我是整个警署最厉害的警察。 # vo:p_15_l_36
-   *** [没在聊你]
+   *** [没在说你]
     ~ ChangeCamera("l1")
-   你：我们没在聊你。 # vo:p_15_l_37
+   你：我们没在说你。 # vo:p_15_l_37
    醉警：... # vo:p_15_l_38
    ---
    ~ RestoreLook(0.75)
@@ -1342,7 +1342,7 @@ VAR knows_backroom = false
          - - -
          ~ TriggerAnimation("Mandy", "doTalk")
          王太太：你可以对我完全坦白的，李小姐。 # vo:p_26_l_13
-         王太太：每次你从后备间出来都跟个幽灵似的，而且... # vo:p_26_l_14
+         王太太：每次你从后备间出来都跟个鬼似的，而且... # vo:p_26_l_14
          王太太：你衣服上的血色比你脸上的血色还要多。 # vo:p_26_l_15
          -> Mandy_smoking_scene_2
 
