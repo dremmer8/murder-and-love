@@ -198,6 +198,7 @@ You: Never mind what I said. # vo:p_2_l_15
 -> clothes_question
 
 = clothes_question
+~ ChangeCamera("l1")
 { boyfriend_needs_clothes:
     Drunk Cop: So? Your boyfriend wants you to wash clothes in the middle of the night? # vo:p_2_l_16
 - else:
@@ -205,6 +206,7 @@ You: Never mind what I said. # vo:p_2_l_15
 }
 
 -(questions_clothes)
+~ ChangeCamera("Player")
 * {not boyfriend_needs_clothes} [Can’t sleep] 
 You: I can’t sleep. # vo:p_2_l_18
 Drunk Cop: But why would you come to a laundromat at 3am? # vo:p_2_l_19

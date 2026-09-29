@@ -198,6 +198,7 @@ VAR knows_backroom = false
 -> clothes_question
 
 = clothes_question
+~ ChangeCamera("l1")
 { boyfriend_needs_clothes:
     醉警：所以呢？你男朋友让你大半夜出来洗衣服？ # vo:p_2_l_16
 - else:
@@ -205,6 +206,7 @@ VAR knows_backroom = false
 }
 
 -(questions_clothes)
+~ ChangeCamera("Player")
 * {not boyfriend_needs_clothes} [睡不着] 
 你：我睡不着。 # vo:p_2_l_18
 醉警：但你为什么要凌晨三点跑来洗衣店？ # vo:p_2_l_19
@@ -292,7 +294,7 @@ VAR knows_backroom = false
 -> END
 
 // =============================================================================
-//  PHASE 2 getting into the laundromat无新消息欸~简体中文
+//  PHASE 2 getting into the laundromat
 // =============================================================================
 == Mandy_story_phase_1 ==
 ~ game_progression = 2
@@ -1494,7 +1496,7 @@ VAR knows_backroom = false
 // =============================================================================
 == Boyfriend_ending_dialogue_final ==
 ~ game_progression = 31
-你：我已经搞定了。 # vo:p_31_l_1
+你：我搞定了。 # vo:p_31_l_1
 宇杰：我也刚到家。 # vo:p_31_l_2
 宇杰：我爱你。 # vo:p_31_l_3
 你：我也爱你。 # vo:p_31_l_4
